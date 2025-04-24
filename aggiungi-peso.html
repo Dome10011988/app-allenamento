@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aggiungi Peso</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    :root {
+      --primary-color: #00a86b;
+      --light-color: #f4f4f4;
+      --bg-color: #ffffff;
+      --text-color: #333;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--light-color);
+      padding: 20px;
+      margin: 0;
+      color: var(--text-color);
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--primary-color);
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      background-color: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+
+    input, button {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      width: 100%;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #008f5a;
+    }
+
+    canvas {
+      max-width: 600px;
+      margin: 30px auto;
+      display: block;
+    }
+
+    .entry-list {
+      margin: 20px auto;
+      max-width: 400px;
+      background: white;
+      padding: 15px;
+      border-radius: 12px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.08);
+    }
+
+    .entry {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 0.95rem;
+    }
+
+    .entry button {
+      padding: 4px 8px;
+      font-size: 0.8rem;
+      margin-left: 5px;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 0.85rem;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+  <h1>📉 Aggiungi il Tuo Peso</h1>
+
+  <form id="pesoForm">
+    <input type="date" id="data" required />
+    <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
+    <button type="submit">Salva Peso</button>
+  </form>
+
+  <canvas id="pesoChart"></canvas>
+
+  <div class="entry-list" id="listaPesi"></div>
+
+  <footer>
+    &copy; 2025 Tuo Benessere Digitale
+  </footer>
+
+  <script>
+    const form = document.getElementById('pesoForm');
+    const dataInput = document.getElementById('data');
+    const pesoInput = document.getElementById('peso');
+    const listaPesi = document.getElementById('listaPesi');
+    const chartCtx = document.getElementById('pesoChart').getContext('2d');
+
+    let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
+
+    const salvaLocalStorage = () => {
+      pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
+      localStorage.setItem('pesi', JSON.stringify(pesi));
+      mostraPesi();
+      aggiornaGrafico();
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const nuovo = {
+        data: dataInput.value,
+        peso: parseFloat(pesoInput.value)
+      };
+      pesi.push(nuovo);
+      dataInput.value = '';
+      pesoInput.value = '';
+      salvaLocalStorage();
+    });
+
+    function mostraPesi() {
+      listaPesi.innerHTML = '';
+      pesi.forEach((entry, index) => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
+          <span>${entry.data} — ${entry.peso} kg</span>
+          <span>
+            <button onclick="modifica(${index})">✏️</button>
+            <button onclick="elimina(${index})">❌</button>
+          </span>
+        `;
+        listaPesi.appendChild(div);
+      });
+    }
+
+    function elimina(index) {
+      if (confirm("Vuoi eliminare questa voce?")) {
+        pesi.splice(index, 1);
+        salvaLocalStorage();
+      }
+    }
+
+    function modifica(index) {
+      const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
+      if (nuovoPeso !== null) {
+        pesi[index].peso = parseFloat(nuovoPeso);
+        salvaLocalStorage();
+      }
+    }
+
+    let grafico = new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Peso (kg)',
+          data: [],
+          borderColor: '#00a86b',
+          backgroundColor: 'rgba(0,168,107,0.2)',
+          tension: 0.2,
+          pointRadius: 4,
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: {
+            ticks: {
+              maxRotation: 45,
+              minRotation: 45,
+            }
+          }
+        }
+      }
+    });
+
+    function aggiornaGrafico() {
+      grafico.data.labels = pesi.map(p => p.data);
+      grafico.data.datasets[0].data = pesi.map(p => p.peso);
+      grafico.update();
+    }
+
+    localStorage.setItem('pesi', JSON.stringify(datiPeso));
+
+  </script>
+</body>
+</html>
