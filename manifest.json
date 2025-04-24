@@ -1,23 +1,15 @@
 {
   "name": "App Allenamento",
   "short_name": "Allenamento",
+  "description": "Monitora allenamenti, piano alimentare e lista spesa settimanale.",
   "start_url": "/index.html",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
   "background_color": "#ffffff",
   "theme_color": "#3498db",
   "icons": [
-    {
-      "src": "/kettlebell-preview.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    },
-    {
-      "src": "/kettlebell-preview.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    }
-  ],
-  "description": "App per monitorare i tuoi allenamenti e progressi.",
-  "orientation": "portrait",
-  "scope": "/"
+    { "src": "/kettlebell-preview.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/kettlebell-preview.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }
