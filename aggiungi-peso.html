@@ -112,98 +112,98 @@
   </footer>
 
   <script>
-    const form = document.getElementById('pesoForm');
-    const dataInput = document.getElementById('data');
-    const pesoInput = document.getElementById('peso');
-    const listaPesi = document.getElementById('listaPesi');
-    const chartCtx = document.getElementById('pesoChart').getContext('2d');
+  const form = document.getElementById('pesoForm');
+  const dataInput = document.getElementById('data');
+  const pesoInput = document.getElementById('peso');
+  const listaPesi = document.getElementById('listaPesi');
+  const chartCtx = document.getElementById('pesoChart').getContext('2d');
 
-    let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
+  let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
 
-    const salvaLocalStorage = () => {
-      pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
-      localStorage.setItem('pesi', JSON.stringify(pesi));
-      mostraPesi();
-      aggiornaGrafico();
+  const salvaLocalStorage = () => {
+    pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
+    localStorage.setItem('pesi', JSON.stringify(pesi));
+    mostraPesi();
+    aggiornaGrafico();
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const nuovo = {
+      data: dataInput.value,
+      peso: parseFloat(pesoInput.value)
     };
+    pesi.push(nuovo);
+    dataInput.value = '';
+    pesoInput.value = '';
+    salvaLocalStorage();
+  });
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const nuovo = {
-        data: dataInput.value,
-        peso: parseFloat(pesoInput.value)
-      };
-      pesi.push(nuovo);
-      dataInput.value = '';
-      pesoInput.value = '';
-      salvaLocalStorage();
+  function mostraPesi() {
+    listaPesi.innerHTML = '';
+    pesi.forEach((entry, index) => {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `
+        <span>${entry.data} — ${entry.peso} kg</span>
+        <span>
+          <button onclick="modifica(${index})">✏️</button>
+          <button onclick="elimina(${index})">❌</button>
+        </span>
+      `;
+      listaPesi.appendChild(div);
     });
+  }
 
-    function mostraPesi() {
-      listaPesi.innerHTML = '';
-      pesi.forEach((entry, index) => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `
-          <span>${entry.data} — ${entry.peso} kg</span>
-          <span>
-            <button onclick="modifica(${index})">✏️</button>
-            <button onclick="elimina(${index})">❌</button>
-          </span>
-        `;
-        listaPesi.appendChild(div);
-      });
+  function elimina(index) {
+    if (confirm("Vuoi eliminare questa voce?")) {
+      pesi.splice(index, 1);
+      salvaLocalStorage();
     }
+  }
 
-    function elimina(index) {
-      if (confirm("Vuoi eliminare questa voce?")) {
-        pesi.splice(index, 1);
-        salvaLocalStorage();
-      }
+  function modifica(index) {
+    const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
+    if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
+      pesi[index].peso = parseFloat(nuovoPeso);
+      salvaLocalStorage();
     }
+  }
 
-    function modifica(index) {
-      const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
-      if (nuovoPeso !== null) {
-        pesi[index].peso = parseFloat(nuovoPeso);
-        salvaLocalStorage();
-      }
-    }
-
-    let grafico = new Chart(chartCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Peso (kg)',
-          data: [],
-          borderColor: '#00a86b',
-          backgroundColor: 'rgba(0,168,107,0.2)',
-          tension: 0.2,
-          pointRadius: 4,
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          x: {
-            ticks: {
-              maxRotation: 45,
-              minRotation: 45,
-            }
+  let grafico = new Chart(chartCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Peso (kg)',
+        data: [],
+        borderColor: '#00a86b',
+        backgroundColor: 'rgba(0,168,107,0.2)',
+        tension: 0.2,
+        pointRadius: 4,
+        fill: true,
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        x: {
+          ticks: {
+            maxRotation: 45,
+            minRotation: 45,
           }
         }
       }
-    });
-
-    function aggiornaGrafico() {
-      grafico.data.labels = pesi.map(p => p.data);
-      grafico.data.datasets[0].data = pesi.map(p => p.peso);
-      grafico.update();
     }
+  });
 
-    localStorage.setItem('pesi', JSON.stringify(datiPeso));
+  function aggiornaGrafico() {
+    grafico.data.labels = pesi.map(p => p.data);
+    grafico.data.datasets[0].data = pesi.map(p => p.peso);
+    grafico.update();
+  }
 
-  </script>
-</body>
-</html>
+  // Carica tutto al primo avvio
+  mostraPesi();
+  aggiornaGrafico();
+</script>
