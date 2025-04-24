@@ -2,9 +2,8 @@
 <html lang="it">
 <head>
   <link rel="manifest" href="/manifest.json" />
-<meta property="og:image" content="/kettlebell-preview.png" />
-<meta name="twitter:image" content="/kettlebell-preview.png" />
-
+  <meta property="og:image" content="/kettlebell-preview.png" />
+  <meta name="twitter:image" content="/kettlebell-preview.png" />
   <title>🏠 Home</title>
   <style>
     :root {
@@ -29,19 +28,20 @@
     }
     .button {
       width: 100%;
-      max-width: 300px;
-      padding: 14px;
-      margin: 10px 0;
-      font-size: 1.1rem;
+      max-width: 350px; /* Aumentato per rendere il bottone più largo */
+      padding: 20px; /* Aumentato il padding per un bottone più grande */
+      margin: 15px 0; /* Margine maggiore per spaziatura */
+      font-size: 1.5rem; /* Aumentata la dimensione del testo */
       color: #fff;
       background: var(--primary);
       border: none;
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s;
+      text-align: center; /* Centra il testo nel bottone */
     }
     .button:hover {
-      background: darken(var(--primary),10%);
+      background: darken(var(--primary), 10%);
     }
   </style>
 </head>
@@ -52,7 +52,7 @@
       console.log("Service Worker registrato");
     });
   }
-</script>
+  </script>
   <h1>🏠 Benvenuto</h1>
   <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
   <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
