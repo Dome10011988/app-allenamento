@@ -1,7 +1,8 @@
-<!DOCTYPE html>
+v<!DOCTYPE html>
 <html lang="it">
 <head>
-  <link rel="manifest" href="/manifest.json" />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#3498db">
   <meta property="og:image" content="/kettlebell-preview.png" />
   <meta name="twitter:image" content="/kettlebell-preview.png" />
   <title>🏠 Home</title>
@@ -47,12 +48,14 @@
 </head>
 <body>
   <script>
-  if ("serviceWorker" in navigator) {
-    navigator.serviceWorker.register("/sw.js").then(() => {
-      console.log("Service Worker registrato");
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(() => console.log('SW registrato'))
+        .catch(err => console.error('SW errore:', err));
     });
   }
-  </script>
+</script>
   <h1>🏠 Benvenuto</h1>
   <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
   <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
