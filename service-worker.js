@@ -10,6 +10,7 @@ const ASSETS = [
   '/service-worker/manifest.json'
 ];
 
+// Installazione e caching degli asset
 self.addEventListener('install', e => {
   e.waitUntil(
     caches.open(CACHE_NAME)
@@ -18,15 +19,13 @@ self.addEventListener('install', e => {
   );
 });
 
-self.addEventListener('activate', e => {
-  e.waitUntil(
-    caches.keys().then(keys => Promise.all(
-      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
-    ))
-    .then(() => self.clients.claim())
-  );
+// Gestione click sulle notifiche
+self.addEventListener('notificationclick', function(event) {
+  event.notification.close();
+  event.waitUntil(clients.openWindow('/index.html'));
 });
 
+// Strategia di fetch: cache first per navigazioni e asset
 self.addEventListener('fetch', e => {
   const req = e.request;
   if (req.mode === 'navigate') {
@@ -48,4 +47,26 @@ self.addEventListener('fetch', e => {
       }))
     );
   }
+});
+
+// ✅ Gestione notifiche push (base)
+self.addEventListener('push', function(event) {
+  const data = event.data?.json() || {
+    title: 'Promemoria Allenamento!',
+    body: 'È ora di allenarti! 💪',
+    icon: '/kettlebell-preview.png'
+  };
+
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: '/kettlebell-preview.png',
+    data: {
+      url: '/index.html'
+    }
+  };
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
