@@ -1,9 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <link rel="manifest" href="/manifest.json">
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#3498db" />
   <title>🏠 Home</title>
   <style>
     :root {
@@ -45,7 +44,13 @@
   </style>
 </head>
 <body>
-  <script src="/main.js"></script>
+  <script>
+  if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("/sw.js").then(() => {
+      console.log("Service Worker registrato");
+    });
+  }
+</script>
   <h1>🏠 Benvenuto</h1>
   <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
   <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
@@ -53,7 +58,3 @@
   <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
 </body>
 </html>
-
-    
-
-
