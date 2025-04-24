@@ -3,13 +3,12 @@
   "short_name": "Allenamento",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#3498db",
-  "icons": [
-    {
-      "src": "/kettlebell-preview.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
-}
+"background_color": "#ffffff",
+"theme_color": "#3498db",
+"icons": [
+  {
+    "src": "/icons/kettlebell-preview.png",
+    "sizes": "512x512",
+    "type": "image/png"
+  }
+]
