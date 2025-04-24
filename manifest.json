@@ -7,7 +7,7 @@
 "theme_color": "#3498db",
 "icons": [
   {
-    "src": "/icons/kettlebell-preview.png",
+    "src": "/kettlebell-preview.png",
     "sizes": "512x512",
     "type": "image/png"
   }
