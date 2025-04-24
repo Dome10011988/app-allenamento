@@ -1,47 +1,51 @@
-const CACHE_NAME = 'piano-allenamento-cache-v1';
-const urlsToCache = [
+const CACHE_NAME = 'app-allenamento-v1';
+const ASSETS = [
   '/',
   '/index.html',
-  '/style.css',
-  '/main.js',
-  // Aggiungi qui altri URL che vuoi che vengano memorizzati in cache
+  '/programma-allenamento.html',
+  '/piano-alimentare.html',
+  '/lista-spesa-giornaliera.html',
+  '/aggiungi-peso.html',
+  '/kettlebell-preview.png',
+  '/service-worker/manifest.json'
 ];
 
-// Installazione del Service Worker
-self.addEventListener('install', (event) => {
-  event.waitUntil(
+self.addEventListener('install', e => {
+  e.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(urlsToCache);
-      })
+      .then(cache => cache.addAll(ASSETS))
+      .then(() => self.skipWaiting())
   );
 });
 
-// Attivazione del Service Worker
-self.addEventListener('activate', (event) => {
-  const cacheWhitelist = [CACHE_NAME];
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (!cacheWhitelist.includes(cacheName)) {
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    })
+self.addEventListener('activate', e => {
+  e.waitUntil(
+    caches.keys().then(keys => Promise.all(
+      keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k))
+    ))
+    .then(() => self.clients.claim())
   );
 });
 
-// Fetch per la gestione della cache offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        return fetch(event.request);
-      })
-  );
+self.addEventListener('fetch', e => {
+  const req = e.request;
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req)
+        .then(res => caches.open(CACHE_NAME).then(cache => {
+          cache.put(req, res.clone());
+          return res;
+        }))
+        .catch(() => caches.match('/'))
+    );
+  } else {
+    e.respondWith(
+      caches.match(req).then(cached => cached || fetch(req).then(res => {
+        return caches.open(CACHE_NAME).then(cache => {
+          cache.put(req, res.clone());
+          return res;
+        });
+      }))
+    );
+  }
 });
