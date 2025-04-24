@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <link rel="manifest" href="/manifest.json">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🏠 Home</title>
+  <style>
+    :root {
+      --primary: #3498db;
+      --light-bg: #f4f4f4;
+      --card-bg: #fff;
+      --text: #333;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: var(--light-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+    h1 {
+      color: var(--text);
+      margin-bottom: 30px;
+    }
+    .button {
+      width: 100%;
+      max-width: 300px;
+      padding: 14px;
+      margin: 10px 0;
+      font-size: 1.1rem;
+      color: #fff;
+      background: var(--primary);
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    .button:hover {
+      background: darken(var(--primary),10%);
+    }
+  </style>
+</head>
+<body>
+  <script src="/main.js"></script>
+  <h1>🏠 Benvenuto</h1>
+  <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
+</body>
+</html>
+
+    
+
+
