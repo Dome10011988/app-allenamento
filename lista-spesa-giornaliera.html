@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lista Spesa Giornaliera</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f9f9f9;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+    .day {
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      padding: 15px;
+      margin-bottom: 20px;
+      width: 90%;
+      max-width: 500px;
+    }
+    .day h2 {
+      font-size: 1.2em;
+      color: #2980b9;
+      margin-bottom: 10px;
+    }
+    ul {
+      padding-left: 20px;
+      margin: 0;
+    }
+    li {
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+    .button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1em;
+    }
+  </style>
+</head>
+<body>
+  <h1>🛒 Lista Spesa Giornaliera</h1>
+
+  <div id="daysContainer"></div>
+
+  <button class="button" onclick="window.location.href='index.html'">
+    🏠 Torna alla Home
+  </button>
+
+  <script>
+    const shoppingData = {
+      'Lunedì': [
+        ['Latte', '200 ml', '150 ml'],
+        ['Avena', '40 g', '30 g'],
+        ['Frutti di bosco', '100 g', '70 g'],
+        ['Miele', '1 cucchiaino', '1 cucchiaino'],
+        ['Frutta secca mista', '20 g', '15 g'],
+        ['Pollo', '150 g', '120 g'],
+        ['Riso basmati', '100 g', '70 g'],
+        ['Verdure miste', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g'],
+        ['Pane integrale', '30 g', '20 g'],
+        ['Merluzzo', '150 g', '120 g']
+      ],
+      'Martedì': [
+        ['Yogurt greco', '150 g', '125 g'],
+        ['Granola', '20 g', '15 g'],
+        ['Frutto', '1 medio', '1 piccolo'],
+        ['Frutta secca', '20 g', '15 g'],
+        ['Tacchino', '150 g', '120 g'],
+        ['Cous cous', '100 g', '70 g'],
+        ['Zucchine', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g'],
+        ['Pane integrale', '30 g', '20 g'],
+        ['Branzino', '150 g', '120 g']
+      ],
+      'Mercoledì': [
+        ['Latte', '200 ml', '150 ml'],
+        ['Avena', '40 g', '30 g'],
+        ['Kiwi', '100 g', '70 g'],
+        ['Miele', '1 cucchiaino', '1 cucchiaino'],
+        ['Frutta secca', '20 g', '15 g'],
+        ['Pollo', '150 g', '120 g'],
+        ['Patate dolci', '100 g', '70 g'],
+        ['Insalata verde', 'q.b.', 'q.b.'],
+        ['Salmone', '150 g', '120 g'],
+        ['Asparagi', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g'],
+        ['Pane integrale', '30 g', '20 g']
+      ],
+      'Giovedì': [
+        ['Latte vegetale', '200 ml', '150 ml'],
+        ['Banana', '1', '1/2'],
+        ['Spinaci', 'q.b.', 'q.b.'],
+        ['Frutta secca', '20 g', '15 g'],
+        ['Vitello', '150 g', '120 g'],
+        ['Riso integrale', '100 g', '70 g'],
+        ['Verdure miste', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g'],
+        ['Pane integrale', '30 g', '20 g'],
+        ['Orata al cartoccio', '150 g', '120 g']
+      ],
+      'Venerdì': [
+        ['Latte', '200 ml', '150 ml'],
+        ['Avena', '40 g', '30 g'],
+        ['Mirtilli', '100 g', '70 g'],
+        ['Miele', '1 cucchiaino', '1 cucchiaino'],
+        ['Frutta secca', '20 g', '15 g'],
+        ['Tacchino', '150 g', '120 g'],
+        ['Quinoa', '100 g', '70 g'],
+        ['Verdure crude', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g'],
+        ['Pane integrale', '30 g', '20 g'],
+        ['Tonno grigliato', '150 g', '120 g']
+      ],
+      'Sabato': [
+        ['Yogurt greco', '150 g', '125 g'],
+        ['Miele', '1 cucchiaio', '1 cucchiaino'],
+        ['Frutto', '1 medio', '1 piccolo'],
+        ['Frutta secca', '20 g', '15 g'],
+        ['Pollo', '150 g', '120 g'],
+        ['Riso basmati', '100 g', '70 g'],
+        ['Verdure miste', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g'],
+        ['Pane integrale', '30 g', '20 g'],
+        ['Sgombro al forno', '150 g', '120 g']
+      ],
+      'Domenica': [
+        ['Albumi', '3', '2'],
+        ['Avena', '30 g', '20 g'],
+        ['Frutta fresca', 'q.b.', 'q.b.'],
+        ['Frutta secca', '20 g', '15 g'],
+        ['Carne magra o pesce', '150 g', '120 g'],
+        ['Verdure grigliate', 'q.b.', 'q.b.'],
+        ['Olio EVO', '5 g', '5 g']
+      ]
+    };
+
+    function parseQuantity(q) {
+      const m = q.match(/^([\d\/.,]+)\s*(.*)$/);
+      if (!m) return { value: NaN, unit: q };
+      let num = m[1].includes('/') 
+        ? m[1].split('/').reduce((a,b)=>a/b) 
+        : parseFloat(m[1].replace(',', '.'));
+      return { value: num, unit: m[2] };
+    }
+
+    function formatQuantity(val, unit) {
+      if (isNaN(val) || unit === 'q.b.') return unit;
+      const txt = Math.abs(val - Math.round(val)) < 0.01
+        ? Math.round(val)
+        : val.toFixed(1);
+      return txt + ' ' + unit;
+    }
+
+    function combine(u1, u2) {
+      const p1 = parseQuantity(u1), p2 = parseQuantity(u2);
+      if (p1.unit !== p2.unit) return u1 + ' / ' + u2;
+      return formatQuantity(p1.value + p2.value, p1.unit);
+    }
+
+    const container = document.getElementById('daysContainer');
+    for (const [day, items] of Object.entries(shoppingData)) {
+      const div = document.createElement('div');
+      div.className = 'day';
+      div.innerHTML = `<h2>${day}</h2><ul>` +
+        items.map(([ing, u1, u2]) =>
+          `<li>${ing}: ${combine(u1,u2)}</li>`
+        ).join('') +
+        `</ul>`;
+      container.appendChild(div);
+    }
+  </script>
+</body>
+</html>
