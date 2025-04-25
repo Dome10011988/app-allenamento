@@ -1,93 +1,105 @@
+/* === Variabili di Tema === */
 :root {
-  --primary-color: #4CAF50; /* Verde brillante per un aspetto fresco */
-  --secondary-color: #2C3E50; /* Colore scuro per contrasto */
-  --bg-color: #f4f7f6; /* Colore di sfondo molto chiaro */
-  --button-hover-color: #45a049; /* Colore di hover per i bottoni */
-  --text-color: #333;
-  --muted-color: #7f8c8d;
-  --footer-color: #BDC3C7;
+  --bg: #f4f4f4;
+  --bg-alt: #ffffff;
+  --primary: #3498db;       /* Blu principale */
+  --primary-hover: #2980b9; /* Blu scuro per hover */
+  --secondary: #2c3e50;
+  --text: #333333;
+  --header-text: #ffffff;
+  --muted: #777777;
 }
 
-body {
-  font-family: 'Arial', sans-serif;
+/* Tema scuro (se usi il toggle) */
+[data-theme="dark"] {
+  --bg: #121212;
+  --bg-alt: #1e1e1e;
+  --primary: #5dade2;
+  --primary-hover: #2e86c1;
+  --secondary: #e0e0e0;
+  --text: #e0e0e0;
+  --header-text: #121212;
+  --muted: #aaaaaa;
+}
+
+/* === Reset & Layout === */
+* {
+  box-sizing: border-box;
   margin: 0;
-  background-color: var(--bg-color);
-  color: var(--text-color);
-}
-
-h1.app-title {
-  text-align: center;
-  font-size: 2rem;
-  color: var(--primary-color);
-  margin-top: 40px;
-}
-
-.header {
-  background-color: var(--primary-color);
-  padding: 20px;
-  color: white;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-header h1 {
-  margin-bottom: 20px;
-}
-
-nav ul.menu {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  list-style: none;
   padding: 0;
 }
-
-nav ul.menu li {
-  display: inline-block;
+body {
+  font-family: Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
 }
 
-button.button {
-  padding: 14px 24px;
-  font-size: 1.1rem;
-  background-color: var(--primary-color);
-  color: white;
+/* === Pulsanti (.button) === */
+.button {
+  width: 100%;
+  max-width: 300px;
+  padding: 16px;
+  margin: 10px 0;
+  font-size: 1.2rem;
+  background: var(--primary);
+  color: var(--header-text);
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  width: 200px;
-  transition: background-color 0.3s ease;
+  transition: background 0.2s ease;
   text-align: center;
+  display: block;
+}
+.button:hover {
+  background: var(--primary-hover);
 }
 
-button.button:hover {
-  background-color: var(--button-hover-color);
-}
-
-footer.footer {
-  background-color: var(--footer-color);
-  padding: 10px;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--muted-color);
+/* === Toggle Tema === */
+#theme-toggle {
   position: fixed;
+  top: 15px;
+  right: 15px;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid var(--secondary);
+  background: var(--bg-alt);
+  color: var(--secondary);
+  font-size: 1.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+/* === Navbar (se presente) === */
+header, .navbar {
   width: 100%;
-  bottom: 0;
+  background: var(--primary);
+  padding: 20px;
+  text-align: center;
+  color: var(--header-text);
 }
-
-footer.footer p {
+header h1, .navbar h1 {
   margin: 0;
+  font-size: 2rem;
 }
 
+/* === Footer === */
+footer {
+  margin-top: auto;
+  padding: 10px;
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* === Responsive === */
 @media (max-width: 768px) {
-  header h1 {
-    font-size: 1.5rem;
-  }
-
-  button.button {
-    width: 90%;
-  }
-
-  nav ul.menu {
-    flex-direction: column;
-    gap: 15px;
+  .button {
+    max-width: 90%;
   }
 }
