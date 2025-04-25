@@ -2,26 +2,74 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Menu Allenamento</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🏠 Home - Fit Tracker</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Tema globale -->
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
+
+  <style>
+    /* Layout specifico per la Home */
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 20px;
+    }
+    h1 {
+      margin-bottom: 40px;
+      color: var(--primary);
+    }
+    /* Assicuriamoci che i pulsanti siano tutti uguali */
+    .button {
+      width: 100%;
+      max-width: 300px;
+      padding: 16px;
+      margin: 10px 0;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: var(--header-text);
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-align: center;
+    }
+    .button:hover {
+      background: var(--primary-hover);
+    }
+    /* Posiziona il toggle tema in alto a destra */
+    #theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+    }
+  </style>
 </head>
 <body>
-  <header class="header">
-    <h1 class="app-title">🏋️‍♂️ App Allenamento</h1>
-    <nav>
-      <ul class="menu">
-        <li><button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button></li>
-        <li><button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button></li>
-        <li><button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa</button></li>
-        <li><button class="button" onclick="location.href='aggiungi-peso.html'">📉 Aggiungi Peso</button></li>
-      </ul>
-    </nav>
-  </header>
-  
-  <footer class="footer">
-    &copy; 2025 Tuo Benessere Digitale
-  </footer>
+
+  <!-- Toggle Tema -->
+  <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+
+  <h1>🏠 Benvenuto in Fit Tracker</h1>
+
+  <!-- Pulsanti Singoli -->
+  <button class="button" onclick="location.href='programma-allenamento.html'">
+    💪 Programma Allenamento
+  </button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">
+    🍽️ Piano Alimentare
+  </button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
+    🛒 Lista Spesa Giornaliera
+  </button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">
+    ➕ Aggiungi Peso
+  </button>
+
 </body>
 </html>
