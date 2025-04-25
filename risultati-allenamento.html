@@ -3,9 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Risultati Allenamento</title>
+  <title>Risultati Allenamento OCR</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -73,6 +74,9 @@
     <button type="submit" class="btn">Salva Allenamento</button>
   </form>
 
+  <h2>Oppure Carica Foto Risultato</h2>
+  <input type="file" accept="image/*" id="file-input" class="btn">
+
   <h2>Storico Allenamenti</h2>
   <table id="tabella-allenamenti">
     <thead>
@@ -100,6 +104,7 @@
     const form = document.getElementById('form-allenamento');
     const tabellaBody = document.querySelector('#tabella-allenamenti tbody');
     const ctx = document.getElementById('grafico').getContext('2d');
+    const fileInput = document.getElementById('file-input');
 
     let chart;
 
@@ -175,6 +180,39 @@
         }
       });
     }
+
+    async function leggiFoto(file) {
+      const risultato = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+      const testo = risultato.data.text;
+      console.log(testo);
+
+      // Estrai i dati usando regex
+      const calorie = testo.match(/(\d+)\s*kcal/);
+      const durata = testo.match(/Durata\s*(\d{2}:\d{2}:\d{2})/);
+      const freqMedia = testo.match(/Frequenza cardiaca media\s*(\d+)/i);
+      const freqMax = testo.match(/Massima\s*(\d+)/i);
+      const effAerobico = testo.match(/Effetto allenamento aerobico\s*([\d\.]+)/i);
+      const effAnaerobico = testo.match(/Effetto allenamento anaerobico\s*([\d\.]+)/i);
+      const recupero = testo.match(/Tempo di recupero\s*(\d+)/i);
+
+      if (calorie) document.getElementById('calorie').value = calorie[1];
+      if (durata) document.getElementById('durata').value = durata[1];
+      if (freqMedia) document.getElementById('freq-media').value = freqMedia[1];
+      if (freqMax) document.getElementById('freq-max').value = freqMax[1];
+      if (effAerobico) document.getElementById('eff-aerobico').value = effAerobico[1];
+      if (effAnaerobico) document.getElementById('eff-anaerobico').value = effAnaerobico[1];
+      if (recupero) document.getElementById('recupero').value = recupero[1];
+
+      document.getElementById('tipo').value = "Altro"; // default
+      document.getElementById('data').valueAsDate = new Date();
+    }
+
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        leggiFoto(file);
+      }
+    });
 
     form.addEventListener('submit', salvaAllenamento);
     document.addEventListener('DOMContentLoaded', () => {
