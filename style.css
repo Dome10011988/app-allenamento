@@ -1,3 +1,11 @@
+.user-greeting {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto 20px;
+  font-size: 1.1rem;
+  color: var(--secondary);
+  text-align: right;
+}
 /* === Variabili di Tema === */
 :root {
   --bg: #f4f4f4;
