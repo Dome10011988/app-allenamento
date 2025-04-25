@@ -1,28 +1,23 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Carica Scheda Allenamento e Risultati</title>
-
-  <!-- PDF.js -->
+  <title>Carica e Visualizza Piano Allenamento</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.min.js"></script>
-  <!-- Chart.js for Results -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
-      margin: 0;
       padding: 20px;
+      margin: 0;
       color: #333;
     }
     h1 {
       text-align: center;
       color: #2c3e50;
     }
-    .upload, .results, .workout {
+    .upload, .workout {
       max-width: 900px;
       margin: 20px auto;
       padding: 20px;
@@ -50,24 +45,11 @@
     tr:nth-child(even) td {
       background: #f9f9f9;
     }
-    .back-button {
-      padding: 10px 20px;
-      background: #3498db;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-top: 10px;
-      display: block;
-      margin-left: auto;
-      margin-right: auto;
-    }
   </style>
 </head>
 <body>
 
-  <h1>📋 Carica la Scheda Allenamento e Visualizza Risultati</h1>
+  <h1>📋 Carica il Piano Allenamento</h1>
 
   <!-- Sezione Caricamento Piano Allenamento (PDF) -->
   <div class="upload">
@@ -78,33 +60,7 @@
   <!-- Sezione Visualizzazione Piano Allenamento -->
   <div class="workout" id="output"></div>
 
-  <!-- Sezione Caricamento Risultati Allenamento -->
-  <div class="results">
-    <h2>Carica Risultato Allenamento (Foto Huawei Health)</h2>
-    <input type="file" id="file-input" accept="image/*">
-    <h3>Storico Risultati</h3>
-    <table id="tabella-allenamenti">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Tipo</th>
-          <th>Durata</th>
-          <th>Calorie</th>
-          <th>Frequenza Media</th>
-          <th>Frequenza Max</th>
-          <th>Effetto Aerobico</th>
-          <th>Effetto Anaerobico</th>
-          <th>Recupero (h)</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-    <h3>Grafico Frequenza Cardiaca Media</h3>
-    <canvas id="grafico"></canvas>
-  </div>
-
   <script>
-    // Parte Caricamento e Visualizzazione PDF Piano Allenamento
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.worker.min.js';
 
     document.getElementById('pdf-upload').addEventListener('change', async function(e) {
@@ -190,98 +146,7 @@
         container.appendChild(section);
       });
     }
-
-    // Parte Risultati Allenamento
-    const form = document.getElementById('form-allenamento');
-    const tabellaBody = document.querySelector('#tabella-allenamenti tbody');
-    const ctx = document.getElementById('grafico').getContext('2d');
-    const fileInput = document.getElementById('file-input');
-
-    let chart;
-
-    form.addEventListener('submit', salvaAllenamento);
-    fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        leggiFoto(file);
-      }
-    });
-
-    function salvaAllenamento(event) {
-      event.preventDefault();
-      const allenamento = {
-        data: document.getElementById('data').value,
-        tipo: document.getElementById('tipo').value,
-        durata: document.getElementById('durata').value,
-        calorie: document.getElementById('calorie').value,
-        freqMedia: document.getElementById('freq-media').value,
-        freqMax: document.getElementById('freq-max').value,
-        effAerobico: document.getElementById('eff-aerobico').value,
-        effAnaerobico: document.getElementById('eff-anaerobico').value,
-        recupero: document.getElementById('recupero').value
-      };
-
-      let allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
-      allenamenti.push(allenamento); 
-      localStorage.setItem('allenamenti', JSON.stringify(allenamenti));
-      mostraAllenamenti();
-      aggiornaGrafico();
-    }
-
-    function mostraAllenamenti() {
-      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
-      tabellaBody.innerHTML = '';
-      allenamenti.forEach(a => {
-        const row = `<tr>
-          <td>${a.data}</td>
-          <td>${a.tipo}</td>
-          <td>${a.durata}</td>
-          <td>${a.calorie}</td>
-          <td>${a.freqMedia}</td>
-          <td>${a.freqMax}</td>
-          <td>${a.effAerobico}</td>
-          <td>${a.effAnaerobico}</td>
-          <td>${a.recupero}</td>
-        </tr>`;
-        tabellaBody.innerHTML += row;
-      });
-    }
-
-    function aggiornaGrafico() {
-      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
-      const labels = allenamenti.map(a => a.data);
-      const datiFrequenza = allenamenti.map(a => a.freqMedia);
-
-      if (chart) {
-        chart.destroy();
-      }
-
-      chart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Frequenza Media (bpm)',
-            data: datiFrequenza,
-            fill: false,
-            borderColor: '#3498db',
-            tension: 0.1
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: {
-            y: {
-              beginAtZero: false
-            }
-          }
-        }
-      });
-    }
-
-    // Carica e mostra i dati
-    mostraAllenamenti();
-    aggiornaGrafico();
   </script>
+
 </body>
 </html>
