@@ -3,29 +3,31 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Programma Allenamento + Risultati</title>
+  <title>Allenamento & Risultati</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
       padding: 20px;
-      text-align: center;
-    }
-
-    h1, h2 {
+      margin: 0;
       color: #2c3e50;
     }
 
-    form, .upload-area {
-      max-width: 400px;
-      margin: 20px auto;
-      background: #fff;
-      padding: 20px;
+    h1, h2 {
+      text-align: center;
+      color: #2c3e50;
+    }
+
+    form, .upload-area, .pdf-section {
+      background: white;
       border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      max-width: 500px;
+      margin: 20px auto;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
     input, button {
@@ -33,18 +35,18 @@
       padding: 10px;
       margin: 8px 0;
       font-size: 1rem;
+      border-radius: 6px;
       border: 1px solid #ccc;
-      border-radius: 8px;
     }
 
     button {
-      background: #2c3e50;
-      color: #fff;
+      background-color: #2c3e50;
+      color: white;
       cursor: pointer;
     }
 
     button:hover {
-      background: #1f2d3a;
+      background-color: #1f2d3a;
     }
 
     table {
@@ -56,34 +58,47 @@
     th, td {
       border: 1px solid #ccc;
       padding: 10px;
+      font-size: 0.95rem;
+      text-align: center;
     }
 
     th {
-      background: #2c3e50;
+      background-color: #2c3e50;
       color: white;
     }
 
     canvas {
-      max-width: 600px;
+      max-width: 700px;
       margin: 30px auto;
       display: block;
     }
 
     .home-btn {
-      margin-top: 20px;
-      display: inline-block;
+      display: block;
+      margin: 30px auto;
+      width: fit-content;
+      padding: 12px 24px;
       background: #2c3e50;
       color: white;
-      padding: 10px 20px;
-      text-decoration: none;
       border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    #pdf-viewer {
+      border: 1px solid #ccc;
+      margin-top: 10px;
+      background: #fff;
+      overflow: auto;
+      max-height: 600px;
     }
   </style>
 </head>
 <body>
 
-  <h1>📊 Programma Allenamento + Risultati</h1>
+  <h1>💪 Allenamento & Risultati</h1>
 
+  <!-- FORM INSERIMENTO RISULTATI -->
   <form id="form-allenamento">
     <input type="date" id="data" required />
     <input type="text" id="tipo" placeholder="Tipo attività (es: corsa, camminata)" required />
@@ -97,11 +112,21 @@
     <button type="submit">Salva Risultato</button>
   </form>
 
+  <!-- OCR FOTO -->
   <div class="upload-area">
     <h2>📷 Carica Foto Huawei Health</h2>
-    <input type="file" accept="image/*" id="foto-ocr" />
+    <input type="file" accept="image/*" id="foto-ocr">
   </div>
 
+  <!-- PDF UPLOAD -->
+  <div class="pdf-section">
+    <h2>📋 Carica Scheda Allenamento (PDF)</h2>
+    <input type="file" accept="application/pdf" id="pdf-upload">
+    <canvas id="pdf-viewer"></canvas>
+  </div>
+
+  <!-- TABELLA -->
+  <h2>📈 Storico Allenamenti</h2>
   <table id="tabella-risultati">
     <thead>
       <tr>
@@ -126,8 +151,10 @@
   <script>
     const form = document.getElementById('form-allenamento');
     const tabella = document.querySelector('#tabella-risultati tbody');
-    const fotoOCR = document.getElementById('foto-ocr');
     const ctx = document.getElementById('grafico').getContext('2d');
+    const fileOCR = document.getElementById('foto-ocr');
+    const filePDF = document.getElementById('pdf-upload');
+    const pdfCanvas = document.getElementById('pdf-viewer');
 
     let allenamenti = JSON.parse(localStorage.getItem('risultatiAllenamento')) || [];
 
@@ -142,7 +169,7 @@
         freqMax: document.getElementById('freq-max').value,
         effAerobico: document.getElementById('eff-aerobico').value,
         effAnaerobico: document.getElementById('eff-anaerobico').value,
-        recupero: document.getElementById('recupero').value,
+        recupero: document.getElementById('recupero').value
       };
       allenamenti.push(dati);
       localStorage.setItem('risultatiAllenamento', JSON.stringify(allenamenti));
@@ -151,24 +178,23 @@
       aggiornaGrafico();
     });
 
-    fotoOCR.addEventListener('change', async e => {
+    fileOCR.addEventListener('change', async e => {
       const file = e.target.files[0];
       if (!file) return;
 
       const { data: { text } } = await Tesseract.recognize(file, 'ita');
       const testo = text;
+      const match = r => (testo.match(r) || [])[1] || '';
 
-      const match = (regex) => (testo.match(regex) || [])[1];
-
-      document.getElementById('calorie').value = match(/(\d+)\s?kcal/i) || '';
-      document.getElementById('durata').value = match(/Durata\s*(\d{2}:\d{2}:\d{2})/) || '';
-      document.getElementById('freq-media').value = match(/Media.*?(\d+)/i) || '';
-      document.getElementById('freq-max').value = match(/Max.*?(\d+)/i) || '';
-      document.getElementById('eff-aerobico').value = match(/Aerobico.*?([\d.]+)/i) || '';
-      document.getElementById('eff-anaerobico').value = match(/Anaerobico.*?([\d.]+)/i) || '';
-      document.getElementById('recupero').value = match(/Recupero.*?(\d+)/i) || '';
+      document.getElementById('calorie').value = match(/(\d+)\s?kcal/i);
+      document.getElementById('durata').value = match(/Durata\s*(\d{2}:\d{2}:\d{2})/);
+      document.getElementById('freq-media').value = match(/Media.*?(\d+)/i);
+      document.getElementById('freq-max').value = match(/Max.*?(\d+)/i);
+      document.getElementById('eff-aerobico').value = match(/Aerobico.*?([\d.]+)/i);
+      document.getElementById('eff-anaerobico').value = match(/Anaerobico.*?([\d.]+)/i);
+      document.getElementById('recupero').value = match(/Recupero.*?(\d+)/i);
       document.getElementById('data').valueAsDate = new Date();
-      document.getElementById('tipo').value = 'Altro';
+      document.getElementById('tipo').value = "Huawei Health";
     });
 
     function mostraTabella() {
@@ -212,7 +238,24 @@
       });
     }
 
-    // Inizializzazione
+    filePDF.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const fileReader = new FileReader();
+      fileReader.onload = async function () {
+        const pdf = await pdfjsLib.getDocument({ data: fileReader.result }).promise;
+        const page = await pdf.getPage(1);
+        const viewport = page.getViewport({ scale: 1.5 });
+        const context = pdfCanvas.getContext('2d');
+        pdfCanvas.width = viewport.width;
+        pdfCanvas.height = viewport.height;
+        await page.render({ canvasContext: context, viewport: viewport }).promise;
+      };
+      fileReader.readAsArrayBuffer(file);
+    });
+
+    // Init
     mostraTabella();
     aggiornaGrafico();
   </script>
