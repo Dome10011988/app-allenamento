@@ -3,159 +3,153 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Programma Allenamento</title>
-  <link rel="stylesheet" href="style.css">
+  <title>Programma Allenamento Dettagliato</title>
   <style>
     body {
       font-family: Arial, sans-serif;
-      padding: 20px;
       background: #f4f4f4;
-      color: #333;
+      margin: 0;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
     }
-
     h1 {
       color: #2c3e50;
+      margin-bottom: 20px;
     }
-
-    form {
+    section {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
       background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      margin-bottom: 30px;
-      width: 100%;
-      max-width: 500px;
-    }
-
-    input, select, button {
-      padding: 10px;
-      margin: 10px 0;
-      width: 100%;
       border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      overflow: hidden;
     }
-
-    button {
+    section h2 {
       background: #3498db;
-      color: white;
-      cursor: pointer;
-      border: none;
+      color: #fff;
+      padding: 12px;
+      margin: 0;
+      font-size: 1.2rem;
     }
-
     table {
       width: 100%;
-      max-width: 700px;
-      background: #fff;
       border-collapse: collapse;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-
     th, td {
-      padding: 12px;
+      padding: 10px;
       border-bottom: 1px solid #ddd;
       text-align: left;
+      font-size: 0.95rem;
     }
-
     th {
+      background: #ecf0f1;
+    }
+    tr:nth-child(even) td {
+      background: #f9f9f9;
+    }
+    caption {
+      caption-side: top;
+      padding: 8px;
+      font-weight: bold;
+      color: #2c3e50;
+    }
+    .back-button {
+      padding: 10px 20px;
       background: #3498db;
-      color: white;
-    }
-
-    tr:last-child td {
-      border-bottom: none;
-    }
-
-    .delete-btn {
-      background: #e74c3c;
+      color: #fff;
       border: none;
-      color: white;
-      padding: 6px 10px;
       border-radius: 6px;
       cursor: pointer;
-      font-size: 0.9rem;
+      font-size: 1rem;
+      margin-top: 10px;
     }
   </style>
 </head>
 <body>
-  <h1>🏋️‍♂️ Registro Allenamenti</h1>
+  <h1>💪 Programma Allenamento - Dettagli</h1>
 
-  <form id="workout-form">
-    <label for="tipo">Tipo di allenamento:</label>
-    <input type="text" id="tipo" name="tipo" required>
+  <!-- Giorno 1 -->
+  <section>
+    <h2>Giorno 1 - Full Body Forza + Cardio Kettlebell</h2>
+    <table>
+      <caption>Dettagli Esercizi</caption>
+      <thead>
+        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Riscaldamento</td><td>Camminata veloce</td><td>5-8 min</td><td>Include rotazioni articolari</td></tr>
+        <tr><td>Riscaldamento</td><td>Rotazioni articolari (spalle, anche, ginocchia)</td><td>5-8 min</td><td></td></tr>
+        <tr><td>Allenamento (5 giri)</td><td>Kettlebell swing</td><td>15 rip</td><td></td></tr>
+        <tr><td></td><td>Squat (con o senza kettlebell)</td><td>15 rip</td><td></td></tr>
+        <tr><td></td><td>Rematore per braccio</td><td>10 rip</td><td></td></tr>
+        <tr><td></td><td>Push-up (su panca se necessario)</td><td>10 rip</td><td></td></tr>
+        <tr><td></td><td>Plank</td><td>30 sec</td><td></td></tr>
+        <tr><td>Pausa</td><td>Recupero attivo</td><td>30-45 sec</td><td>Tra i giri</td></tr>
+        <tr><td>Finale cardio</td><td>Marcia veloce o corsetta leggera</td><td>5 min</td><td></td></tr>
+      </tbody>
+    </table>
+  </section>
 
-    <label for="durata">Durata (minuti):</label>
-    <input type="number" id="durata" name="durata" required min="1">
+  <!-- Giorno 2 -->
+  <section>
+    <h2>Giorno 2 - Cardio HIIT Camminata/Corsa</h2>
+    <table>
+      <caption>Dettagli Esercizi</caption>
+      <thead>
+        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Riscaldamento</td><td>Camminata normale</td><td>5-8 min</td><td></td></tr>
+        <tr><td>Allenamento</td><td>Camminata veloce</td><td>1 min</td><td></td></tr>
+        <tr><td></td><td>Corsa leggera</td><td>30 sec</td><td></td></tr>
+        <tr><td>Ripetizioni</td><td>Alterna camminata e corsa</td><td>25-30 min</td><td></td></tr>
+        <tr><td>Defaticamento</td><td>Camminata normale + stretching (gambe e schiena)</td><td>5-10 min</td><td></td></tr>
+      </tbody>
+    </table>
+  </section>
 
-    <label for="calorie">Calorie bruciate:</label>
-    <input type="number" id="calorie" name="calorie" required min="0">
+  <!-- Giorno 3 -->
+  <section>
+    <h2>Giorno 3 - Forza + Core Intenso</h2>
+    <table>
+      <caption>Dettagli Esercizi</caption>
+      <thead>
+        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Riscaldamento</td><td>Slanci gambe</td><td>5-8 min</td><td></td></tr>
+        <tr><td>Riscaldamento</td><td>Saltelli leggeri sul posto</td><td>5-8 min</td><td></td></tr>
+        <tr><td>Allenamento (4-5 giri)</td><td>Stacchi da terra con kettlebell</td><td>12 rip</td><td></td></tr>
+        <tr><td></td><td>Kettlebell press sopra la testa</td><td>12 rip</td><td></td></tr>
+        <tr><td></td><td>Russian twist</td><td>20 rip</td><td></td></tr>
+        <tr><td></td><td>Crunch</td><td>15 rip</td><td></td></tr>
+        <tr><td></td><td>Plank attivo</td><td>30 sec</td><td>Addome e glutei contratti</td></tr>
+        <tr><td>Pausa</td><td>Recupero breve</td><td>45 sec</td><td>Tra i giri</td></tr>
+        <tr><td>Finale opzionale</td><td>Corsa lenta o marcia veloce</td><td>2-3 min</td><td></td></tr>
+      </tbody>
+    </table>
+  </section>
 
-    <button type="submit">Salva allenamento</button>
-  </form>
+  <!-- Giorno 4 -->
+  <section>
+    <h2>Giorno 4 - Cardio Lungo</h2>
+    <table>
+      <caption>Dettagli Esercizi</caption>
+      <thead>
+        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
+      </thead>
+      <tbody>
+        <tr><td>Allenamento</td><td>Camminata veloce continua</td><td>45-60 min</td><td>Senza pause</td></tr>
+        <tr><td></td><td>Corsetta leggera</td><td>30 sec ogni 5 min</td><td>Se possibile</td></tr>
+        <tr><td>Defaticamento</td><td>Stretching gambe, anche, schiena, spalle</td><td>5-10 min</td><td></td></tr>
+      </tbody>
+    </table>
+  </section>
 
-  <h2>📋 Allenamenti Salvati</h2>
-  <table id="workout-table">
-    <thead>
-      <tr>
-        <th>Tipo</th>
-        <th>Durata (min)</th>
-        <th>Calorie</th>
-        <th>Azioni</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <button class="back-button" onclick="location.href='index.html'">🏠 Torna alla Home</button>
 
-  <script>
-    const form = document.getElementById('workout-form');
-    const tableBody = document.querySelector('#workout-table tbody');
-
-    let allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
-
-    function salvaAllenamenti() {
-      localStorage.setItem('allenamenti', JSON.stringify(allenamenti));
-    }
-
-    function aggiornaTabella() {
-      tableBody.innerHTML = '';
-      allenamenti.forEach((w, i) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = \`
-          <td>\${w.tipo}</td>
-          <td>\${w.durata}</td>
-          <td>\${w.calorie}</td>
-          <td><button class="delete-btn" onclick="rimuoviAllenamento(\${i})">Cancella</button></td>
-        \`;
-        tableBody.appendChild(tr);
-      });
-    }
-
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const tipo = form.tipo.value.trim();
-      const durata = parseInt(form.durata.value);
-      const calorie = parseInt(form.calorie.value);
-
-      if (!tipo || durata <= 0 || calorie < 0) return;
-
-      allenamenti.push({ tipo, durata, calorie });
-      salvaAllenamenti();
-      aggiornaTabella();
-      form.reset();
-    });
-
-    function rimuoviAllenamento(index) {
-      allenamenti.splice(index, 1);
-      salvaAllenamenti();
-      aggiornaTabella();
-    }
-
-    aggiornaTabella();
-  </script>
 </body>
 </html>
