@@ -40,15 +40,23 @@
       color: var(--text);
     }
 
-    button {
-      background: var(--primary);
-      color: var(--header-text);
-      border: none;
-      cursor: pointer;
-      transition: background 0.3s;
-    }
-    button:hover {
-      background: var(--primary-hover);
+  .button {
+  width: 100%; /* Occupa tutta la larghezza disponibile */
+  max-width: 300px; /* Limita la larghezza a 300px */
+  padding: 14px;
+  margin: 10px 0;
+  font-size: 1.1rem;
+  color: white;
+  background: var(--primary-color);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+  display: block; /* Lo rende un elemento blocco (così si centra facilmente) */
+  text-align: center;
+}
+    .button:hover {
+     background-color: var(--primary-color-hover);
     }
 
     canvas {
