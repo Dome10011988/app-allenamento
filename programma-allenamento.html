@@ -1,138 +1,156 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Risultati Allenamento</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Allenamento & Risultati</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      color: #2c3e50;
       margin: 0;
       padding: 20px;
-      background: #f4f4f4;
-      color: #333;
     }
     h1, h2 {
       text-align: center;
       color: #2c3e50;
     }
-    form {
-      background: #fff;
-      max-width: 500px;
-      margin: 0 auto 30px;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    .wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
     }
-    input, button {
+    .box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      flex: 1 1 400px;
+      max-width: 600px;
+    }
+    form input, form button, input[type="file"] {
       width: 100%;
-      margin-bottom: 12px;
       padding: 10px;
+      margin: 8px 0;
       font-size: 1rem;
-      border: 1px solid #ccc;
       border-radius: 6px;
+      border: 1px solid #ccc;
     }
     button {
-      background-color: #2c3e50;
-      color: #fff;
+      background: #3498db;
+      color: white;
+      border: none;
       cursor: pointer;
     }
     button:hover {
-      background-color: #1e2a36;
-    }
-    #fileInput {
-      margin-top: 10px;
+      background: #2980b9;
     }
     table {
       width: 100%;
-      max-width: 100%;
       border-collapse: collapse;
-      background: #fff;
-      margin-top: 30px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.05);
+      margin-top: 20px;
     }
     th, td {
-      padding: 10px;
-      border: 1px solid #ccc;
+      border: 1px solid #ddd;
+      padding: 8px;
       text-align: center;
-      font-size: 0.95rem;
     }
     th {
       background-color: #3498db;
       color: white;
     }
-    #grafico-container {
-      max-width: 800px;
-      margin: 30px auto;
-    }
     canvas {
-      width: 100%;
-    }
-    .back-button {
+      max-width: 100%;
       margin-top: 20px;
-      display: block;
-      text-align: center;
     }
-    .back-button button {
+    .home-button {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .home-button button {
       background: #3498db;
       color: #fff;
       padding: 10px 20px;
       border: none;
-      border-radius: 6px;
       font-size: 1rem;
+      border-radius: 8px;
       cursor: pointer;
+    }
+    .program-table th {
+      background-color: #ecf0f1;
+      color: #2c3e50;
     }
   </style>
 </head>
 <body>
 
-  <h1>📊 Inserisci Risultati Allenamento</h1>
+  <h1>🏋️‍♂️ Piano Allenamento + Risultati</h1>
 
-  <form id="form-allenamento">
-    <input type="date" id="data" required />
-    <input type="text" id="giorno" placeholder="Giorno (es. Giorno 1)" required />
-    <input type="text" id="durata" placeholder="Durata (es. 00:29:40)" required />
-    <input type="number" id="calorie" placeholder="Calorie (es. 413)" required />
-    <input type="number" id="frequenza" placeholder="Frequenza Media (bpm)" required />
-    <button type="submit">Salva Allenamento</button>
-  </form>
+  <div class="wrapper">
+    <!-- Piano Allenamento Sempre Visibile -->
+    <div class="box">
+      <h2>📆 Piano Allenamento Perdita Peso</h2>
+      <table class="program-table">
+        <thead><tr><th>Giorno</th><th>Allenamento</th></tr></thead>
+        <tbody>
+          <tr><td>Giorno 1</td><td>Full Body Forza + Cardio Kettlebell</td></tr>
+          <tr><td>Giorno 2</td><td>Cardio HIIT Camminata/Corsa</td></tr>
+          <tr><td>Giorno 3</td><td>Forza + Core Intenso</td></tr>
+          <tr><td>Giorno 4</td><td>Cardio Lungo</td></tr>
+        </tbody>
+      </table>
+      <p><strong>Nota:</strong> Dettagli per ogni giorno includono riscaldamento, giri, esercizi e defaticamento.</p>
+    </div>
 
-  <section>
-    <h2>📸 Carica Foto Risultato (.jpg)</h2>
-    <input type="file" accept="image/*" id="fileInput" />
-  </section>
+    <!-- Risultati Allenamento -->
+    <div class="box">
+      <h2>📋 Inserisci Risultato Allenamento</h2>
+      <form id="form-allenamento">
+        <input type="date" id="data" required>
+        <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
+        <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
+        <input type="number" id="calorie" placeholder="Calorie (es: 413)" required>
+        <input type="number" id="frequenza" placeholder="Frequenza Media (bpm)" required>
+        <button type="submit">Salva Allenamento</button>
+      </form>
 
-  <h2>📋 Storico Allenamenti</h2>
-  <table id="tabella">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Giorno</th>
-        <th>Durata</th>
-        <th>Calorie</th>
-        <th>Frequenza Media</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+      <h3>📸 Oppure carica foto (.jpg)</h3>
+      <input type="file" accept="image/*" id="fileInput">
+    </div>
+  </div>
 
-  <div id="grafico-container">
-    <h2>📈 Grafico Frequenza Cardiaca Media</h2>
+  <!-- Tabella e grafico -->
+  <div class="box" style="max-width: 1000px; margin: 30px auto;">
+    <h2>📊 Storico Allenamenti</h2>
+    <table id="tabella">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Giorno</th>
+          <th>Durata</th>
+          <th>Calorie</th>
+          <th>Frequenza Media</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+
     <canvas id="grafico"></canvas>
   </div>
 
-  <div class="back-button">
+  <div class="home-button">
     <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
   </div>
 
   <script>
     const form = document.getElementById('form-allenamento');
     const fileInput = document.getElementById('fileInput');
-    const ctx = document.getElementById('grafico').getContext('2d');
     const tabellaBody = document.querySelector('#tabella tbody');
-
+    const ctx = document.getElementById('grafico').getContext('2d');
     let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
 
     form.addEventListener('submit', (e) => {
@@ -178,9 +196,9 @@
           datasets: [{
             label: 'Frequenza Media (bpm)',
             data: values,
-            borderColor: '#2c3e50',
-            backgroundColor: 'rgba(44, 62, 80, 0.1)',
             fill: true,
+            borderColor: '#3498db',
+            backgroundColor: 'rgba(52,152,219,0.1)',
             tension: 0.3
           }]
         },
@@ -193,29 +211,23 @@
       });
     }
 
-    fileInput.addEventListener('change', (e) => {
+    fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
 
-      Tesseract.recognize(file, 'ita', {
-        logger: m => console.log(m)
-      }).then(({ data: { text } }) => {
-        console.log("Testo OCR:", text);
+      const { data: { text } } = await Tesseract.recognize(file, 'ita');
+      const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
+      const calorie = text.match(/(\d+)\s*kcal/i);
+      const frequenza = text.match(/media\s*([\d]+)/i);
 
-        const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
-        const calorie = text.match(/(\d+)\s*kcal/i);
-        const frequenza = text.match(/media\s*([\d]+)/i);
+      if (durata) document.getElementById('durata').value = durata[1];
+      if (calorie) document.getElementById('calorie').value = calorie[1];
+      if (frequenza) document.getElementById('frequenza').value = frequenza[1];
 
-        if (durata) document.getElementById('durata').value = durata[1];
-        if (calorie) document.getElementById('calorie').value = calorie[1];
-        if (frequenza) document.getElementById('frequenza').value = frequenza[1];
-
-        document.getElementById('giorno').value = "Giorno ?";
-        document.getElementById('data').valueAsDate = new Date();
-      });
+      document.getElementById('giorno').value = "Giorno ?";
+      document.getElementById('data').valueAsDate = new Date();
     });
 
-    // Inizializza
     mostraTabella();
     aggiornaGrafico();
   </script>
