@@ -3,154 +3,128 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Carica e Visualizza Piano Allenamento</title>
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.min.js"></script>
+  <title>Piano Allenamento - Perdita Peso</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f4f9fc;
+      color: #2c3e50;
       padding: 20px;
       margin: 0;
-      color: #333;
     }
     h1 {
       text-align: center;
-      color: #2c3e50;
+      color: #2980b9;
+      margin-bottom: 30px;
     }
-    .upload, .workout {
-      max-width: 900px;
-      margin: 20px auto;
-      padding: 20px;
+    section {
       background: #fff;
-      border-radius: 8px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin: 20px auto;
+      max-width: 800px;
+      overflow: hidden;
     }
-    input[type="file"] {
-      margin-top: 10px;
+    h2 {
+      background: #2980b9;
+      color: white;
+      padding: 12px 20px;
+      margin: 0;
     }
     table {
       width: 100%;
       border-collapse: collapse;
-      margin-top: 20px;
     }
     th, td {
-      padding: 10px;
-      border-bottom: 1px solid #ddd;
-      text-align: left;
+      padding: 10px 15px;
+      border-bottom: 1px solid #eee;
     }
     th {
-      background: #3498db;
-      color: white;
+      background: #ecf0f1;
+      text-align: left;
     }
     tr:nth-child(even) td {
-      background: #f9f9f9;
+      background: #fafafa;
+    }
+    .back-button {
+      display: block;
+      text-align: center;
+      margin: 30px auto;
+      padding: 12px 24px;
+      background: #2980b9;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+    .back-button:hover {
+      background: #1f6391;
     }
   </style>
 </head>
 <body>
 
-  <h1>📋 Carica il Piano Allenamento</h1>
+  <h1>🏋️‍♀️ Piano Allenamento – Perdita Peso</h1>
 
-  <!-- Sezione Caricamento Piano Allenamento (PDF) -->
-  <div class="upload">
-    <h2>Carica il tuo Piano di Allenamento (PDF)</h2>
-    <input type="file" id="pdf-upload" accept="application/pdf">
-  </div>
+  <!-- Giorno 1 -->
+  <section>
+    <h2>Giorno 1 – Full Body Forza + Cardio Kettlebell</h2>
+    <table>
+      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
+      <tr><td>Riscaldamento</td><td>Camminata veloce + rotazioni articolari</td><td>5-8 minuti</td></tr>
+      <tr><td rowspan="5">Allenamento (5 giri)</td><td>15 kettlebell swing</td><td></td></tr>
+      <tr><td>15 squat</td><td></td></tr>
+      <tr><td>10 rematore per braccio</td><td></td></tr>
+      <tr><td>10 push-up</td><td></td></tr>
+      <tr><td>Plank</td><td>30 secondi</td></tr>
+      <tr><td>Pausa</td><td>Recupero tra i giri</td><td>30–45 sec</td></tr>
+      <tr><td>Finale</td><td>Marcia veloce / corsetta</td><td>5 minuti</td></tr>
+    </table>
+  </section>
 
-  <!-- Sezione Visualizzazione Piano Allenamento -->
-  <div class="workout" id="output"></div>
+  <!-- Giorno 2 -->
+  <section>
+    <h2>Giorno 2 – Cardio HIIT Camminata / Corsa</h2>
+    <table>
+      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
+      <tr><td>Riscaldamento</td><td>Camminata normale</td><td>5-8 minuti</td></tr>
+      <tr><td rowspan="2">Allenamento</td><td>Camminata veloce</td><td>1 minuto</td></tr>
+      <tr><td>Corsa leggera</td><td>30 secondi</td></tr>
+      <tr><td>Ripeti</td><td>Alterna camminata e corsa</td><td>25-30 minuti</td></tr>
+      <tr><td>Defaticamento</td><td>Camminata + stretching</td><td>5-10 minuti</td></tr>
+    </table>
+  </section>
 
-  <script>
-    // Configurazione PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.worker.min.js';
+  <!-- Giorno 3 -->
+  <section>
+    <h2>Giorno 3 – Forza + Core Intenso</h2>
+    <table>
+      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
+      <tr><td>Riscaldamento</td><td>Slanci gambe + saltelli</td><td>5-8 minuti</td></tr>
+      <tr><td rowspan="5">Allenamento (4-5 giri)</td><td>12 stacchi da terra con kettlebell</td><td></td></tr>
+      <tr><td>12 kettlebell press sopra la testa</td><td></td></tr>
+      <tr><td>20 russian twist</td><td></td></tr>
+      <tr><td>15 crunch</td><td></td></tr>
+      <tr><td>Plank attivo</td><td>30 secondi</td></tr>
+      <tr><td>Pausa</td><td>Recupero tra i giri</td><td>45 sec</td></tr>
+      <tr><td>Finale (opz.)</td><td>Corsa lenta</td><td>2–3 minuti</td></tr>
+    </table>
+  </section>
 
-    // Funzione di caricamento PDF
-    document.getElementById('pdf-upload').addEventListener('change', async function(e) {
-      const file = e.target.files[0];
-      if (!file || file.type !== 'application/pdf') {
-        alert('Per favore seleziona un PDF valido.');
-        return;
-      }
+  <!-- Giorno 4 -->
+  <section>
+    <h2>Giorno 4 – Cardio Lungo</h2>
+    <table>
+      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
+      <tr><td>Allenamento</td><td>Camminata veloce</td><td>45–60 minuti</td></tr>
+      <tr><td>Intervallo</td><td>Corsetta ogni 5 minuti</td><td>30 secondi</td></tr>
+      <tr><td>Defaticamento</td><td>Stretching completo</td><td>5–10 minuti</td></tr>
+    </table>
+  </section>
 
-      const arrayBuffer = await file.arrayBuffer();
-      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-      let fullText = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        const strings = content.items.map(item => item.str.trim());
-        fullText += strings.join(' ') + '\n';
-      }
-      renderWorkout(parseWorkout(fullText));
-    });
-
-    // Parsing del testo estratto
-    function parseWorkout(text) {
-      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-      const days = [];
-      let currentDay = null;
-      let currentPhase = null;
-
-      lines.forEach(line => {
-        let m;
-        if (m = line.match(/^Giorno\s*(\d+)/i)) {
-          if (currentDay) days.push(currentDay);
-          currentDay = { title: `Giorno ${m[1]}`, phases: [] };
-          currentPhase = null;
-        }
-        else if (currentDay && (m = line.match(/^([A-Za-z ]+?)\s*\(?\d*[-\d]*\)?\s*:\s*(.+)/))) {
-          currentPhase = { name: m[1].trim(), items: [ m[2].trim() ] };
-          currentDay.phases.push(currentPhase);
-        }
-        else if (currentDay && line.startsWith('-')) {
-          if (!currentPhase) {
-            currentPhase = { name: 'Allenamento', items: [] };
-            currentDay.phases.push(currentPhase);
-          }
-          currentPhase.items.push(line.replace(/^-+\s*/, '').trim());
-        }
-      });
-      if (currentDay) days.push(currentDay);
-      return days;
-    }
-
-    // Funzione per visualizzare il piano di allenamento
-    function renderWorkout(days) {
-      const container = document.getElementById('output');
-      container.innerHTML = '';
-      days.forEach(day => {
-        const section = document.createElement('section');
-        const h2 = document.createElement('h2');
-        h2.textContent = day.title;
-        section.appendChild(h2);
-
-        const table = document.createElement('table');
-        const thead = document.createElement('thead');
-        thead.innerHTML = `<tr><th>Fase</th><th>Esercizio</th></tr>`;
-        table.appendChild(thead);
-
-        const tbody = document.createElement('tbody');
-        day.phases.forEach(phase => {
-          phase.items.forEach(item => {
-            const tr = document.createElement('tr');
-            const phaseCell = document.createElement('td');
-            phaseCell.textContent = phase.name;
-            tr.appendChild(phaseCell);
-
-            const itemCell = document.createElement('td');
-            itemCell.textContent = item;
-            tr.appendChild(itemCell);
-
-            tbody.appendChild(tr);
-          });
-        });
-
-        table.appendChild(tbody);
-        section.appendChild(table);
-        container.appendChild(section);
-      });
-    }
-  </script>
+  <a class="back-button" href="index.html">🏠 Torna alla Home</a>
 
 </body>
 </html>
