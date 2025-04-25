@@ -8,8 +8,10 @@
   <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Tema globale -->
+  <!-- Tema globale e stili base -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Script per toggle tema -->
   <script src="script.js" defer></script>
 
   <style>
@@ -19,12 +21,15 @@
       flex-direction: column;
       align-items: center;
       padding: 60px 20px 20px;
+      background: var(--bg);
+      color: var(--text);
     }
     h1 {
       margin-bottom: 40px;
-       color: #3498db;
+      color: var(--primary);
+      font-size: 2rem;
     }
-    /* Assicuriamoci che i pulsanti siano tutti uguali */
+    /* Pulsanti singoli */
     .button {
       width: 100%;
       max-width: 300px;
@@ -34,7 +39,7 @@
       border: none;
       border-radius: 8px;
       background: var(--primary);
-      color: #3498db;
+      color: var(--header-text);
       cursor: pointer;
       transition: background 0.2s ease;
       text-align: center;
@@ -47,17 +52,28 @@
       position: fixed;
       top: 15px;
       right: 15px;
+      background: var(--bg-alt);
+      color: var(--secondary);
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <!-- Toggle Tema -->
-  <button id="theme-toggle" aria-label="Toggle theme">
+  <!-- Toggle tema -->
+  <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
-  <!-- Pulsanti Singoli -->
+  <!-- Menu principale -->
   <button class="button" onclick="location.href='programma-allenamento.html'">
     💪 Programma Allenamento
   </button>
@@ -71,5 +87,15 @@
     ➕ Aggiungi Peso
   </button>
 
+  <!-- Registrazione Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker registrato'))
+          .catch(err => console.error('Errore SW:', err));
+      });
+    }
+  </script>
 </body>
 </html>
