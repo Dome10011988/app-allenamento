@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Piano Allenamento - Perdita Peso</title>
+  <title>Piano Allenamento + Risultati</title>
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
@@ -15,7 +15,6 @@
     h1 {
       text-align: center;
       color: #2980b9;
-      margin-bottom: 30px;
     }
     section {
       background: #fff;
@@ -59,72 +58,146 @@
       cursor: pointer;
       text-decoration: none;
     }
-    .back-button:hover {
-      background: #1f6391;
+    .form-risultato {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .form-risultato input, .form-risultato button {
+      padding: 10px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .form-risultato button {
+      background-color: #2980b9;
+      color: white;
+      cursor: pointer;
+    }
+    .form-risultato button:hover {
+      background-color: #1f6391;
+    }
+    #tabella-risultati th {
+      text-align: center;
+    }
+    .azioni button {
+      font-size: 0.9rem;
+      margin: 0 5px;
     }
   </style>
 </head>
 <body>
 
-  <h1>🏋️‍♀️ Piano Allenamento – Perdita Peso</h1>
+<h1>🏋️‍♀️ Piano Allenamento – Perdita Peso</h1>
 
-  <!-- Giorno 1 -->
-  <section>
-    <h2>Giorno 1 – Full Body Forza + Cardio Kettlebell</h2>
-    <table>
-      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
-      <tr><td>Riscaldamento</td><td>Camminata veloce + rotazioni articolari</td><td>5-8 minuti</td></tr>
-      <tr><td rowspan="5">Allenamento (5 giri)</td><td>15 kettlebell swing</td><td></td></tr>
-      <tr><td>15 squat</td><td></td></tr>
-      <tr><td>10 rematore per braccio</td><td></td></tr>
-      <tr><td>10 push-up</td><td></td></tr>
-      <tr><td>Plank</td><td>30 secondi</td></tr>
-      <tr><td>Pausa</td><td>Recupero tra i giri</td><td>30–45 sec</td></tr>
-      <tr><td>Finale</td><td>Marcia veloce / corsetta</td><td>5 minuti</td></tr>
-    </table>
-  </section>
+<!-- Piano Allenamento -->
+<section>
+  <h2>Giorno 1 – Full Body Forza + Cardio</h2>
+  <table>
+    <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
+    <tr><td>Riscaldamento</td><td>Camminata veloce + rotazioni</td><td>5-8 minuti</td></tr>
+    <tr><td rowspan="5">Allenamento (5 giri)</td><td>Kettlebell swing</td><td>15 rip</td></tr>
+    <tr><td>Squat</td><td>15 rip</td></tr>
+    <tr><td>Rematore per braccio</td><td>10 rip</td></tr>
+    <tr><td>Push-up</td><td>10 rip</td></tr>
+    <tr><td>Plank</td><td>30 sec</td></tr>
+    <tr><td>Pausa</td><td>Recupero</td><td>30–45 sec</td></tr>
+    <tr><td>Finale</td><td>Corsetta o marcia</td><td>5 min</td></tr>
+  </table>
+</section>
 
-  <!-- Giorno 2 -->
-  <section>
-    <h2>Giorno 2 – Cardio HIIT Camminata / Corsa</h2>
-    <table>
-      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
-      <tr><td>Riscaldamento</td><td>Camminata normale</td><td>5-8 minuti</td></tr>
-      <tr><td rowspan="2">Allenamento</td><td>Camminata veloce</td><td>1 minuto</td></tr>
-      <tr><td>Corsa leggera</td><td>30 secondi</td></tr>
-      <tr><td>Ripeti</td><td>Alterna camminata e corsa</td><td>25-30 minuti</td></tr>
-      <tr><td>Defaticamento</td><td>Camminata + stretching</td><td>5-10 minuti</td></tr>
-    </table>
-  </section>
+<!-- Form risultati -->
+<section>
+  <h2>📊 Registra Risultato Allenamento</h2>
+  <form class="form-risultato" id="formRisultato">
+    <input type="date" id="data" required />
+    <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required />
+    <input type="text" id="durata" placeholder="Durata (es: 00:30:00)" required />
+    <input type="number" id="calorie" placeholder="Calorie bruciate" required />
+    <button type="submit">Salva Risultato</button>
+  </form>
+</section>
 
-  <!-- Giorno 3 -->
-  <section>
-    <h2>Giorno 3 – Forza + Core Intenso</h2>
-    <table>
-      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
-      <tr><td>Riscaldamento</td><td>Slanci gambe + saltelli</td><td>5-8 minuti</td></tr>
-      <tr><td rowspan="5">Allenamento (4-5 giri)</td><td>12 stacchi da terra con kettlebell</td><td></td></tr>
-      <tr><td>12 kettlebell press sopra la testa</td><td></td></tr>
-      <tr><td>20 russian twist</td><td></td></tr>
-      <tr><td>15 crunch</td><td></td></tr>
-      <tr><td>Plank attivo</td><td>30 secondi</td></tr>
-      <tr><td>Pausa</td><td>Recupero tra i giri</td><td>45 sec</td></tr>
-      <tr><td>Finale (opz.)</td><td>Corsa lenta</td><td>2–3 minuti</td></tr>
-    </table>
-  </section>
+<!-- Tabella risultati -->
+<section>
+  <h2>📅 Storico Risultati</h2>
+  <table id="tabella-risultati">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Giorno</th>
+        <th>Durata</th>
+        <th>Calorie</th>
+        <th>Azioni</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</section>
 
-  <!-- Giorno 4 -->
-  <section>
-    <h2>Giorno 4 – Cardio Lungo</h2>
-    <table>
-      <tr><th>Fase</th><th>Esercizio</th><th>Dettagli</th></tr>
-      <tr><td>Allenamento</td><td>Camminata veloce</td><td>45–60 minuti</td></tr>
-      <tr><td>Intervallo</td><td>Corsetta ogni 5 minuti</td><td>30 secondi</td></tr>
-      <tr><td>Defaticamento</td><td>Stretching completo</td><td>5–10 minuti</td></tr>
-    </table>
-  </section>
+<a class="back-button" href="index.html">🏠 Torna alla Home</a>
 
-  <a class="back-button" href="index.html">🏠 Torna alla Home</a>
+<script>
+  const form = document.getElementById('formRisultato');
+  const tbody = document.querySelector('#tabella-risultati tbody');
+  let risultati = JSON.parse(localStorage.getItem('risultatiAllenamento')) || [];
+
+  function salvaDatiLocal() {
+    localStorage.setItem('risultatiAllenamento', JSON.stringify(risultati));
+    mostraTabella();
+  }
+
+  function mostraTabella() {
+    tbody.innerHTML = '';
+    risultati.forEach((r, i) => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${r.data}</td>
+        <td>${r.giorno}</td>
+        <td>${r.durata}</td>
+        <td>${r.calorie}</td>
+        <td class="azioni">
+          <button onclick="modifica(${i})">✏️</button>
+          <button onclick="elimina(${i})">❌</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+
+  function elimina(index) {
+    if (confirm("Eliminare questo risultato?")) {
+      risultati.splice(index, 1);
+      salvaDatiLocal();
+    }
+  }
+
+  function modifica(index) {
+    const nuovoDurata = prompt("Modifica durata:", risultati[index].durata);
+    const nuovoCalorie = prompt("Modifica calorie:", risultati[index].calorie);
+    if (nuovoDurata && nuovoCalorie) {
+      risultati[index].durata = nuovoDurata;
+      risultati[index].calorie = nuovoCalorie;
+      salvaDatiLocal();
+    }
+  }
+
+  form.addEventListener('submit', e => {
+    e.preventDefault();
+    const nuovo = {
+      data: document.getElementById('data').value,
+      giorno: document.getElementById('giorno').value,
+      durata: document.getElementById('durata').value,
+      calorie: document.getElementById('calorie').value
+    };
+    risultati.push(nuovo);
+    form.reset();
+    salvaDatiLocal();
+  });
+
+  mostraTabella();
+</script>
 
 </body>
 </html>
