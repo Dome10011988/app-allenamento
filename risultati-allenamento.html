@@ -5,12 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Risultati Allenamento</title>
   <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
       padding: 20px;
     }
-    h1 {
+    h1, h2 {
       text-align: center;
     }
     form {
@@ -44,6 +45,13 @@
     }
     .btn:hover {
       background-color: #2980b9;
+    }
+    #grafico-container {
+      width: 100%;
+      margin-top: 40px;
+    }
+    canvas {
+      max-width: 100%;
     }
   </style>
 </head>
@@ -83,9 +91,17 @@
     <tbody></tbody>
   </table>
 
+  <div id="grafico-container">
+    <h2>Grafico Frequenza Cardiaca Media</h2>
+    <canvas id="grafico"></canvas>
+  </div>
+
   <script>
     const form = document.getElementById('form-allenamento');
     const tabellaBody = document.querySelector('#tabella-allenamenti tbody');
+    const ctx = document.getElementById('grafico').getContext('2d');
+
+    let chart;
 
     function salvaAllenamento(event) {
       event.preventDefault();
@@ -106,6 +122,7 @@
       localStorage.setItem('allenamenti', JSON.stringify(allenamenti));
       form.reset();
       mostraAllenamenti();
+      aggiornaGrafico();
     }
 
     function mostraAllenamenti() {
@@ -127,8 +144,43 @@
       });
     }
 
+    function aggiornaGrafico() {
+      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
+      const labels = allenamenti.map(a => a.data);
+      const datiFrequenza = allenamenti.map(a => a.freqMedia);
+
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Frequenza Media (bpm)',
+            data: datiFrequenza,
+            fill: false,
+            borderColor: '#3498db',
+            tension: 0.1
+          }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+
     form.addEventListener('submit', salvaAllenamento);
-    document.addEventListener('DOMContentLoaded', mostraAllenamenti);
+    document.addEventListener('DOMContentLoaded', () => {
+      mostraAllenamenti();
+      aggiornaGrafico();
+    });
   </script>
 
 </body>
