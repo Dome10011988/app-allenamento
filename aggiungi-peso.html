@@ -69,13 +69,18 @@
       justify-content: space-between;
       margin-bottom: 8px;
     }
-    .goals {
+    .goal-box {
       max-width: 400px;
       margin: 20px auto;
+      background: #ecf6fd;
+      border-left: 5px solid var(--accent);
       padding: 15px;
-      background: #e8f6ff;
-      border-left: 4px solid var(--accent);
       border-radius: 10px;
+      text-align: center;
+    }
+    .badge {
+      font-size: 1.5rem;
+      margin-top: 10px;
     }
     .home-button {
       margin-top: 30px;
@@ -103,7 +108,7 @@
     <button type="submit">Salva Obiettivo</button>
   </form>
 
-  <div class="goals" id="goalBox"></div>
+  <div class="goal-box" id="goalBox">📌 Nessun obiettivo impostato.</div>
 
   <!-- Inserimento Peso -->
   <form id="pesoForm">
@@ -202,8 +207,7 @@
         responsive: true,
         scales: {
           y: {
-            suggestedMin: 50,
-            suggestedMax: 120
+            beginAtZero: false
           }
         },
         plugins: {
@@ -216,11 +220,24 @@
 
     function aggiornaObiettivoBox() {
       if (obiettivo && pesi.length > 0) {
-        const ultimoPeso = pesi[pesi.length - 1].peso;
-        const diff = (ultimoPeso - obiettivo).toFixed(1);
-        goalBox.innerHTML = diff <= 0
-          ? `🎉 Obiettivo raggiunto! Peso attuale: <strong>${ultimoPeso}kg</strong>`
-          : `🎯 Obiettivo: <strong>${obiettivo}kg</strong> &mdash; Mancano <strong>${diff}kg</strong>`;
+        const ultimo = pesi[pesi.length - 1].peso;
+        const diff = (ultimo - obiettivo).toFixed(1);
+        const inizio = pesi[0].peso;
+        const totaleDaPerdere = inizio - obiettivo;
+        const perso = inizio - ultimo;
+        const percentuale = totaleDaPerdere > 0 ? Math.min(100, ((perso / totaleDaPerdere) * 100).toFixed(0)) : 0;
+
+        let badge = "🔰 Iniziato";
+        if (percentuale >= 100) badge = "🏆 Obiettivo raggiunto!";
+        else if (percentuale >= 75) badge = "🏁 Quasi fatto";
+        else if (percentuale >= 25) badge = "🚀 In corso";
+
+        goalBox.innerHTML = `
+          🎯 Obiettivo: <strong>${obiettivo} kg</strong><br>
+          Peso attuale: <strong>${ultimo} kg</strong><br>
+          Avanzamento: <strong>${percentuale}%</strong><br>
+          <div class="badge">${badge}</div>
+        `;
       } else {
         goalBox.innerHTML = `📌 Nessun obiettivo impostato.`;
       }
@@ -229,8 +246,7 @@
     function aggiornaGrafico() {
       grafico.data.labels = pesi.map(p => p.data);
       grafico.data.datasets[0].data = pesi.map(p => p.peso);
-      
-      // Aggiungi linea obiettivo
+
       if (obiettivo) {
         grafico.options.plugins.annotation = {
           annotations: {
@@ -250,10 +266,10 @@
           }
         };
       }
+
       grafico.update();
     }
 
-    // Init
     mostraPesi();
     aggiornaGrafico();
     aggiornaObiettivoBox();
