@@ -2,7 +2,8 @@
 <html lang="it">
 <head>
   <link rel="manifest" href="/manifest.json">
-  <meta name="theme-color" content="#3498db">
+<meta name="theme-color" content="#3498db">
+<link rel="stylesheet" href="/style.css">
   <meta property="og:image" content="/kettlebell-preview.png" />
   <meta name="twitter:image" content="/kettlebell-preview.png" />
   <title>🏠 Home</title>
@@ -47,7 +48,8 @@
   </style>
 </head>
 <body>
-  <script>
+ <script src="/script.js"></script>
+<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/sw.js')
