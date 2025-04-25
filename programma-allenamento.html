@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Programma Allenamento Dettagliato</title>
+  <title>Programma Allenamento Completo</title>
+  <link rel="stylesheet" href="style.css">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
   <style>
@@ -16,8 +17,9 @@
       flex-direction: column;
       align-items: center;
     }
-    h1 {
+    h1, h2 {
       color: #2c3e50;
+      text-align: center;
       margin-bottom: 20px;
     }
     section {
@@ -27,7 +29,6 @@
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      overflow: hidden;
     }
     section h2 {
       background: #3498db;
@@ -58,6 +59,49 @@
       font-weight: bold;
       color: #2c3e50;
     }
+    form, #file-input, #tabella-allenamenti, #grafico-container {
+      width: 100%;
+      max-width: 900px;
+      margin-bottom: 40px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+    }
+    form input, form button, #file-input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+    form button, #file-input.btn {
+      background: #3498db;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    form button:hover, #file-input.btn:hover {
+      background: #2980b9;
+    }
+    #tabella-allenamenti table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    #tabella-allenamenti th, #tabella-allenamenti td {
+      padding: 8px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    #tabella-allenamenti th {
+      background: #3498db;
+      color: white;
+    }
+    #grafico-container canvas {
+      width: 100% !important;
+      height: auto !important;
+    }
     .back-button {
       padding: 10px 20px;
       background: #3498db;
@@ -72,89 +116,74 @@
 </head>
 <body>
 
-  <h1>💪 Programma Allenamento - Dettagli</h1>
+  <h1>💪 Programma Allenamento Completo</h1>
 
-  <!-- Giorno 1 -->
+  <!-- Sezione Programma Allenamento -->
   <section>
     <h2>Giorno 1 - Full Body Forza + Cardio Kettlebell</h2>
     <table>
       <caption>Dettagli Esercizi</caption>
-      <thead>
-        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
-      </thead>
+      <thead><tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr></thead>
       <tbody>
         <tr><td>Riscaldamento</td><td>Camminata veloce</td><td>5-8 min</td><td>Include rotazioni articolari</td></tr>
         <tr><td>Riscaldamento</td><td>Rotazioni articolari (spalle, anche, ginocchia)</td><td>5-8 min</td><td></td></tr>
-        <tr><td>Allenamento (5 giri)</td><td>Kettlebell swing</td><td>15 rip</td><td></td></tr>
-        <tr><td></td><td>Squat (con o senza kettlebell)</td><td>15 rip</td><td></td></tr>
-        <tr><td></td><td>Rematore per braccio</td><td>10 rip</td><td></td></tr>
-        <tr><td></td><td>Push-up (su panca se necessario)</td><td>10 rip</td><td></td></tr>
-        <tr><td></td><td>Plank</td><td>30 sec</td><td></td></tr>
-        <tr><td>Pausa</td><td>Recupero attivo</td><td>30-45 sec</td><td>Tra i giri</td></tr>
+        <tr><td>Allenamento</td><td>Kettlebell swing</td><td>15 rip x 5 giri</td><td></td></tr>
+        <tr><td></td><td>Squat (con o senza kettlebell)</td><td>15 rip x 5 giri</td><td></td></tr>
+        <tr><td></td><td>Rematore per braccio</td><td>10 rip x 5 giri</td><td></td></tr>
+        <tr><td></td><td>Push-up (su panca se necessario)</td><td>10 rip x 5 giri</td><td></td></tr>
+        <tr><td></td><td>Plank</td><td>30 sec x 5 giri</td><td></td></tr>
+        <tr><td>Pausa</td><td>Recupero attivo</td><td>30-45 sec tra i giri</td><td></td></tr>
         <tr><td>Finale cardio</td><td>Marcia veloce o corsetta leggera</td><td>5 min</td><td></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- Giorno 2 -->
   <section>
     <h2>Giorno 2 - Cardio HIIT Camminata/Corsa</h2>
     <table>
       <caption>Dettagli Esercizi</caption>
-      <thead>
-        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
-      </thead>
+      <thead><tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr></thead>
       <tbody>
         <tr><td>Riscaldamento</td><td>Camminata normale</td><td>5-8 min</td><td></td></tr>
-        <tr><td>Allenamento</td><td>Camminata veloce</td><td>1 min</td><td></td></tr>
-        <tr><td></td><td>Corsa leggera</td><td>30 sec</td><td></td></tr>
-        <tr><td>Ripetizioni</td><td>Alterna camminata e corsa</td><td>25-30 min</td><td></td></tr>
-        <tr><td>Defaticamento</td><td>Camminata normale + stretching (gambe e schiena)</td><td>5-10 min</td><td></td></tr>
+        <tr><td>HIIT</td><td>Camminata veloce</td><td>1 min x 25-30 min</td><td></td></tr>
+        <tr><td></td><td>Corsa leggera</td><td>30 sec x 25-30 min</td><td></td></tr>
+        <tr><td>Defaticamento</td><td>Camminata + stretching gambe e schiena</td><td>5-10 min</td><td></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- Giorno 3 -->
   <section>
     <h2>Giorno 3 - Forza + Core Intenso</h2>
     <table>
       <caption>Dettagli Esercizi</caption>
-      <thead>
-        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
-      </thead>
+      <thead><tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr></thead>
       <tbody>
-        <tr><td>Riscaldamento</td><td>Slanci gambe</td><td>5-8 min</td><td></td></tr>
-        <tr><td>Riscaldamento</td><td>Saltelli leggeri sul posto</td><td>5-8 min</td><td></td></tr>
-        <tr><td>Allenamento (4-5 giri)</td><td>Stacchi da terra con kettlebell</td><td>12 rip</td><td></td></tr>
-        <tr><td></td><td>Kettlebell press sopra la testa</td><td>12 rip</td><td></td></tr>
-        <tr><td></td><td>Russian twist</td><td>20 rip</td><td></td></tr>
-        <tr><td></td><td>Crunch</td><td>15 rip</td><td></td></tr>
-        <tr><td></td><td>Plank attivo</td><td>30 sec</td><td>Addome e glutei contratti</td></tr>
-        <tr><td>Pausa</td><td>Recupero breve</td><td>45 sec</td><td>Tra i giri</td></tr>
-        <tr><td>Finale opzionale</td><td>Corsa lenta o marcia veloce</td><td>2-3 min</td><td></td></tr>
+        <tr><td>Riscaldamento</td><td>Slanci gambe + saltelli</td><td>5-8 min</td><td></td></tr>
+        <tr><td>Forza</td><td>Stacchi da terra con kettlebell</td><td>12 rip x 4-5 giri</td><td></td></tr>
+        <tr><td></td><td>Kettlebell press sopra la testa</td><td>12 rip x 4-5 giri</td><td></td></tr>
+        <tr><td></td><td>Russian twist</td><td>20 rip x 4-5 giri</td><td></td></tr>
+        <tr><td></td><td>Crunch</td><td>15 rip x 4-5 giri</td><td></td></tr>
+        <tr><td></td><td>Plank attivo</td><td>30 sec x 4-5 giri</td><td>Addome e glutei contratti</td></tr>
+        <tr><td>Pausa</td><td>Recupero breve</td><td>45 sec tra i giri</td><td></td></tr>
+        <tr><td>Finale opzionale</td><td>Corsa lenta o marcia</td><td>2-3 min</td><td></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- Giorno 4 -->
   <section>
     <h2>Giorno 4 - Cardio Lungo</h2>
     <table>
       <caption>Dettagli Esercizi</caption>
-      <thead>
-        <tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr>
-      </thead>
+      <thead><tr><th>Fase</th><th>Esercizio</th><th>Ripetizioni / Durata</th><th>Note</th></tr></thead>
       <tbody>
-        <tr><td>Allenamento</td><td>Camminata veloce continua</td><td>45-60 min</td><td>Senza pause</td></tr>
-        <tr><td></td><td>Corsetta leggera</td><td>30 sec ogni 5 min</td><td>Se possibile</td></tr>
+        <tr><td>Cardio lungo</td><td>Camminata veloce continua</td><td>45-60 min</td><td>Senza pause</td></tr>
+        <tr><td></td><td>Corsetta leggera</td><td>30 sec ogni 5 min</td><td></td></tr>
         <tr><td>Defaticamento</td><td>Stretching gambe, anche, schiena, spalle</td><td>5-10 min</td><td></td></tr>
       </tbody>
     </table>
   </section>
 
-  <!-- Sezione Aggiungi Risultati Allenamento -->
   <h1>Inserisci Risultati Allenamento</h1>
-
   <form id="form-allenamento">
     <input type="date" id="data" required>
     <input type="text" id="tipo" placeholder="Tipo attività (es: Altro)" required>
@@ -168,31 +197,128 @@
     <button type="submit" class="btn">Salva Allenamento</button>
   </form>
 
+  <h2>Oppure Carica Foto Risultato</h2>
+  <input type="file" accept="image/*" id="file-input" class="btn">
+
   <h2>Storico Allenamenti</h2>
-  <table id="tabella-allenamenti">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Tipo</th>
-        <th>Durata</th>
-        <th>Calorie</th>
-        <th>Frequenza Media</th>
-        <th>Frequenza Max</th>
-        <th>Effetto Aerobico</th>
-        <th>Effetto Anaerobico</th>
-        <th>Recupero (h)</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
+  <div id="tabella-allenamenti">
+    <table>
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Durata</th>
+          <th>Calorie</th>
+          <th>Frequenza Media</th>
+          <th>Frequenza Max</th>
+          <th>Effetto Aerobico</th>
+          <th>Effetto Anaerobico</th>
+          <th>Recupero (h)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
   <div id="grafico-container">
     <h2>Grafico Frequenza Cardiaca Media</h2>
     <canvas id="grafico"></canvas>
   </div>
 
+  <button class="back-button" onclick="location.href='index.html'">🏠 Torna alla Home</button>
+
   <script>
-    // Inserisci qui il codice JavaScript che gestisce il salvataggio dei dati, la visualizzazione dei risultati e la gestione del grafico.
+    const form = document.getElementById('form-allenamento');
+    const tabellaBody = document.querySelector('#tabella-allenamenti tbody');
+    const ctx = document.getElementById('grafico').getContext('2d');
+    const fileInput = document.getElementById('file-input');
+    let chart;
+
+    function salvaAllenamento(event) {
+      event.preventDefault();
+      const allenamento = {
+        data: document.getElementById('data').value,
+        tipo: document.getElementById('tipo').value,
+        durata: document.getElementById('durata').value,
+        calorie: document.getElementById('calorie').value,
+        freqMedia: document.getElementById('freq-media').value,
+        freqMax: document.getElementById('freq-max').value,
+        effAerobico: document.getElementById('eff-aerobico').value,
+        effAnaerobico: document.getElementById('eff-anaerobico').value,
+        recupero: document.getElementById('recupero').value
+      };
+
+      let allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
+      allenamenti.push(allenamento);
+      localStorage.setItem('allenamenti', JSON.stringify(allenamenti));
+      form.reset();
+      mostraAllenamenti();
+      aggiornaGrafico();
+    }
+
+    function mostraAllenamenti() {
+      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
+      tabellaBody.innerHTML = '';
+      allenamenti.forEach(a => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${a.data}</td>
+          <td>${a.tipo}</td>
+          <td>${a.durata}</td>
+          <td>${a.calorie}</td>
+          <td>${a.freqMedia}</td>
+          <td>${a.freqMax}</td>
+          <td>${a.effAerobico}</td>
+          <td>${a.effAnaerobico}</td>
+          <td>${a.recupero}</td>
+        `;
+        tabellaBody.appendChild(row);
+      });
+    }
+
+    function aggiornaGrafico() {
+      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
+      const labels = allenamenti.map(a => a.data);
+      const datiFrequenza = allenamenti.map(a => a.freqMedia);
+
+      if (chart) chart.destroy();
+      chart = new Chart(ctx, {
+        type: 'line',
+        data: { labels, datasets: [{ label: 'Frequenza Media (bpm)', data: datiFrequenza, fill: false, borderColor: '#3498db', tension: 0.1 }] },
+        options: { responsive: true, scales: { y: { beginAtZero: false } } }
+      });
+    }
+
+    async function leggiFoto(file) {
+      const risultato = await Tesseract.recognize(file, 'ita');
+      const testo = risultato.data.text;
+
+      const calorie = testo.match(/(\d+)\s*kcal/);
+      const durata = testo.match(/Durata\s*(\d{2}:\d{2}:\d{2})/);
+      const freqMedia = testo.match(/media\s*(\d+)/i);
+      const freqMax = testo.match(/Massima\s*(\d+)/i);
+      const effAerobico = testo.match(/aerobico\s*([\d.]+)/i);
+      const effAnaerobico = testo.match(/anaerobico\s*([\d.]+)/i);
+      const recupero = testo.match(/recupero\s*(\d+)/i);
+
+      if (calorie) document.getElementById('calorie').value = calorie[1];
+      if (durata) document.getElementById('durata').value = durata[1];
+      if (freqMedia) document.getElementById('freq-media').value = freqMedia[1];
+      if (freqMax) document.getElementById('freq-max').value = freqMax[1];
+      if (effAerobico) document.getElementById('eff-aerobico').value = effAerobico[1];
+      if (effAnaerobico) document.getElementById('eff-anaerobico').value = effAnaerobico[1];
+      if (recupero) document.getElementById('recupero').value = recupero[1];
+
+      document.getElementById('tipo').value = 'Altro';
+      document.getElementById('data').valueAsDate = new Date();
+    }
+
+    fileInput.addEventListener('change', e => {
+      if (e.target.files[0]) leggiFoto(e.target.files[0]);
+    });
+
+    form.addEventListener('submit', salvaAllenamento);
+    document.addEventListener('DOMContentLoaded', () => { mostraAllenamenti(); aggiornaGrafico(); });
   </script>
 
 </body>
