@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Programma Allenamento Dettagliato</title>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -69,6 +71,7 @@
   </style>
 </head>
 <body>
+
   <h1>💪 Programma Allenamento - Dettagli</h1>
 
   <!-- Giorno 1 -->
@@ -149,7 +152,48 @@
     </table>
   </section>
 
-  <button class="back-button" onclick="location.href='index.html'">🏠 Torna alla Home</button>
+  <!-- Sezione Aggiungi Risultati Allenamento -->
+  <h1>Inserisci Risultati Allenamento</h1>
+
+  <form id="form-allenamento">
+    <input type="date" id="data" required>
+    <input type="text" id="tipo" placeholder="Tipo attività (es: Altro)" required>
+    <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
+    <input type="number" id="calorie" placeholder="Calorie (es: 413)" required>
+    <input type="number" id="freq-media" placeholder="Frequenza Media (bpm)" required>
+    <input type="number" id="freq-max" placeholder="Frequenza Massima (bpm)" required>
+    <input type="number" step="0.1" id="eff-aerobico" placeholder="Effetto Aerobico (es: 2.4)" required>
+    <input type="number" step="0.1" id="eff-anaerobico" placeholder="Effetto Anaerobico (es: 1.2)" required>
+    <input type="number" id="recupero" placeholder="Tempo Recupero (h)" required>
+    <button type="submit" class="btn">Salva Allenamento</button>
+  </form>
+
+  <h2>Storico Allenamenti</h2>
+  <table id="tabella-allenamenti">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Tipo</th>
+        <th>Durata</th>
+        <th>Calorie</th>
+        <th>Frequenza Media</th>
+        <th>Frequenza Max</th>
+        <th>Effetto Aerobico</th>
+        <th>Effetto Anaerobico</th>
+        <th>Recupero (h)</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+
+  <div id="grafico-container">
+    <h2>Grafico Frequenza Cardiaca Media</h2>
+    <canvas id="grafico"></canvas>
+  </div>
+
+  <script>
+    // Inserisci qui il codice JavaScript che gestisce il salvataggio dei dati, la visualizzazione dei risultati e la gestione del grafico.
+  </script>
 
 </body>
 </html>
