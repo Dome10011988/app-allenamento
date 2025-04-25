@@ -109,19 +109,16 @@
 
     let chart;
 
-    function salvaAllenamento(event) {
-      event.preventDefault();
-      const allenamento = {
-        data: document.getElementById('data').value,
-        tipo: document.getElementById('tipo').value,
-        durata: document.getElementById('durata').value,
-        calorie: document.getElementById('calorie').value,
-        freqMedia: document.getElementById('freq-media').value,
-        freqMax: document.getElementById('freq-max').value,
-        effAerobico: document.getElementById('eff-aerobico').value,
-        effAnaerobico: document.getElementById('eff-anaerobico').value,
-        recupero: document.getElementById('recupero').value
-      };
+ function salvaAllenamento(event) {
+  event.preventDefault();
+  // ...logica salvataggio...
+  localStorage.setItem('allenamenti', JSON.stringify(allenamenti));
+  form.reset();
+  mostraAllenamenti();
+  aggiornaGrafico();
++ showToast('✔️ Allenamento registrato!');
+}
+
 
       let allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
       allenamenti.push(allenamento);
