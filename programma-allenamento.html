@@ -3,164 +3,213 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Allenamento & Risultati</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <title>Carica Scheda Allenamento e Risultati</title>
+
+  <!-- PDF.js -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.1/dist/tesseract.min.js"></script>
+  <!-- Chart.js for Results -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f4f4;
-      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
       margin: 0;
-      color: #2c3e50;
+      padding: 20px;
+      color: #333;
     }
-
-    h1, h2 {
+    h1 {
       text-align: center;
       color: #2c3e50;
     }
-
-    form, .upload-area, .pdf-section {
-      background: white;
-      border-radius: 10px;
-      padding: 20px;
-      max-width: 500px;
+    .upload, .results, .workout {
+      max-width: 900px;
       margin: 20px auto;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      padding: 20px;
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
     }
-
-    input, button {
-      width: 100%;
-      padding: 10px;
-      margin: 8px 0;
-      font-size: 1rem;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+    input[type="file"] {
+      margin-top: 10px;
     }
-
-    button {
-      background-color: #2c3e50;
-      color: white;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #1f2d3a;
-    }
-
     table {
       width: 100%;
-      margin-top: 30px;
       border-collapse: collapse;
+      margin-top: 20px;
     }
-
     th, td {
-      border: 1px solid #ccc;
       padding: 10px;
-      font-size: 0.95rem;
-      text-align: center;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
     }
-
     th {
-      background-color: #2c3e50;
+      background: #3498db;
       color: white;
     }
-
-    canvas {
-      max-width: 700px;
-      margin: 30px auto;
-      display: block;
+    tr:nth-child(even) td {
+      background: #f9f9f9;
     }
-
-    .home-btn {
-      display: block;
-      margin: 30px auto;
-      width: fit-content;
-      padding: 12px 24px;
-      background: #2c3e50;
+    .back-button {
+      padding: 10px 20px;
+      background: #3498db;
       color: white;
-      border-radius: 8px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    #pdf-viewer {
-      border: 1px solid #ccc;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 1rem;
       margin-top: 10px;
-      background: #fff;
-      overflow: auto;
-      max-height: 600px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 <body>
 
-  <h1>💪 Allenamento & Risultati</h1>
+  <h1>📋 Carica la Scheda Allenamento e Visualizza Risultati</h1>
 
-  <!-- FORM INSERIMENTO RISULTATI -->
-  <form id="form-allenamento">
-    <input type="date" id="data" required />
-    <input type="text" id="tipo" placeholder="Tipo attività (es: corsa, camminata)" required />
-    <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required />
-    <input type="number" id="calorie" placeholder="Calorie" required />
-    <input type="number" id="freq-media" placeholder="Frequenza Media" required />
-    <input type="number" id="freq-max" placeholder="Frequenza Massima" required />
-    <input type="number" step="0.1" id="eff-aerobico" placeholder="Effetto Aerobico" />
-    <input type="number" step="0.1" id="eff-anaerobico" placeholder="Effetto Anaerobico" />
-    <input type="number" step="0.1" id="recupero" placeholder="Recupero (h)" />
-    <button type="submit">Salva Risultato</button>
-  </form>
-
-  <!-- OCR FOTO -->
-  <div class="upload-area">
-    <h2>📷 Carica Foto Huawei Health</h2>
-    <input type="file" accept="image/*" id="foto-ocr">
+  <!-- Sezione Caricamento Piano Allenamento (PDF) -->
+  <div class="upload">
+    <h2>Carica il tuo Piano di Allenamento (PDF)</h2>
+    <input type="file" id="pdf-upload" accept="application/pdf">
   </div>
 
-  <!-- PDF UPLOAD -->
-  <div class="pdf-section">
-    <h2>📋 Carica Scheda Allenamento (PDF)</h2>
-    <input type="file" accept="application/pdf" id="pdf-upload">
-    <canvas id="pdf-viewer"></canvas>
+  <!-- Sezione Visualizzazione Piano Allenamento -->
+  <div class="workout" id="output"></div>
+
+  <!-- Sezione Caricamento Risultati Allenamento -->
+  <div class="results">
+    <h2>Carica Risultato Allenamento (Foto Huawei Health)</h2>
+    <input type="file" id="file-input" accept="image/*">
+    <h3>Storico Risultati</h3>
+    <table id="tabella-allenamenti">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Tipo</th>
+          <th>Durata</th>
+          <th>Calorie</th>
+          <th>Frequenza Media</th>
+          <th>Frequenza Max</th>
+          <th>Effetto Aerobico</th>
+          <th>Effetto Anaerobico</th>
+          <th>Recupero (h)</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+    <h3>Grafico Frequenza Cardiaca Media</h3>
+    <canvas id="grafico"></canvas>
   </div>
-
-  <!-- TABELLA -->
-  <h2>📈 Storico Allenamenti</h2>
-  <table id="tabella-risultati">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Tipo</th>
-        <th>Durata</th>
-        <th>Calorie</th>
-        <th>FC Media</th>
-        <th>FC Max</th>
-        <th>Aerobico</th>
-        <th>Anaerobico</th>
-        <th>Recupero</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-
-  <canvas id="grafico"></canvas>
-
-  <a class="home-btn" href="index.html">🏠 Torna alla Home</a>
 
   <script>
+    // Parte Caricamento e Visualizzazione PDF Piano Allenamento
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.worker.min.js';
+
+    document.getElementById('pdf-upload').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (!file || file.type !== 'application/pdf') {
+        alert('Per favore seleziona un PDF valido.');
+        return;
+      }
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+      let fullText = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        const strings = content.items.map(item => item.str.trim());
+        fullText += strings.join(' ') + '\n';
+      }
+      renderWorkout(parseWorkout(fullText));
+    });
+
+    function parseWorkout(text) {
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+      const days = [];
+      let currentDay = null;
+      let currentPhase = null;
+
+      lines.forEach(line => {
+        let m;
+        if (m = line.match(/^Giorno\s*(\d+)/i)) {
+          if (currentDay) days.push(currentDay);
+          currentDay = { title: `Giorno ${m[1]}`, phases: [] };
+          currentPhase = null;
+        }
+        else if (currentDay && (m = line.match(/^([A-Za-z ]+?)\s*\(?\d*[-\d]*\)?\s*:\s*(.+)/))) {
+          currentPhase = { name: m[1].trim(), items: [ m[2].trim() ] };
+          currentDay.phases.push(currentPhase);
+        }
+        else if (currentDay && line.startsWith('-')) {
+          if (!currentPhase) {
+            currentPhase = { name: 'Allenamento', items: [] };
+            currentDay.phases.push(currentPhase);
+          }
+          currentPhase.items.push(line.replace(/^-+\s*/, '').trim());
+        }
+      });
+      if (currentDay) days.push(currentDay);
+      return days;
+    }
+
+    function renderWorkout(days) {
+      const container = document.getElementById('output');
+      container.innerHTML = '';
+      days.forEach(day => {
+        const section = document.createElement('section');
+        const h2 = document.createElement('h2');
+        h2.textContent = day.title;
+        section.appendChild(h2);
+
+        const table = document.createElement('table');
+        const thead = document.createElement('thead');
+        thead.innerHTML = `<tr><th>Fase</th><th>Esercizio</th></tr>`;
+        table.appendChild(thead);
+
+        const tbody = document.createElement('tbody');
+        day.phases.forEach(phase => {
+          phase.items.forEach(item => {
+            const tr = document.createElement('tr');
+            const phaseCell = document.createElement('td');
+            phaseCell.textContent = phase.name;
+            tr.appendChild(phaseCell);
+
+            const itemCell = document.createElement('td');
+            itemCell.textContent = item;
+            tr.appendChild(itemCell);
+
+            tbody.appendChild(tr);
+          });
+        });
+
+        table.appendChild(tbody);
+        section.appendChild(table);
+        container.appendChild(section);
+      });
+    }
+
+    // Parte Risultati Allenamento
     const form = document.getElementById('form-allenamento');
-    const tabella = document.querySelector('#tabella-risultati tbody');
+    const tabellaBody = document.querySelector('#tabella-allenamenti tbody');
     const ctx = document.getElementById('grafico').getContext('2d');
-    const fileOCR = document.getElementById('foto-ocr');
-    const filePDF = document.getElementById('pdf-upload');
-    const pdfCanvas = document.getElementById('pdf-viewer');
+    const fileInput = document.getElementById('file-input');
 
-    let allenamenti = JSON.parse(localStorage.getItem('risultatiAllenamento')) || [];
+    let chart;
 
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      const dati = {
+    form.addEventListener('submit', salvaAllenamento);
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        leggiFoto(file);
+      }
+    });
+
+    function salvaAllenamento(event) {
+      event.preventDefault();
+      const allenamento = {
         data: document.getElementById('data').value,
         tipo: document.getElementById('tipo').value,
         durata: document.getElementById('durata').value,
@@ -171,94 +220,68 @@
         effAnaerobico: document.getElementById('eff-anaerobico').value,
         recupero: document.getElementById('recupero').value
       };
-      allenamenti.push(dati);
-      localStorage.setItem('risultatiAllenamento', JSON.stringify(allenamenti));
-      form.reset();
-      mostraTabella();
+
+      let allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
+      allenamenti.push(allenamento); 
+      localStorage.setItem('allenamenti', JSON.stringify(allenamenti));
+      mostraAllenamenti();
       aggiornaGrafico();
-    });
+    }
 
-    fileOCR.addEventListener('change', async e => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const { data: { text } } = await Tesseract.recognize(file, 'ita');
-      const testo = text;
-      const match = r => (testo.match(r) || [])[1] || '';
-
-      document.getElementById('calorie').value = match(/(\d+)\s?kcal/i);
-      document.getElementById('durata').value = match(/Durata\s*(\d{2}:\d{2}:\d{2})/);
-      document.getElementById('freq-media').value = match(/Media.*?(\d+)/i);
-      document.getElementById('freq-max').value = match(/Max.*?(\d+)/i);
-      document.getElementById('eff-aerobico').value = match(/Aerobico.*?([\d.]+)/i);
-      document.getElementById('eff-anaerobico').value = match(/Anaerobico.*?([\d.]+)/i);
-      document.getElementById('recupero').value = match(/Recupero.*?(\d+)/i);
-      document.getElementById('data').valueAsDate = new Date();
-      document.getElementById('tipo').value = "Huawei Health";
-    });
-
-    function mostraTabella() {
-      tabella.innerHTML = '';
+    function mostraAllenamenti() {
+      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
+      tabellaBody.innerHTML = '';
       allenamenti.forEach(a => {
-        tabella.innerHTML += `
-          <tr>
-            <td>${a.data}</td>
-            <td>${a.tipo}</td>
-            <td>${a.durata}</td>
-            <td>${a.calorie}</td>
-            <td>${a.freqMedia}</td>
-            <td>${a.freqMax}</td>
-            <td>${a.effAerobico}</td>
-            <td>${a.effAnaerobico}</td>
-            <td>${a.recupero}</td>
-          </tr>
-        `;
+        const row = `<tr>
+          <td>${a.data}</td>
+          <td>${a.tipo}</td>
+          <td>${a.durata}</td>
+          <td>${a.calorie}</td>
+          <td>${a.freqMedia}</td>
+          <td>${a.freqMax}</td>
+          <td>${a.effAerobico}</td>
+          <td>${a.effAnaerobico}</td>
+          <td>${a.recupero}</td>
+        </tr>`;
+        tabellaBody.innerHTML += row;
       });
     }
 
-    let grafico;
     function aggiornaGrafico() {
+      const allenamenti = JSON.parse(localStorage.getItem('allenamenti')) || [];
       const labels = allenamenti.map(a => a.data);
-      const datiFrequenze = allenamenti.map(a => a.freqMedia);
+      const datiFrequenza = allenamenti.map(a => a.freqMedia);
 
-      if (grafico) grafico.destroy();
-      grafico = new Chart(ctx, {
+      if (chart) {
+        chart.destroy();
+      }
+
+      chart = new Chart(ctx, {
         type: 'line',
         data: {
-          labels,
+          labels: labels,
           datasets: [{
-            label: 'FC Media',
-            data: datiFrequenze,
-            borderColor: '#2c3e50',
-            backgroundColor: 'rgba(44,62,80,0.1)',
-            fill: true,
-            tension: 0.3
+            label: 'Frequenza Media (bpm)',
+            data: datiFrequenza,
+            fill: false,
+            borderColor: '#3498db',
+            tension: 0.1
           }]
+        },
+        options: {
+          responsive: true,
+          scales: {
+            y: {
+              beginAtZero: false
+            }
+          }
         }
       });
     }
 
-    filePDF.addEventListener('change', async (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-
-      const fileReader = new FileReader();
-      fileReader.onload = async function () {
-        const pdf = await pdfjsLib.getDocument({ data: fileReader.result }).promise;
-        const page = await pdf.getPage(1);
-        const viewport = page.getViewport({ scale: 1.5 });
-        const context = pdfCanvas.getContext('2d');
-        pdfCanvas.width = viewport.width;
-        pdfCanvas.height = viewport.height;
-        await page.render({ canvasContext: context, viewport: viewport }).promise;
-      };
-      fileReader.readAsArrayBuffer(file);
-    });
-
-    // Init
-    mostraTabella();
+    // Carica e mostra i dati
+    mostraAllenamenti();
     aggiornaGrafico();
   </script>
-
 </body>
 </html>
