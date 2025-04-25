@@ -1,3 +1,14 @@
+// --- Toast notifications ---
+function showToast(msg) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = msg;
+  container.appendChild(toast);
+  // Rimuovi dopo 3s
+  setTimeout(() => container.removeChild(toast), 3000);
+}
 // --- Gestione Nome Utente ---
 const userKey = 'ft_username';
 let username = localStorage.getItem(userKey);
