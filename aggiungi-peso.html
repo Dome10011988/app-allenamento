@@ -1,63 +1,54 @@
-CAMBIA TEMA SU QUESTO CODICE
-ECCO IL CODICE
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Aggiungi Peso</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>➕ Aggiungi Peso - Fit Tracker</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Tema globale -->
+  <link rel="stylesheet" href="style.css">
+  <script src="script.js" defer></script>
+
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
   <style>
-    :root {
-      --primary-color: #00a86b;
-      --light-color: #f4f4f4;
-      --bg-color: #ffffff;
-      --text-color: #333;
-    }
-
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      background-color: var(--light-color);
-      padding: 20px;
-      margin: 0;
-      color: var(--text-color);
-    }
-
-    h1 {
-      text-align: center;
-      color: var(--primary-color);
-    }
-
+    /* === Stili specifici per questa pagina === */
     form {
       display: flex;
       flex-direction: column;
-      align-items: center;
       gap: 10px;
-      background-color: white;
+      background: var(--bg-alt);
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       max-width: 400px;
-      margin: auto;
+      width: 100%;
+      margin: 0 auto;
     }
 
     input, button {
       padding: 10px;
       border-radius: 8px;
-      border: 1px solid #ccc;
+      border: 1px solid var(--muted);
       font-size: 1rem;
       width: 100%;
+      background: var(--bg-alt);
+      color: var(--text);
     }
 
     button {
-      background-color: var(--primary-color);
-      color: white;
+      background: var(--primary);
+      color: var(--header-text);
+      border: none;
       cursor: pointer;
-      transition: 0.3s;
+      transition: background 0.3s;
     }
-
     button:hover {
-      background-color: #008f5a;
+      background: var(--primary-hover);
     }
 
     canvas {
@@ -69,10 +60,11 @@ ECCO IL CODICE
     .entry-list {
       margin: 20px auto;
       max-width: 400px;
-      background: white;
+      background: var(--bg-alt);
       padding: 15px;
       border-radius: 12px;
       box-shadow: 0 0 6px rgba(0,0,0,0.08);
+      width: 100%;
     }
 
     .entry {
@@ -80,23 +72,35 @@ ECCO IL CODICE
       justify-content: space-between;
       margin-bottom: 6px;
       font-size: 0.95rem;
+      color: var(--text);
     }
 
     .entry button {
       padding: 4px 8px;
       font-size: 0.8rem;
       margin-left: 5px;
+      background: #e74c3c;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+    }
+    .entry button:hover {
+      background: #c0392b;
     }
 
     footer {
       text-align: center;
       margin-top: 30px;
       font-size: 0.85rem;
-      color: #777;
+      color: var(--muted);
     }
   </style>
 </head>
 <body>
+
+  <!-- Toggle tema -->
+  <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+
   <h1>📉 Aggiungi il Tuo Peso</h1>
 
   <form id="pesoForm">
@@ -109,103 +113,97 @@ ECCO IL CODICE
 
   <div class="entry-list" id="listaPesi"></div>
 
-  <footer>
-    &copy; 2025 Tuo Benessere Digitale
-  </footer>
+  <footer>&copy; 2025 Tuo Benessere Digitale</footer>
 
   <script>
-  const form = document.getElementById('pesoForm');
-  const dataInput = document.getElementById('data');
-  const pesoInput = document.getElementById('peso');
-  const listaPesi = document.getElementById('listaPesi');
-  const chartCtx = document.getElementById('pesoChart').getContext('2d');
+    // --- Tema già gestito da script.js ---
 
-  let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
+    // --- Logica Aggiungi Peso e Grafico ---
+    const form = document.getElementById('pesoForm');
+    const dataInput = document.getElementById('data');
+    const pesoInput = document.getElementById('peso');
+    const listaPesi = document.getElementById('listaPesi');
+    const chartCtx = document.getElementById('pesoChart').getContext('2d');
 
-  const salvaLocalStorage = () => {
-    pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
-    localStorage.setItem('pesi', JSON.stringify(pesi));
-    mostraPesi();
-    aggiornaGrafico();
-  };
+    let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const nuovo = {
-      data: dataInput.value,
-      peso: parseFloat(pesoInput.value)
+    const salvaLocalStorage = () => {
+      pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
+      localStorage.setItem('pesi', JSON.stringify(pesi));
+      mostraPesi();
+      aggiornaGrafico();
     };
-    pesi.push(nuovo);
-    dataInput.value = '';
-    pesoInput.value = '';
-    salvaLocalStorage();
-  });
 
-  function mostraPesi() {
-    listaPesi.innerHTML = '';
-    pesi.forEach((entry, index) => {
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
-        <span>${entry.data} — ${entry.peso} kg</span>
-        <span>
-          <button onclick="modifica(${index})">✏️</button>
-          <button onclick="elimina(${index})">❌</button>
-        </span>
-      `;
-      listaPesi.appendChild(div);
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
+      dataInput.value = '';
+      pesoInput.value = '';
+      salvaLocalStorage();
     });
-  }
 
-  function elimina(index) {
-    if (confirm("Vuoi eliminare questa voce?")) {
-      pesi.splice(index, 1);
-      salvaLocalStorage();
+    function mostraPesi() {
+      listaPesi.innerHTML = '';
+      pesi.forEach((entry, i) => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
+          <span>${entry.data} — ${entry.peso} kg</span>
+          <span>
+            <button onclick="modifica(${i})">✏️</button>
+            <button onclick="elimina(${i})">❌</button>
+          </span>
+        `;
+        listaPesi.appendChild(div);
+      });
     }
-  }
 
-  function modifica(index) {
-    const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
-    if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
-      pesi[index].peso = parseFloat(nuovoPeso);
-      salvaLocalStorage();
-    }
-  }
-
-  let grafico = new Chart(chartCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Peso (kg)',
-        data: [],
-        borderColor: '#00a86b',
-        backgroundColor: 'rgba(0,168,107,0.2)',
-        tension: 0.2,
-        pointRadius: 4,
-        fill: true,
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        x: {
-          ticks: {
-            maxRotation: 45,
-            minRotation: 45,
-          }
-        }
+    function elimina(i) {
+      if (confirm("Vuoi eliminare questa voce?")) {
+        pesi.splice(i, 1);
+        salvaLocalStorage();
       }
     }
-  });
 
-  function aggiornaGrafico() {
-    grafico.data.labels = pesi.map(p => p.data);
-    grafico.data.datasets[0].data = pesi.map(p => p.peso);
-    grafico.update();
-  }
+    function modifica(i) {
+      const np = prompt("Modifica peso:", pesi[i].peso);
+      if (np !== null && !isNaN(np)) {
+        pesi[i].peso = parseFloat(np);
+        salvaLocalStorage();
+      }
+    }
 
-  // Carica tutto al primo avvio
-  mostraPesi();
-  aggiornaGrafico();
-</script>
+    let grafico = new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Peso (kg)',
+          data: [],
+          borderColor: 'var(--primary)',
+          backgroundColor: 'rgba(0,168,107,0.2)',
+          tension: 0.2,
+          pointRadius: 4,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { ticks: { maxRotation: 45, minRotation: 45 } }
+        }
+      }
+    });
+
+    function aggiornaGrafico() {
+      grafico.data.labels = pesi.map(p => p.data);
+      grafico.data.datasets[0].data = pesi.map(p => p.peso);
+      grafico.update();
+    }
+
+    // Inizializza
+    mostraPesi();
+    aggiornaGrafico();
+  </script>
+</body>
+</html>
