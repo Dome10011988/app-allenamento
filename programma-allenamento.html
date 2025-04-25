@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Carica e Visualizza Piano Allenamento</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.min.js"></script>
@@ -61,8 +61,10 @@
   <div class="workout" id="output"></div>
 
   <script>
+    // Configurazione PDF.js
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.14.305/build/pdf.worker.min.js';
 
+    // Funzione di caricamento PDF
     document.getElementById('pdf-upload').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (!file || file.type !== 'application/pdf') {
@@ -82,6 +84,7 @@
       renderWorkout(parseWorkout(fullText));
     });
 
+    // Parsing del testo estratto
     function parseWorkout(text) {
       const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
       const days = [];
@@ -111,6 +114,7 @@
       return days;
     }
 
+    // Funzione per visualizzare il piano di allenamento
     function renderWorkout(days) {
       const container = document.getElementById('output');
       container.innerHTML = '';
