@@ -130,12 +130,14 @@
     };
 
     form.addEventListener('submit', e => {
-      e.preventDefault();
-      pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
-      dataInput.value = '';
-      pesoInput.value = '';
-      salvaLocalStorage();
-    });
+  e.preventDefault();
+  pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
+  dataInput.value = '';
+  pesoInput.value = '';
+  salvaLocalStorage();
++ showToast('✔️ Peso salvato con successo!');
+});
+
 
     function mostraPesi() {
       listaPesi.innerHTML = '';
