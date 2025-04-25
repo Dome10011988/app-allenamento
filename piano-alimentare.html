@@ -2,14 +2,14 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Piano Alimentare Settimanale</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
-      padding: 20px;
       margin: 0;
+      padding: 20px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -21,45 +21,42 @@
     .button {
       padding: 10px 20px;
       background: #3498db;
-      color: white;
+      color: #fff;
       border: none;
       border-radius: 8px;
       cursor: pointer;
       font-size: 1rem;
       margin-bottom: 20px;
     }
-    .button:hover {
-      background: #2980b9;
-    }
     .day-container {
-      width: 80%;
+      width: 90%;
       max-width: 800px;
       background: #fff;
       border-radius: 8px;
       box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin: 20px 0;
-      padding: 15px;
+      margin: 10px 0;
+      overflow: hidden;
     }
     .day-header {
       background: #3498db;
-      color: white;
-      padding: 10px;
-      font-size: 1.2rem;
+      color: #fff;
+      padding: 12px;
+      font-size: 1.1rem;
       cursor: pointer;
-      border-radius: 8px;
     }
     .day-content {
       display: none;
-      margin-top: 10px;
+      padding: 10px;
     }
     table {
       width: 100%;
       border-collapse: collapse;
     }
     th, td {
-      padding: 12px;
-      text-align: left;
+      padding: 8px;
       border-bottom: 1px solid #ddd;
+      text-align: left;
+      font-size: 0.95rem;
     }
     th {
       background: #ecf0f1;
@@ -72,20 +69,15 @@
 <body>
 
   <h1>🍽️ Piano Alimentare Settimanale</h1>
-  
   <button class="button" onclick="location.href='index.html'">🏠 Torna alla Home</button>
 
-  <!-- Giorno 1 -->
+  <!-- Lunedì -->
   <div class="day-container">
     <div class="day-header" onclick="toggleContent(1)">Lunedì</div>
     <div id="day-1" class="day-content">
       <table>
         <thead>
-          <tr>
-            <th>Pasto</th>
-            <th>Uomo</th>
-            <th>Donna</th>
-          </tr>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
         </thead>
         <tbody>
           <tr><td>Colazione</td><td>200 ml latte + 40 g avena + 100 g frutti di bosco + 1 cucchiaino miele</td><td>150 ml latte + 30 g avena + 70 g frutti di bosco + 1 cucchiaino miele</td></tr>
@@ -98,17 +90,13 @@
     </div>
   </div>
 
-  <!-- Giorno 2 -->
+  <!-- Martedì -->
   <div class="day-container">
     <div class="day-header" onclick="toggleContent(2)">Martedì</div>
     <div id="day-2" class="day-content">
       <table>
         <thead>
-          <tr>
-            <th>Pasto</th>
-            <th>Uomo</th>
-            <th>Donna</th>
-          </tr>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
         </thead>
         <tbody>
           <tr><td>Colazione</td><td>150 g yogurt greco + 20 g granola + 1 frutto medio</td><td>125 g yogurt greco + 15 g granola + 1 frutto piccolo</td></tr>
@@ -121,17 +109,13 @@
     </div>
   </div>
 
-  <!-- Giorno 3 -->
+  <!-- Mercoledì -->
   <div class="day-container">
     <div class="day-header" onclick="toggleContent(3)">Mercoledì</div>
     <div id="day-3" class="day-content">
       <table>
         <thead>
-          <tr>
-            <th>Pasto</th>
-            <th>Uomo</th>
-            <th>Donna</th>
-          </tr>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
         </thead>
         <tbody>
           <tr><td>Colazione</td><td>200 ml latte + 40 g avena + 100 g kiwi + 1 cucchiaino miele</td><td>150 ml latte + 30 g avena + 70 g kiwi + 1 cucchiaino miele</td></tr>
@@ -144,20 +128,16 @@
     </div>
   </div>
 
-  <!-- Giorno 4 -->
+  <!-- Giovedì -->
   <div class="day-container">
     <div class="day-header" onclick="toggleContent(4)">Giovedì</div>
     <div id="day-4" class="day-content">
       <table>
         <thead>
-          <tr>
-            <th>Pasto</th>
-            <th>Uomo</th>
-            <th>Donna</th>
-          </tr>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
         </thead>
         <tbody>
-          <tr><td>Colazione</td><td>Frullato: 200 ml latte vegetale + 1 banana + spinaci</td><td>Frullato: 150 ml latte vegetale + 1/2 banana + spinaci</td></tr>
+          <tr><td>Colazione</td><td>Frullato: 200 ml latte vegetale + 1 banana + spinaci</td><td>Frullato: 150 ml latte vegetale + ½ banana + spinaci</td></tr>
           <tr><td>Spuntino Mattina</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
           <tr><td>Pranzo</td><td>150 g vitello + 100 g riso integrale + verdure + 5 g olio EVO</td><td>120 g vitello + 70 g riso integrale + verdure + 5 g olio EVO</td></tr>
           <tr><td>Spuntino Pomeriggio</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
@@ -167,10 +147,67 @@
     </div>
   </div>
 
+  <!-- Venerdì -->
+  <div class="day-container">
+    <div class="day-header" onclick="toggleContent(5)">Venerdì</div>
+    <div id="day-5" class="day-content">
+      <table>
+        <thead>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Colazione</td><td>200 ml latte + 40 g avena + 100 g mirtilli + 1 cucchiaino miele</td><td>150 ml latte + 30 g avena + 70 g mirtilli + 1 cucchiaino miele</td></tr>
+          <tr><td>Spuntino Mattina</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
+          <tr><td>Pranzo</td><td>150 g tacchino + 100 g quinoa + verdure crude + 5 g olio EVO</td><td>120 g tacchino + 70 g quinoa + verdure crude + 5 g olio EVO</td></tr>
+          <tr><td>Spuntino Pomeriggio</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
+          <tr><td>Cena</td><td>150 g tonno grigliato + insalata + 30 g pane integrale + 5 g olio EVO</td><td>120 g branzino o orata + insalata + 20 g pane integrale + 5 g olio EVO</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Sabato -->
+  <div class="day-container">
+    <div class="day-header" onclick="toggleContent(6)">Sabato</div>
+    <div id="day-6" class="day-content">
+      <table>
+        <thead>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Colazione</td><td>150 g yogurt greco + 1 cucchiaio miele + 1 frutto medio</td><td>125 g yogurt greco + 1 cucchiaino miele + 1 frutto piccolo</td></tr>
+          <tr><td>Spuntino Mattina</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
+          <tr><td>Pranzo</td><td>150 g pollo + 100 g riso basmati + verdure + 5 g olio EVO</td><td>120 g pollo + 70 g riso basmati + verdure + 5 g olio EVO</td></tr>
+          <tr><td>Spuntino Pomeriggio</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
+          <tr><td>Cena</td><td>150 g sgombro al forno + spinaci + 30 g pane integrale + 5 g olio EVO</td><td>120 g sgombro al forno + spinaci + 20 g pane integrale + 5 g olio EVO</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Domenica -->
+  <div class="day-container">
+    <div class="day-header" onclick="toggleContent(7)">Domenica</div>
+    <div id="day-7" class="day-content">
+      <table>
+        <thead>
+          <tr><th>Pasto</th><th>Uomo</th><th>Donna</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Colazione</td><td>Pancake fit: 3 albumi + 30 g avena + frutta fresca</td><td>Pancake fit: 2 albumi + 20 g avena + frutta fresca</td></tr>
+          <tr><td>Spuntino Mattina</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
+          <tr><td>Pranzo</td><td>Grigliata: 150 g carne magra o pesce + verdure grigliate + 5 g olio EVO</td><td>Grigliata: 120 g carne magra o pesce + verdure grigliate + 5 g olio EVO</td></tr>
+          <tr><td>Spuntino Pomeriggio</td><td>20 g frutta secca</td><td>15 g frutta secca</td></tr>
+          <tr><td>Cena</td><td>Insalatona proteica (pollo/tacchino/salmone + avocado + verdure)</td><td>Insalatona proteica (pollo/tacchino/salmone + avocado + verdure)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
   <script>
     function toggleContent(day) {
       const content = document.getElementById(`day-${day}`);
-      content.style.display = content.style.display === 'none' ? 'block' : 'none';
+      content.style.display = content.style.display === 'block' ? 'none' : 'block';
     }
   </script>
 
