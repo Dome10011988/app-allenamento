@@ -1,69 +1,67 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🏠 Home - Fit Tracker</title>
+
+  <!-- PWA manifest -->
+  <link rel="manifest" href="manifest.json">
+
+  <!-- Stili e script di tema -->
   <link rel="stylesheet" href="style.css">
-<script src="script.js" defer></script>
-<meta name="theme-color" content="#3498db">
-<link rel="stylesheet" href="/style.css">
-  <meta property="og:image" content="/kettlebell-preview.png" />
-  <meta name="twitter:image" content="/kettlebell-preview.png" />
-  <title>🏠 Home</title>
+  <script src="script.js" defer></script>
+  
   <style>
-    :root {
-      --primary: #3498db;
-      --light-bg: #f4f4f4;
-      --card-bg: #fff;
-      --text: #333;
-    }
-    * { box-sizing: border-box; }
+    /* Piccola sovrascrittura per il layout home */
     body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: var(--light-bg);
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px 20px;
+      padding-top: 60px;
     }
     h1 {
-      color: var(--text);
-      margin-bottom: 30px;
+      margin-bottom: 40px;
+      font-size: 2rem;
     }
     .button {
-      width: 100%;
-      max-width: 350px; /* Aumentato per rendere il bottone più largo */
-      padding: 20px; /* Aumentato il padding per un bottone più grande */
-      margin: 15px 0; /* Margine maggiore per spaziatura */
-      font-size: 1.5rem; /* Aumentata la dimensione del testo */
-      color: #fff;
-      background: var(--primary);
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.3s;
-      text-align: center; /* Centra il testo nel bottone */
-    }
-    .button:hover {
-      background: darken(var(--primary), 10%);
+      width: 90%;
+      max-width: 300px;
+      margin: 10px 0;
+      text-align: center;
     }
   </style>
 </head>
 <body>
+
+  <!-- Tema toggle -->
   <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
- <script src="/script.js"></script>
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(() => console.log('SW registrato'))
-        .catch(err => console.error('SW errore:', err));
-    });
-  }
-</script>
-  <h1>🏠 Benvenuto</h1>
-  <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
-  <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
-  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
-  <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
+
+  <h1>🏠 Benvenuto in Fit Tracker</h1>
+
+  <!-- Menu principale -->
+  <button class="button" onclick="location.href='programma-allenamento.html'">
+    💪 Programma Allenamento
+  </button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">
+    🍽️ Piano Alimentare Settimanale
+  </button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
+    🛒 Lista Spesa Giornaliera
+  </button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">
+    ➕ Aggiungi Peso
+  </button>
+
+  <!-- Registrazione Service Worker -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker registrato'))
+          .catch(err => console.error('Errore SW:', err));
+      });
+    }
+  </script>
 </body>
 </html>
