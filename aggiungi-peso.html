@@ -1,126 +1,142 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>➕ Aggiungi Peso - Fit Tracker</title>
-
-  <!-- PWA manifest -->
-  <link rel="manifest" href="manifest.json">
-
-  <!-- Tema globale e stili base -->
-  <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
-
-  <!-- Chart.js -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Aggiungi Peso</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
   <style>
-    /* layout specifico di questa pagina */
+    :root {
+      --primary: #2c3e50;
+      --accent: #2980b9;
+      --bg: #f4f4f4;
+      --card: #fff;
+      --text: #333;
+    }
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
       padding: 20px;
+      margin: 0;
+      color: var(--text);
     }
     h1 {
-      margin: 20px 0;
-      color: #3498db;
+      text-align: center;
+      color: var(--primary);
     }
     form {
-      width: 100%;
+      background-color: var(--card);
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.05);
       max-width: 400px;
+      margin: 20px auto;
       display: flex;
       flex-direction: column;
       gap: 12px;
-      background: var(--bg-alt);
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
-    input {
+    input, button {
       padding: 10px;
       font-size: 1rem;
-      border: 1px solid var(--muted);
-      border-radius: 6px;
-      background: var(--bg-alt);
-      color: var(--text);
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      width: 100%;
+    }
+    button {
+      background: var(--accent);
+      color: white;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #1c6aa6;
     }
     canvas {
-      width: 100% !important;
-      max-width: 600px;
-      margin: 30px 0;
+      max-width: 800px;
+      margin: 40px auto;
+      display: block;
     }
     .entry-list {
-      width: 100%;
       max-width: 400px;
-      background: var(--bg-alt);
+      margin: auto;
+      background: white;
       padding: 15px;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-      margin: 20px 0;
+      border-radius: 10px;
+      box-shadow: 0 0 4px rgba(0,0,0,0.1);
     }
     .entry {
       display: flex;
       justify-content: space-between;
       margin-bottom: 8px;
-      color: var(--text);
     }
-    .entry button {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-      background: #e74c3c;
-      color: #fff;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
+    .goals {
+      max-width: 400px;
+      margin: 20px auto;
+      padding: 15px;
+      background: #e8f6ff;
+      border-left: 4px solid var(--accent);
+      border-radius: 10px;
     }
-    .entry button:hover {
-      background: #c0392b;
-    }
-    footer {
+    .home-button {
       margin-top: 30px;
-      font-size: 0.85rem;
-      color: var(--muted);
+      display: block;
+      background-color: var(--primary);
+      color: white;
+      padding: 10px 20px;
+      font-size: 1rem;
+      text-align: center;
+      border-radius: 8px;
+      text-decoration: none;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
     }
   </style>
 </head>
 <body>
-  <!-- Saluto utente -->
-  <div id="user-greeting" class="user-greeting"></div>
-  
-  <!-- Toggle tema -->
-  <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
   <h1>📉 Aggiungi il Tuo Peso</h1>
 
+  <!-- Obiettivo -->
+  <form id="obiettivoForm">
+    <input type="number" id="obiettivo" step="0.1" placeholder="Imposta obiettivo (kg)">
+    <button type="submit">Salva Obiettivo</button>
+  </form>
+
+  <div class="goals" id="goalBox"></div>
+
+  <!-- Inserimento Peso -->
   <form id="pesoForm">
     <input type="date" id="data" required />
     <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
-    <button type="submit" class="button">Salva Peso</button>
+    <button type="submit">Salva Peso</button>
   </form>
 
   <canvas id="pesoChart"></canvas>
 
   <div class="entry-list" id="listaPesi"></div>
 
-  <!-- Torna alla Home -->
-  <button class="button" onclick="location.href='index.html'">
-    🏠 Torna alla Home
-  </button>
-
-  <footer>&copy; 2025 Tuo Benessere Digitale</footer>
+  <a class="home-button" href="index.html">🏠 Torna alla Home</a>
 
   <script>
-    // --- Logica tema (script.js si occuperà anche di questa parte) ---
-    // --- Gestione dei dati e grafico ---
     const form = document.getElementById('pesoForm');
+    const obiettivoForm = document.getElementById('obiettivoForm');
     const dataInput = document.getElementById('data');
     const pesoInput = document.getElementById('peso');
     const listaPesi = document.getElementById('listaPesi');
     const chartCtx = document.getElementById('pesoChart').getContext('2d');
+    const goalBox = document.getElementById('goalBox');
 
     let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
+    let obiettivo = localStorage.getItem('obiettivoPeso');
+
+    obiettivoForm.addEventListener('submit', e => {
+      e.preventDefault();
+      obiettivo = document.getElementById('obiettivo').value;
+      localStorage.setItem('obiettivoPeso', obiettivo);
+      aggiornaObiettivoBox();
+      aggiornaGrafico();
+    });
 
     const salvaLocalStorage = () => {
       pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
@@ -129,43 +145,41 @@
       aggiornaGrafico();
     };
 
-    form.addEventListener('submit', e => {
-  e.preventDefault();
-  pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
-  dataInput.value = '';
-  pesoInput.value = '';
-  salvaLocalStorage();
-+ showToast('✔️ Peso salvato con successo!');
-});
-
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
+      dataInput.value = '';
+      pesoInput.value = '';
+      salvaLocalStorage();
+    });
 
     function mostraPesi() {
       listaPesi.innerHTML = '';
-      pesi.forEach((entry, i) => {
+      pesi.forEach((entry, index) => {
         const div = document.createElement('div');
         div.className = 'entry';
         div.innerHTML = `
           <span>${entry.data} — ${entry.peso} kg</span>
           <span>
-            <button onclick="modifica(${i})">✏️</button>
-            <button onclick="elimina(${i})">❌</button>
+            <button onclick="modifica(${index})">✏️</button>
+            <button onclick="elimina(${index})">❌</button>
           </span>
         `;
         listaPesi.appendChild(div);
       });
     }
 
-    function elimina(i) {
+    function elimina(index) {
       if (confirm("Vuoi eliminare questa voce?")) {
-        pesi.splice(i, 1);
+        pesi.splice(index, 1);
         salvaLocalStorage();
       }
     }
 
-    function modifica(i) {
-      const np = prompt("Modifica peso:", pesi[i].peso);
-      if (np !== null && !isNaN(np)) {
-        pesi[i].peso = parseFloat(np);
+    function modifica(index) {
+      const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
+      if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
+        pesi[index].peso = parseFloat(nuovoPeso);
         salvaLocalStorage();
       }
     }
@@ -177,30 +191,72 @@
         datasets: [{
           label: 'Peso (kg)',
           data: [],
-          borderColor: 'var(--primary)',
-          backgroundColor: 'rgba(0,168,107,0.2)',
-          tension: 0.2,
-          pointRadius: 4,
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52,152,219,0.1)',
+          pointRadius: 5,
+          tension: 0.3,
           fill: true
         }]
       },
       options: {
         responsive: true,
         scales: {
-          x: { ticks: { maxRotation: 45, minRotation: 45 } }
+          y: {
+            suggestedMin: 50,
+            suggestedMax: 120
+          }
+        },
+        plugins: {
+          annotation: {
+            annotations: {}
+          }
         }
       }
     });
 
+    function aggiornaObiettivoBox() {
+      if (obiettivo && pesi.length > 0) {
+        const ultimoPeso = pesi[pesi.length - 1].peso;
+        const diff = (ultimoPeso - obiettivo).toFixed(1);
+        goalBox.innerHTML = diff <= 0
+          ? `🎉 Obiettivo raggiunto! Peso attuale: <strong>${ultimoPeso}kg</strong>`
+          : `🎯 Obiettivo: <strong>${obiettivo}kg</strong> &mdash; Mancano <strong>${diff}kg</strong>`;
+      } else {
+        goalBox.innerHTML = `📌 Nessun obiettivo impostato.`;
+      }
+    }
+
     function aggiornaGrafico() {
       grafico.data.labels = pesi.map(p => p.data);
       grafico.data.datasets[0].data = pesi.map(p => p.peso);
+      
+      // Aggiungi linea obiettivo
+      if (obiettivo) {
+        grafico.options.plugins.annotation = {
+          annotations: {
+            lineObiettivo: {
+              type: 'line',
+              yMin: obiettivo,
+              yMax: obiettivo,
+              borderColor: 'red',
+              borderWidth: 2,
+              label: {
+                content: 'Obiettivo',
+                enabled: true,
+                position: 'start',
+                color: 'red'
+              }
+            }
+          }
+        };
+      }
       grafico.update();
     }
 
-    // Inizializza
+    // Init
     mostraPesi();
     aggiornaGrafico();
+    aggiornaObiettivoBox();
   </script>
 </body>
 </html>
