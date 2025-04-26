@@ -2,29 +2,53 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Allenamento & Risultati</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Allenamento e Risultati</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      color: #2c3e50;
+      font-family: 'Segoe UI', sans-serif;
       margin: 0;
       padding: 20px;
+      background: #f4f4f4;
+      color: #2c3e50;
     }
+
     h1, h2 {
       text-align: center;
       color: #2c3e50;
     }
-    .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      max-width: 800px;
-      margin: 20px auto;
+
+    .container {
+      max-width: 900px;
+      margin: auto;
     }
+
+    .card {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.08);
+      margin-bottom: 30px;
+      padding: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+
     input, button {
       width: 100%;
       padding: 10px;
@@ -33,135 +57,146 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
+
     button {
-      background: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
-    }
-    button:hover {
-      background: #2980b9;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
       background-color: #3498db;
       color: white;
+      cursor: pointer;
     }
+
+    button:hover {
+      background-color: #2980b9;
+    }
+
     .home-button {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 20px;
     }
+
     .home-button button {
-      background: #3498db;
-      color: #fff;
+      width: auto;
       padding: 10px 20px;
-      border: none;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-  <h1>🏋️‍♂️ Allenamento & Risultati</h1>
+  <div class="container">
+    <h1>💪 Piano Allenamento + Risultati</h1>
 
-  <div class="box">
-    <h2>📋 Inserisci Risultato Allenamento</h2>
-    <form id="form-allenamento">
-      <input type="date" id="data" required>
-      <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
-      <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
-      <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
-      <button type="submit">Salva Allenamento</button>
-    </form>
+    <!-- Scheda Allenamento Dettagliata -->
+    <div class="card">
+      <h2>📋 Scheda Allenamento Dettagliata</h2>
 
-    <h3>📸 Carica Foto Risultato (.jpg)</h3>
-    <input type="file" accept="image/*" id="fileInput">
-  </div>
+      <table>
+        <thead><tr><th>Giorno</th><th>Esercizio</th><th>Ripetizioni/Durata</th></tr></thead>
+        <tbody>
+          <tr><td rowspan="6">Giorno 1</td><td>15 kettlebell swing</td><td>15 rip x 5 giri</td></tr>
+          <tr><td>15 squat</td><td>15 rip</td></tr>
+          <tr><td>10 rematore per braccio</td><td>10 rip</td></tr>
+          <tr><td>10 push-up</td><td>10 rip</td></tr>
+          <tr><td>Plank</td><td>30 secondi</td></tr>
+          <tr><td>Cardio finale</td><td>5 min corsetta</td></tr>
 
-  <div class="box">
-    <h2>📊 Storico Allenamenti</h2>
-    <table id="tabella">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Durata</th>
-          <th>KCAL</th>
-          <th>Battito Medio</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
-  </div>
+          <tr><td rowspan="3">Giorno 2</td><td>Camminata veloce</td><td>1 min</td></tr>
+          <tr><td>Corsa leggera</td><td>30 sec (25-30 min)</td></tr>
+          <tr><td>Defaticamento</td><td>Stretching</td></tr>
 
-  <div class="home-button">
-    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+          <tr><td rowspan="6">Giorno 3</td><td>12 stacchi kettlebell</td><td>12 rip x 4-5 giri</td></tr>
+          <tr><td>12 kettlebell press</td><td>12 rip</td></tr>
+          <tr><td>20 russian twist</td><td>20 rip</td></tr>
+          <tr><td>15 crunch</td><td>15 rip</td></tr>
+          <tr><td>Plank attivo</td><td>30 sec</td></tr>
+          <tr><td>Corsa finale</td><td>2-3 min</td></tr>
+
+          <tr><td rowspan="3">Giorno 4</td><td>Camminata veloce</td><td>45-60 min</td></tr>
+          <tr><td>Corsetta ogni 5 min</td><td>30 sec</td></tr>
+          <tr><td>Stretching</td><td>5-10 min</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Form Risultati Allenamento -->
+    <div class="card">
+      <h2>📈 Inserisci Risultati Allenamento</h2>
+
+      <form id="form-allenamento">
+        <input type="date" id="data" required />
+        <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required />
+        <input type="number" id="kcal" placeholder="KCAL (es: 400)" required />
+        <input type="number" id="battito" placeholder="Frequenza Media (es: 130)" required />
+        <button type="submit">Salva</button>
+      </form>
+
+      <h3>📸 Carica Foto Risultato (Huawei Health)</h3>
+      <input type="file" id="foto" accept="image/*">
+    </div>
+
+    <!-- Storico -->
+    <div class="card">
+      <h2>🕓 Storico Allenamenti</h2>
+      <table id="tabella">
+        <thead><tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <div class="home-button">
+      <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+    </div>
   </div>
 
   <script>
     const form = document.getElementById('form-allenamento');
-    const fileInput = document.getElementById('fileInput');
-    const tabellaBody = document.querySelector('#tabella tbody');
-    let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
+    const tabella = document.querySelector('#tabella tbody');
+    const fileInput = document.getElementById('foto');
 
-    form.addEventListener('submit', (e) => {
+    let risultati = JSON.parse(localStorage.getItem('risultati')) || [];
+
+    form.addEventListener('submit', e => {
       e.preventDefault();
-      const record = {
+      const r = {
         data: document.getElementById('data').value,
         durata: document.getElementById('durata').value,
-        calorie: document.getElementById('calorie').value,
+        kcal: document.getElementById('kcal').value,
         battito: document.getElementById('battito').value
       };
-      dati.push(record);
-      localStorage.setItem('allenamenti', JSON.stringify(dati));
+      risultati.push(r);
+      localStorage.setItem('risultati', JSON.stringify(risultati));
+      mostraRisultati();
       form.reset();
-      mostraTabella();
     });
 
-    function mostraTabella() {
-      tabellaBody.innerHTML = '';
-      dati.forEach(d => {
+    function mostraRisultati() {
+      tabella.innerHTML = '';
+      risultati.forEach(r => {
         const row = `<tr>
-          <td>${d.data}</td>
-          <td>${d.durata}</td>
-          <td>${d.calorie}</td>
-          <td>${d.battito}</td>
+          <td>${r.data}</td><td>${r.durata}</td>
+          <td>${r.kcal}</td><td>${r.battito}</td>
         </tr>`;
-        tabellaBody.innerHTML += row;
+        tabella.innerHTML += row;
       });
     }
 
-    fileInput.addEventListener('change', async (e) => {
+    fileInput.addEventListener('change', async e => {
       const file = e.target.files[0];
       if (!file) return;
 
       const { data: { text } } = await Tesseract.recognize(file, 'ita');
-      console.log(text);
 
-      const data = text.match(/\d{2}\/\d{2}\/\d{4}/);
-      const kcal = text.match(/(\d+)\s*kcal/i);
       const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
-      const battito = text.match(/frequenza.*?(\d+)\s?bpm/i);
+      const kcal = text.match(/(\d+)\s*kcal/i);
+      const battito = text.match(/media.*?(\d+)\s?bpm/i);
 
-      if (data) document.getElementById('data').value = data[0];
-      if (kcal) document.getElementById('calorie').value = kcal[1];
       if (durata) document.getElementById('durata').value = durata[1];
+      if (kcal) document.getElementById('kcal').value = kcal[1];
       if (battito) document.getElementById('battito').value = battito[1];
 
       document.getElementById('data').valueAsDate = new Date();
     });
 
-    mostraTabella();
+    mostraRisultati();
   </script>
+
 </body>
 </html>
