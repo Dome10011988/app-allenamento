@@ -2,54 +2,36 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Allenamento e Risultati</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Allenamento & Risultati</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      margin: 0;
-      padding: 20px;
+      font-family: Arial, sans-serif;
       background: #f4f4f4;
       color: #2c3e50;
+      margin: 0;
+      padding: 20px;
     }
-
     h1, h2 {
       text-align: center;
       color: #2c3e50;
     }
-
-    .container {
-      max-width: 900px;
-      margin: auto;
+    .wrapper {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 30px;
+      justify-content: center;
     }
-
-    .card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.08);
-      margin-bottom: 30px;
+    .box {
+      background: #fff;
       padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      flex: 1 1 400px;
+      max-width: 600px;
     }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #3498db;
-      color: white;
-    }
-
-    input, button {
+    form input, form button, input[type="file"] {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
@@ -57,145 +39,187 @@
       border-radius: 6px;
       border: 1px solid #ccc;
     }
-
     button {
-      background-color: #3498db;
+      background: #3498db;
       color: white;
+      border: none;
       cursor: pointer;
     }
-
     button:hover {
-      background-color: #2980b9;
+      background: #2980b9;
     }
-
-    .home-button {
-      text-align: center;
+    table {
+      width: 100%;
+      border-collapse: collapse;
       margin-top: 20px;
     }
-
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background-color: #3498db;
+      color: white;
+    }
+    .home-button {
+      text-align: center;
+      margin-top: 30px;
+    }
     .home-button button {
-      width: auto;
+      background: #3498db;
+      color: #fff;
       padding: 10px 20px;
+      border: none;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .giorno-titolo {
+      background-color: #ecf0f1;
+      padding: 6px 10px;
+      font-weight: bold;
     }
   </style>
 </head>
 <body>
 
-  <div class="container">
-    <h1>💪 Piano Allenamento + Risultati</h1>
+  <h1>🏋️‍♂️ Piano Allenamento + Risultati</h1>
 
-    <!-- Scheda Allenamento Dettagliata -->
-    <div class="card">
-      <h2>📋 Scheda Allenamento Dettagliata</h2>
-
+  <div class="wrapper">
+    <!-- Piano Allenamento -->
+    <div class="box">
+      <h2>📆 Programma Dettagliato</h2>
       <table>
-        <thead><tr><th>Giorno</th><th>Esercizio</th><th>Ripetizioni/Durata</th></tr></thead>
         <tbody>
-          <tr><td rowspan="6">Giorno 1</td><td>15 kettlebell swing</td><td>15 rip x 5 giri</td></tr>
-          <tr><td>15 squat</td><td>15 rip</td></tr>
-          <tr><td>10 rematore per braccio</td><td>10 rip</td></tr>
-          <tr><td>10 push-up</td><td>10 rip</td></tr>
-          <tr><td>Plank</td><td>30 secondi</td></tr>
-          <tr><td>Cardio finale</td><td>5 min corsetta</td></tr>
+          <tr><td colspan="2" class="giorno-titolo">Giorno 1 – Full Body Forza + Cardio</td></tr>
+          <tr><td>Riscaldamento</td><td>5-8 min camminata + rotazioni articolari</td></tr>
+          <tr><td>Allenamento (5 giri)</td><td>
+            - 15 kettlebell swing<br>
+            - 15 squat<br>
+            - 10 rematore per braccio<br>
+            - 10 push-up<br>
+            - 30” plank
+          </td></tr>
+          <tr><td>Pausa</td><td>30–45 sec tra i giri</td></tr>
+          <tr><td>Finale</td><td>5 min marcia veloce o corsetta</td></tr>
 
-          <tr><td rowspan="3">Giorno 2</td><td>Camminata veloce</td><td>1 min</td></tr>
-          <tr><td>Corsa leggera</td><td>30 sec (25-30 min)</td></tr>
-          <tr><td>Defaticamento</td><td>Stretching</td></tr>
+          <tr><td colspan="2" class="giorno-titolo">Giorno 2 – Cardio HIIT Camminata/Corsa</td></tr>
+          <tr><td>Riscaldamento</td><td>5–8 min camminata normale</td></tr>
+          <tr><td>Allenamento</td><td>1 min camminata veloce + 30 sec corsa leggera – ripeti 25-30 min</td></tr>
+          <tr><td>Defaticamento</td><td>Camminata + stretching</td></tr>
 
-          <tr><td rowspan="6">Giorno 3</td><td>12 stacchi kettlebell</td><td>12 rip x 4-5 giri</td></tr>
-          <tr><td>12 kettlebell press</td><td>12 rip</td></tr>
-          <tr><td>20 russian twist</td><td>20 rip</td></tr>
-          <tr><td>15 crunch</td><td>15 rip</td></tr>
-          <tr><td>Plank attivo</td><td>30 sec</td></tr>
-          <tr><td>Corsa finale</td><td>2-3 min</td></tr>
+          <tr><td colspan="2" class="giorno-titolo">Giorno 3 – Forza + Core Intenso</td></tr>
+          <tr><td>Riscaldamento</td><td>5–8 min slanci gambe + saltelli</td></tr>
+          <tr><td>Allenamento (4-5 giri)</td><td>
+            - 12 stacchi kettlebell<br>
+            - 12 press sopra la testa<br>
+            - 20 russian twist<br>
+            - 15 crunch<br>
+            - 30” plank attivo
+          </td></tr>
+          <tr><td>Pausa</td><td>45 sec tra i giri</td></tr>
+          <tr><td>Finale</td><td>2-3 min corsa o marcia</td></tr>
 
-          <tr><td rowspan="3">Giorno 4</td><td>Camminata veloce</td><td>45-60 min</td></tr>
-          <tr><td>Corsetta ogni 5 min</td><td>30 sec</td></tr>
-          <tr><td>Stretching</td><td>5-10 min</td></tr>
+          <tr><td colspan="2" class="giorno-titolo">Giorno 4 – Cardio Lungo</td></tr>
+          <tr><td>Allenamento</td><td>45–60 min camminata veloce (ogni 5 min: 30 sec corsetta)</td></tr>
+          <tr><td>Defaticamento</td><td>Stretching completo</td></tr>
         </tbody>
       </table>
     </div>
 
-    <!-- Form Risultati Allenamento -->
-    <div class="card">
-      <h2>📈 Inserisci Risultati Allenamento</h2>
-
+    <!-- Modulo Risultati -->
+    <div class="box">
+      <h2>📋 Inserisci Risultato Allenamento</h2>
       <form id="form-allenamento">
-        <input type="date" id="data" required />
-        <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required />
-        <input type="number" id="kcal" placeholder="KCAL (es: 400)" required />
-        <input type="number" id="battito" placeholder="Frequenza Media (es: 130)" required />
-        <button type="submit">Salva</button>
+        <input type="date" id="data" required>
+        <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
+        <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
+        <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
+        <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
+        <button type="submit">Salva Allenamento</button>
       </form>
 
-      <h3>📸 Carica Foto Risultato (Huawei Health)</h3>
-      <input type="file" id="foto" accept="image/*">
+      <h3>📸 Oppure carica foto (.jpg)</h3>
+      <input type="file" accept="image/*" id="fileInput">
     </div>
+  </div>
 
-    <!-- Storico -->
-    <div class="card">
-      <h2>🕓 Storico Allenamenti</h2>
-      <table id="tabella">
-        <thead><tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
+  <!-- Tabella risultati -->
+  <div class="box" style="max-width: 1000px; margin: 30px auto;">
+    <h2>📊 Storico Allenamenti</h2>
+    <table id="tabella">
+      <thead>
+        <tr>
+          <th>Data</th>
+          <th>Giorno</th>
+          <th>Durata</th>
+          <th>KCAL</th>
+          <th>Battito Medio</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-    <div class="home-button">
-      <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-    </div>
+  <div class="home-button">
+    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
   </div>
 
   <script>
     const form = document.getElementById('form-allenamento');
-    const tabella = document.querySelector('#tabella tbody');
-    const fileInput = document.getElementById('foto');
+    const fileInput = document.getElementById('fileInput');
+    const tabellaBody = document.querySelector('#tabella tbody');
+    let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
 
-    let risultati = JSON.parse(localStorage.getItem('risultati')) || [];
-
-    form.addEventListener('submit', e => {
+    form.addEventListener('submit', (e) => {
       e.preventDefault();
-      const r = {
+      const record = {
         data: document.getElementById('data').value,
+        giorno: document.getElementById('giorno').value,
         durata: document.getElementById('durata').value,
-        kcal: document.getElementById('kcal').value,
+        calorie: document.getElementById('calorie').value,
         battito: document.getElementById('battito').value
       };
-      risultati.push(r);
-      localStorage.setItem('risultati', JSON.stringify(risultati));
-      mostraRisultati();
+      dati.push(record);
+      localStorage.setItem('allenamenti', JSON.stringify(dati));
       form.reset();
+      mostraTabella();
     });
 
-    function mostraRisultati() {
-      tabella.innerHTML = '';
-      risultati.forEach(r => {
+    function mostraTabella() {
+      tabellaBody.innerHTML = '';
+      dati.forEach(d => {
         const row = `<tr>
-          <td>${r.data}</td><td>${r.durata}</td>
-          <td>${r.kcal}</td><td>${r.battito}</td>
+          <td>${d.data}</td>
+          <td>${d.giorno}</td>
+          <td>${d.durata}</td>
+          <td>${d.calorie}</td>
+          <td>${d.battito}</td>
         </tr>`;
-        tabella.innerHTML += row;
+        tabellaBody.innerHTML += row;
       });
     }
 
-    fileInput.addEventListener('change', async e => {
+    fileInput.addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
-
       const { data: { text } } = await Tesseract.recognize(file, 'ita');
+      const data = text.match(/\d{2}\/\d{2}\/\d{4}/); // Formato data
+      const kcal = text.match(/(\d+)\s*kcal/i); // KCAL
+      const durata = text.match(/(\d{2}:\d{2}:\d{2})/); // Durata
+      const battito = text.match(/frequenza.*?(\d+)\s?bpm/i); // Frequenza cardiaca media
 
-      const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
-      const kcal = text.match(/(\d+)\s*kcal/i);
-      const battito = text.match(/media.*?(\d+)\s?bpm/i);
-
+      if (data) document.getElementById('data').value = data[0];
+      if (kcal) document.getElementById('calorie').value = kcal[1];
       if (durata) document.getElementById('durata').value = durata[1];
-      if (kcal) document.getElementById('kcal').value = kcal[1];
       if (battito) document.getElementById('battito').value = battito[1];
 
+      document.getElementById('giorno').value = "Giorno ?";
       document.getElementById('data').valueAsDate = new Date();
     });
 
-    mostraRisultati();
+    mostraTabella();
   </script>
 
 </body>
