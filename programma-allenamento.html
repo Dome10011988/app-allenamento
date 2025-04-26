@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Allenamento & Risultati</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
@@ -205,12 +205,14 @@
       const file = e.target.files[0];
       if (!file) return;
       const { data: { text } } = await Tesseract.recognize(file, 'ita');
-      const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
-      const calorie = text.match(/(\d+)\s*kcal/i);
-      const battito = text.match(/frequenza.*?(\d+)\s?bpm/i) || text.match(/battito.*?(\d+)/i);
+      const data = text.match(/\d{2}\/\d{2}\/\d{4}/); // Formato data
+      const kcal = text.match(/(\d+)\s*kcal/i); // KCAL
+      const durata = text.match(/(\d{2}:\d{2}:\d{2})/); // Durata
+      const battito = text.match(/frequenza.*?(\d+)\s?bpm/i); // Frequenza cardiaca media
 
+      if (data) document.getElementById('data').value = data[0];
+      if (kcal) document.getElementById('calorie').value = kcal[1];
       if (durata) document.getElementById('durata').value = durata[1];
-      if (calorie) document.getElementById('calorie').value = calorie[1];
       if (battito) document.getElementById('battito').value = battito[1];
 
       document.getElementById('giorno').value = "Giorno ?";
