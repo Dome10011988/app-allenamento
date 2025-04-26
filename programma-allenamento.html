@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Allenamento & Risultati</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
     body {
@@ -62,10 +61,6 @@
     th {
       background-color: #3498db;
       color: white;
-    }
-    canvas {
-      max-width: 100%;
-      margin-top: 20px;
     }
     .home-button {
       text-align: center;
@@ -140,8 +135,7 @@
         <input type="date" id="data" required>
         <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
         <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
-        <input type="number" id="calorie" placeholder="Calorie (es: 413)" required>
-        <input type="number" id="frequenza" placeholder="Frequenza Media (bpm)" required>
+        <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
         <button type="submit">Salva Allenamento</button>
       </form>
 
@@ -150,7 +144,7 @@
     </div>
   </div>
 
-  <!-- Tabella e grafico -->
+  <!-- Tabella risultati -->
   <div class="box" style="max-width: 1000px; margin: 30px auto;">
     <h2>📊 Storico Allenamenti</h2>
     <table id="tabella">
@@ -159,14 +153,11 @@
           <th>Data</th>
           <th>Giorno</th>
           <th>Durata</th>
-          <th>Calorie</th>
-          <th>Frequenza</th>
+          <th>KCAL</th>
         </tr>
       </thead>
       <tbody></tbody>
     </table>
-
-    <canvas id="grafico"></canvas>
   </div>
 
   <div class="home-button">
@@ -177,7 +168,6 @@
     const form = document.getElementById('form-allenamento');
     const fileInput = document.getElementById('fileInput');
     const tabellaBody = document.querySelector('#tabella tbody');
-    const ctx = document.getElementById('grafico').getContext('2d');
     let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
 
     form.addEventListener('submit', (e) => {
@@ -186,14 +176,12 @@
         data: document.getElementById('data').value,
         giorno: document.getElementById('giorno').value,
         durata: document.getElementById('durata').value,
-        calorie: document.getElementById('calorie').value,
-        frequenza: document.getElementById('frequenza').value
+        calorie: document.getElementById('calorie').value
       };
       dati.push(record);
       localStorage.setItem('allenamenti', JSON.stringify(dati));
       form.reset();
       mostraTabella();
-      aggiornaGrafico();
     });
 
     function mostraTabella() {
@@ -204,35 +192,8 @@
           <td>${d.giorno}</td>
           <td>${d.durata}</td>
           <td>${d.calorie}</td>
-          <td>${d.frequenza}</td>
         </tr>`;
         tabellaBody.innerHTML += row;
-      });
-    }
-
-    function aggiornaGrafico() {
-      const labels = dati.map(d => d.data);
-      const values = dati.map(d => d.frequenza);
-
-      if (window.myChart) window.myChart.destroy();
-
-      window.myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
-          labels: labels,
-          datasets: [{
-            label: 'Frequenza Media (bpm)',
-            data: values,
-            fill: true,
-            borderColor: '#3498db',
-            backgroundColor: 'rgba(52,152,219,0.2)',
-            tension: 0.3
-          }]
-        },
-        options: {
-          responsive: true,
-          scales: { y: { beginAtZero: false } }
-        }
       });
     }
 
@@ -243,18 +204,15 @@
       const { data: { text } } = await Tesseract.recognize(file, 'ita');
       const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
       const calorie = text.match(/(\d+)\s*kcal/i);
-      const frequenza = text.match(/media\s*([\d]+)/i);
 
       if (durata) document.getElementById('durata').value = durata[1];
       if (calorie) document.getElementById('calorie').value = calorie[1];
-      if (frequenza) document.getElementById('frequenza').value = frequenza[1];
 
       document.getElementById('giorno').value = "Giorno ?";
       document.getElementById('data').valueAsDate = new Date();
     });
 
     mostraTabella();
-    aggiornaGrafico();
   </script>
 </body>
 </html>
