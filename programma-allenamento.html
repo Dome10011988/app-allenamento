@@ -57,7 +57,7 @@
     th, td {
       border: 1px solid #ddd;
       padding: 8px;
-      text-align: center;
+      text-align: left;
     }
     th {
       background-color: #3498db;
@@ -80,9 +80,10 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .program-table th {
+    .giorno-titolo {
       background-color: #ecf0f1;
-      color: #2c3e50;
+      padding: 6px 10px;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -91,22 +92,48 @@
   <h1>🏋️‍♂️ Piano Allenamento + Risultati</h1>
 
   <div class="wrapper">
-    <!-- Piano Allenamento Sempre Visibile -->
+    <!-- Piano Allenamento -->
     <div class="box">
-      <h2>📆 Piano Allenamento Perdita Peso</h2>
-      <table class="program-table">
-        <thead><tr><th>Giorno</th><th>Allenamento</th></tr></thead>
+      <h2>📆 Programma Dettagliato</h2>
+      <table>
         <tbody>
-          <tr><td>Giorno 1</td><td>Full Body Forza + Cardio Kettlebell</td></tr>
-          <tr><td>Giorno 2</td><td>Cardio HIIT Camminata/Corsa</td></tr>
-          <tr><td>Giorno 3</td><td>Forza + Core Intenso</td></tr>
-          <tr><td>Giorno 4</td><td>Cardio Lungo</td></tr>
+          <tr><td colspan="2" class="giorno-titolo">Giorno 1 – Full Body Forza + Cardio</td></tr>
+          <tr><td>Riscaldamento</td><td>5-8 min camminata + rotazioni articolari</td></tr>
+          <tr><td>Allenamento (5 giri)</td><td>
+            - 15 kettlebell swing<br>
+            - 15 squat<br>
+            - 10 rematore per braccio<br>
+            - 10 push-up<br>
+            - 30” plank
+          </td></tr>
+          <tr><td>Pausa</td><td>30–45 sec tra i giri</td></tr>
+          <tr><td>Finale</td><td>5 min marcia veloce o corsetta</td></tr>
+
+          <tr><td colspan="2" class="giorno-titolo">Giorno 2 – Cardio HIIT Camminata/Corsa</td></tr>
+          <tr><td>Riscaldamento</td><td>5–8 min camminata normale</td></tr>
+          <tr><td>Allenamento</td><td>1 min camminata veloce + 30 sec corsa leggera – ripeti 25-30 min</td></tr>
+          <tr><td>Defaticamento</td><td>Camminata + stretching</td></tr>
+
+          <tr><td colspan="2" class="giorno-titolo">Giorno 3 – Forza + Core Intenso</td></tr>
+          <tr><td>Riscaldamento</td><td>5–8 min slanci gambe + saltelli</td></tr>
+          <tr><td>Allenamento (4-5 giri)</td><td>
+            - 12 stacchi kettlebell<br>
+            - 12 press sopra la testa<br>
+            - 20 russian twist<br>
+            - 15 crunch<br>
+            - 30” plank attivo
+          </td></tr>
+          <tr><td>Pausa</td><td>45 sec tra i giri</td></tr>
+          <tr><td>Finale</td><td>2-3 min corsa o marcia</td></tr>
+
+          <tr><td colspan="2" class="giorno-titolo">Giorno 4 – Cardio Lungo</td></tr>
+          <tr><td>Allenamento</td><td>45–60 min camminata veloce (ogni 5 min: 30 sec corsetta)</td></tr>
+          <tr><td>Defaticamento</td><td>Stretching completo</td></tr>
         </tbody>
       </table>
-      <p><strong>Nota:</strong> Dettagli per ogni giorno includono riscaldamento, giri, esercizi e defaticamento.</p>
     </div>
 
-    <!-- Risultati Allenamento -->
+    <!-- Modulo Risultati -->
     <div class="box">
       <h2>📋 Inserisci Risultato Allenamento</h2>
       <form id="form-allenamento">
@@ -133,7 +160,7 @@
           <th>Giorno</th>
           <th>Durata</th>
           <th>Calorie</th>
-          <th>Frequenza Media</th>
+          <th>Frequenza</th>
         </tr>
       </thead>
       <tbody></tbody>
@@ -198,15 +225,13 @@
             data: values,
             fill: true,
             borderColor: '#3498db',
-            backgroundColor: 'rgba(52,152,219,0.1)',
+            backgroundColor: 'rgba(52,152,219,0.2)',
             tension: 0.3
           }]
         },
         options: {
           responsive: true,
-          scales: {
-            y: { beginAtZero: false }
-          }
+          scales: { y: { beginAtZero: false } }
         }
       });
     }
@@ -231,6 +256,5 @@
     mostraTabella();
     aggiornaGrafico();
   </script>
-
 </body>
 </html>
