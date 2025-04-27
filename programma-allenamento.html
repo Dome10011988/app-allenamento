@@ -191,56 +191,58 @@
   });
 
   // 📸 FOTO OCR per estrazione dei dati
-// ===== OCR FOTO Migliorato =====
-fotoInput.addEventListener('change', async e => {
-  const file = e.target.files[0];
-  if (!file) return;
+<script>
+  fotoInput.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-  // 1) OCR su immagine
-  const { data:{ text } } = await Tesseract.recognize(file, 'ita', {
-    logger: m => console.log(m)
-  });
-  console.log("OCR completo:\n", text);
+    // Eseguiamo l'OCR sull'immagine
+    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
+      logger: m => console.log(m)
+    });
 
-  // 2) Pulizia in righe
-  const lines = text
-    .split(/\r?\n/)
-    .map(l => l.trim())
-    .filter(l => l.length > 0);
-  console.log("Righe OCR:", lines);
+    // Mostriamo il testo estratto per capire meglio cosa Tesseract sta leggendo
+    console.log("Testo OCR estratto:", text);
 
-  // 3) Data (cerca formati dd/mm/yyyy o dd-mm-yyyy)
-  const dateLine = lines.find(l => /\d{2}[\/\-]\d{2}[\/\-]\d{4}/.test(l));
-  if (dateLine) {
-    const [, dd, mm, yyyy] = dateLine.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-    document.getElementById('data').value = `${yyyy}-${mm}-${dd}`;
-  } else {
-    document.getElementById('data').valueAsDate = new Date();
-  }
+    // Split del testo in righe per analizzare facilmente
+    const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
+    console.log("Righe separate:", lines);
 
-  // 4) KCAL (cerca la prima riga contenente "kcal")
-  const kcalLine = lines.find(l => /kcal/i.test(l));
-  if (kcalLine) {
-    const km = kcalLine.match(/(\d+)\s*kcal/i);
-    if (km) document.getElementById('calorie').value = km[1];
-  }
-
-  // 5) Durata + Battito insieme
-  //    es: "00:29:40 – 132 bpm" oppure "00:29:40 - 132 bpm"
-  const dbLine = lines.find(l =>
-    /\d{1,2}:\d{2}:\d{2}/.test(l) && /bpm/i.test(l)
-  );
-  if (dbLine) {
-    const db = dbLine.match(/(\d{1,2}:\d{2}:\d{2}).*?(\d{1,3})\s*bpm/i);
-    if (db) {
-      document.getElementById('durata').value = db[1];
-      document.getElementById('battito').value = db[2];
+    // Estrazione della data (assumendo un formato tipo 25/04/2025 o 25-04-2025)
+    const dateLine = lines.find(line => /\d{2}[\/\-]\d{2}[\/\-]\d{4}/.test(line));
+    if (dateLine) {
+      const dateMatch = dateLine.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
+      if (dateMatch) {
+        const [ , day, month, year ] = dateMatch;
+        document.getElementById('data').value = `${year}-${month}-${day}`;
+      }
+    } else {
+      document.getElementById('data').valueAsDate = new Date(); // Imposta la data odierna se non trovata
     }
-  }
 
-  // 6) Imposta un valore di default per "Giorno"
-  document.getElementById('giorno').value = 'Giorno ?';
-});
+    // Estrazione delle calorie (cerca "kcal" o "Kcal")
+    const kcalLine = lines.find(line => /kcal/i.test(line));
+    if (kcalLine) {
+      const kcalMatch = kcalLine.match(/(\d+)\s*kcal/i);
+      if (kcalMatch) {
+        document.getElementById('calorie').value = kcalMatch[1];
+      }
+    }
+
+    // Estrazione della durata e battito (esempio "00:29:40 - 132 bpm")
+    const dbLine = lines.find(line => /\d{2}:\d{2}:\d{2}/.test(line) && /bpm/i.test(line));
+    if (dbLine) {
+      const dbMatch = dbLine.match(/(\d{2}:\d{2}:\d{2})\s*[-]?\s*(\d{2,3})\s*bpm/i);
+      if (dbMatch) {
+        document.getElementById('durata').value = dbMatch[1];
+        document.getElementById('battito').value = dbMatch[2];
+      }
+    }
+
+    // Impostazione del valore per "Giorno"
+    document.getElementById('giorno').value = 'Giorno ?'; // Aggiungi logica per identificare il giorno, se necessario
+  });
+</script>
 
   // 📑 PDF per Scheda Allenamenti
 pdfInput.addEventListener('change', async (e) => {
