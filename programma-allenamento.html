@@ -191,11 +191,11 @@
   });
 
   // OCR per Foto
-  fotoInput.addEventListener('change', async (e) => {
+fotoInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Carico l'immagine in un canvas per migliorare la qualità OCR
+  // Carico l’immagine su canvas per migliore OCR
   const img = new Image();
   img.src = URL.createObjectURL(file);
   await new Promise(r => img.onload = r);
@@ -215,21 +215,19 @@
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // OCR su canvas
+  // OCR
   const { data: { text } } = await Tesseract.recognize(
     canvas.toDataURL(), 'ita',
     { logger: m => console.log(m) }
   );
-  console.log("OCR text:", text);
+  console.log("OCR text completo:\n", text);
 
-  // Cerco data in vari formati: 1/2/2025 o 01-02-25, ecc.
+  // Data (flessibile)
   const dateMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
   if (dateMatch) {
     let [ , dd, mm, yy ] = dateMatch;
-    // Aggiusto anno
     if (yy.length === 2) yy = '20' + yy;
-    dd = dd.padStart(2, '0');
-    mm = mm.padStart(2, '0');
+    dd = dd.padStart(2,'0'); mm = mm.padStart(2,'0');
     document.getElementById('data').value = `${yy}-${mm}-${dd}`;
   } else {
     document.getElementById('data').valueAsDate = new Date();
@@ -239,17 +237,29 @@
   const dMatch = text.match(/Durata[^0-9]*?(\d{1,2}:\d{2}:\d{2})/i);
   if (dMatch) document.getElementById('durata').value = dMatch[1];
 
-  // KCAL
-  const kMatch = text.match(/(\d{2,5})\s*kcal/i);
-  if (kMatch) document.getElementById('calorie').value = kMatch[1];
+  // KCAL: cerca "kcal", "Calorie" o "KCal"
+  const kMatch = text.match(/(\d{2,4})\s*(?:kcal|KCal|Calorie)/i);
+  if (kMatch) {
+    document.getElementById('calorie').value = kMatch[1];
+  } else {
+    console.warn("Non ho trovato le kcal: controlla il testo OCR");
+  }
 
-  // Battito medio
-  const bMatch = text.match(/(?:media|avg)[^0-9]*?(\d{2,3})\s*bpm/i);
-  if (bMatch) document.getElementById('battito').value = bMatch[1];
+  // Battito medio: prende sia "bpm" sia "battito medio"
+  let bMatch = text.match(/Frequenza\s*(?:cardiaca\s*)?media[^0-9]*?(\d{2,3})/i);
+  if (!bMatch) {
+    bMatch = text.match(/(\d{2,3})\s*bpm/i);
+  }
+  if (bMatch) {
+    document.getElementById('battito').value = bMatch[1];
+  } else {
+    console.warn("Non ho trovato il battito: controlla il testo OCR");
+  }
 
-  // Default “Giorno ?”
+  // Default giorno
   document.getElementById('giorno').value = 'Giorno ?';
 });
+
   // Caricamento PDF per Scheda Allenamenti
   pdfInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
