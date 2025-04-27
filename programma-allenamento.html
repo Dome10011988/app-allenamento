@@ -124,7 +124,7 @@
 
 <!-- SECONDA RIGA: TASTI UPLOAD -->
 <div class="upload-section">
-  <h2>📑 Carica Scheda PDF &amp; 📸 Carica Foto Huawei Health</h2>
+  <h2>📑 Carica Scheda PDF & 📸 Carica Foto Huawei Health</h2>
   <input type="file" accept="application/pdf" id="pdfInput">
   <input type="file" accept="image/*" id="fotoInput">
 </div>
@@ -190,87 +190,34 @@
     mostraTabella();
   });
 
-  // OCR per Foto
+  // 📸 FOTO OCR per estrazione dei dati
 fotoInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // 1) Carica e pre-elabora l'immagine
-  const img = new Image();
-  img.src = URL.createObjectURL(file);
-  await new Promise(r => img.onload = r);
+  const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
 
-  const canvas = document.createElement('canvas');
-  const scale = 2;
-  canvas.width = img.width * scale;
-  canvas.height = img.height * scale;
-  const ctx = canvas.getContext('2d');
-  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+  const durataMatch = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
+  const kcalMatch = text.match(/(\d+)\s*kcal/i);
+  const battitoMatch = text.match(/frequenza.*?(\d+)\s*bpm/i);
+  const dataMatch = text.match(/(\d{2})\/(\d{2})\/(\d{4})/);
 
-  // Scala di grigi
-  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
-  for (let i = 0; i < imgData.data.length; i += 4) {
-    const m = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
-    imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = m;
-  }
-  ctx.putImageData(imgData,0,0);
+  if (durataMatch) document.getElementById('durata').value = durataMatch[1];
+  if (kcalMatch) document.getElementById('calorie').value = kcalMatch[1];
+  if (battitoMatch) document.getElementById('battito').value = battitoMatch[1];
 
-  // 2) OCR
-  const { data: { text } } = await Tesseract.recognize(
-    canvas.toDataURL(), 'ita',
-    { logger: m => console.log(m) }
-  );
-  console.log("OCR completo:\n", text);
-
-  // 3) Split in righe significative
-  const lines = text
-    .split(/\r?\n/)
-    .map(l => l.trim())
-    .filter(l => l.length > 0);
-
-  // 4) Data
-  const dateMatch = lines.find(l => /\d{2}[\/\.\-]\d{2}[\/\.\-]\d{2,4}/.test(l));
-  if (dateMatch) {
-    let [dd,mm,yy] = dateMatch.match(/(\d{2})[\/\.\-](\d{2})[\/\.\-](\d{2,4})/).slice(1);
-    if (yy.length === 2) yy = '20'+yy;
-    document.getElementById('data').value = `${yy}-${mm}-${dd}`;
+  if (dataMatch) {
+    const yyyy_mm_dd = `${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}`;
+    document.getElementById('data').value = yyyy_mm_dd;
   } else {
     document.getElementById('data').valueAsDate = new Date();
   }
 
-  // 5) Durata (prima riga con pattern hh:mm:ss)
-  const durIdx = lines.findIndex(l => /\d{1,2}:\d{2}:\d{2}/.test(l));
-  if (durIdx >= 0) {
-    const dm = lines[durIdx].match(/(\d{1,2}:\d{2}:\d{2})/);
-    if (dm) document.getElementById('durata').value = dm[1];
-  }
-
-  // 6) Prova con regex per KCAL
-  let kc = text.match(/(\d+)\s*(?:kcal|KCal|Calorie)/i);
-  // 7) Se fallisce: prendi la prima riga numerica dopo la durata
-  if (!kc && durIdx >= 0) {
-    const nums = lines
-      .slice(durIdx+1)
-      .filter(l => /^\d+$/.test(l));
-    if (nums.length) kc = [null, nums[0]];
-  }
-  if (kc) document.getElementById('calorie').value = kc[1];
-
-  // 8) Prova con regex per battito medio
-  let bm = text.match(/Frequenza\s*(?:cardiaca\s*)?media[^0-9]*?(\d{2,3})/i)
-        || text.match(/(\d{2,3})\s*bpm/i);
-  // 9) Se fallisce: seconda riga numerica dopo la durata
-  if (!bm && durIdx >= 0) {
-    const nums = lines.slice(durIdx+1).filter(l => /^\d+$/.test(l));
-    if (nums.length > 1) bm = [null, nums[1]];
-  }
-  if (bm) document.getElementById('battito').value = bm[1];
-
-  // 10) Default “giorno”
-  document.getElementById('giorno').value = 'Giorno ?';
+  document.getElementById('giorno').value = "Giorno ?";
 });
-  // Caricamento PDF per Scheda Allenamenti
-  pdfInput.addEventListener('change', async (e) => {
+
+  // 📑 PDF per Scheda Allenamenti
+pdfInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -290,7 +237,6 @@ fotoInput.addEventListener('change', async (e) => {
     reader.readAsArrayBuffer(file);
   });
 
-  // Funzione per mostrare gli allenamenti letti dal PDF
   function mostraAllenamenti(text) {
     const giorni = text.split(/Giorno\s*\d/gi).slice(1);
     schedaDiv.innerHTML = '';
