@@ -159,109 +159,67 @@
 <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 <script>
-const form = document.getElementById('form-allenamento');
-const fotoInput = document.getElementById('fotoInput');
-const pdfInput = document.getElementById('pdfInput');
-const tabellaBody = document.querySelector('#tabella-risultati tbody');
-const schedaDiv = document.getElementById('scheda');
+  const form = document.getElementById('form-allenamento');
+  const fileInput = document.getElementById('fileInput');
+  const tabellaBody = document.querySelector('#tabella tbody');
+  let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
 
-let risultati = JSON.parse(localStorage.getItem('risultati')) || [];
-
-form.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const record = {
-    data: document.getElementById('data').value,
-    giorno: document.getElementById('giorno').value,
-    durata: document.getElementById('durata').value,
-    calorie: document.getElementById('calorie').value,
-    battito: document.getElementById('battito').value
-  };
-  risultati.push(record);
-  localStorage.setItem('risultati', JSON.stringify(risultati));
-  form.reset();
-  mostraTabella();
-});
-
-function mostraTabella() {
-  tabellaBody.innerHTML = '';
-  risultati.forEach(d => {
-    const row = `<tr>
-      <td>${d.data}</td>
-      <td>${d.giorno}</td>
-      <td>${d.durata}</td>
-      <td>${d.calorie}</td>
-      <td>${d.battito}</td>
-    </tr>`;
-    tabellaBody.innerHTML += row;
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const record = {
+      data: document.getElementById('data').value,
+      giorno: document.getElementById('giorno').value,
+      durata: document.getElementById('durata').value,
+      calorie: document.getElementById('calorie').value,
+      battito: document.getElementById('battito').value
+    };
+    dati.push(record);
+    localStorage.setItem('allenamenti', JSON.stringify(dati));
+    form.reset();
+    mostraTabella();
   });
-}
 
-// OCR FOTO MIGLIORATO
-fotoInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const { data: { text } } = await Tesseract.recognize(file, 'ita');
-  console.log("TESTO OCR:", text);
-
-  const cleanText = text.replace(/\s+/g, ' ').toLowerCase();
-
-  const kcalMatch = cleanText.match(/(\d{2,4})\s*kcal/);
-  const durataMatch = cleanText.match(/durata\s*(\d{2}:\d{2}:\d{2})/);
-  const battitoMatch = cleanText.match(/frequenza cardiaca media\s*(\d{2,3})/);
-
-  if (kcalMatch) document.getElementById('calorie').value = kcalMatch[1];
-  if (durataMatch) document.getElementById('durata').value = durataMatch[1];
-  if (battitoMatch) document.getElementById('battito').value = battitoMatch[1];
-
-  document.getElementById('giorno').value = "Giorno ?";
-  document.getElementById('data').valueAsDate = new Date();
-});
-
-// CARICAMENTO PDF ALLENAMENTI
-pdfInput.addEventListener('change', async (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const pdfData = new Uint8Array(reader.result);
-    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-    let extractedText = '';
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      extractedText += content.items.map(item => item.str).join(' ') + '\n';
-    }
-
-    mostraAllenamenti(extractedText);
-  };
-  reader.readAsArrayBuffer(file);
-});
-
-function mostraAllenamenti(text) {
-  const giorni = text.split(/Giorno\s*\d/gi).slice(1);
-  schedaDiv.innerHTML = '';
-
-  giorni.forEach((g, idx) => {
-    const titolo = `Giorno ${idx + 1}`;
-    const esercizi = g.trim().split('-').map(e => e.trim()).filter(e => e);
-
-    let tabella = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
-    esercizi.forEach(ex => {
-      tabella += `<tr><td>${ex}</td></tr>`;
+  function mostraTabella() {
+    tabellaBody.innerHTML = '';
+    dati.forEach(d => {
+      const row = `<tr>
+        <td>${d.data}</td>
+        <td>${d.giorno}</td>
+        <td>${d.durata}</td>
+        <td>${d.calorie}</td>
+        <td>${d.battito}</td>
+      </tr>`;
+      tabellaBody.innerHTML += row;
     });
-    tabella += '</tbody></table>';
+  }
 
-    schedaDiv.innerHTML += tabella + "<br>";
+  fileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+
+    console.log(text); // Debug
+
+    const kcal = text.match(/(\d{2,4})\s*kcal/i); // Cerca il numero prima di kcal
+    const durata = text.match(/(?:Durata|Time|Tempo)\s*:?[\s\-]*([\d]{2}:[\d]{2}:[\d]{2})/i) || text.match(/(\d{2}:\d{2}:\d{2})/);
+    const battito = text.match(/frequenza cardiaca media\s*(\d+)/i) || text.match(/(\d{2,3})\s*bpm/i);
+    const dataAllenamento = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+
+    if (kcal) document.getElementById('calorie').value = kcal[1];
+    if (durata) document.getElementById('durata').value = durata[1];
+    if (battito) document.getElementById('battito').value = battito[1];
+    if (dataAllenamento) document.getElementById('data').value = formattaData(dataAllenamento);
+
+    document.getElementById('giorno').value = "";
   });
-}
 
-// Carica i dati esistenti
-mostraTabella();
+  function formattaData(match) {
+    let giorno = match[1].padStart(2, '0');
+    let mese = match[2].padStart(2, '0');
+    let anno = match[3];
+    return `${anno}-${mese}-${giorno}`;
+  }
+
+  mostraTabella();
 </script>
-
-
-</body>
-</html>
