@@ -1,45 +1,39 @@
-// --- Toast notifications ---
-function showToast(msg) {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = msg;
-  container.appendChild(toast);
-  // Rimuovi dopo 3s
-  setTimeout(() => container.removeChild(toast), 3000);
-}
-// --- Gestione Nome Utente ---
-const userKey = 'ft_username';
-let username = localStorage.getItem(userKey);
-if (!username) {
-  username = prompt("Benvenuto! Come ti chiami?");
-  if (username) localStorage.setItem(userKey, username);
-}
-function greetUser() {
-  const header = document.getElementById('user-greeting');
-  if (header && username) {
-    header.textContent = `Ciao, ${username}!`;
+document.addEventListener('DOMContentLoaded', () => {
+  // Greeting utente
+  let name = localStorage.getItem('ft_name');
+  if (!name) {
+    name = prompt('Come ti chiami?') || 'Amico';
+    localStorage.setItem('ft_name', name);
   }
-}
-document.addEventListener('DOMContentLoaded', greetUser);
-// On load, apply saved theme (default to light)
-const savedTheme = localStorage.getItem('theme') || 'light';
-document.documentElement.setAttribute('data-theme', savedTheme);
+  document.getElementById('user-greeting').textContent = `Ciao, ${name}!`;
 
-window.addEventListener('DOMContentLoaded', () => {
-  const btn = document.getElementById('theme-toggle');
-  if (!btn) return;
+  // Toggle tema
+  const toggle = document.getElementById('theme-toggle');
+  const root = document.documentElement;
+  const saved = localStorage.getItem('ft_theme') || 'light';
+  root.setAttribute('data-theme', saved);
+  toggle.textContent = saved === 'light' ? '🌙' : '🌞';
+  toggle.onclick = () => {
+    const next = root.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
+    root.setAttribute('data-theme', next);
+    localStorage.setItem('ft_theme', next);
+    toggle.textContent = next === 'light' ? '🌙' : '🌞';
+    showToast(`Tema ${next === 'light' ? 'chiaro' : 'scuro'} attivato`);
+  };
 
-  // Initialize toggle icon
-  btn.textContent = savedTheme === 'light' ? '🌙' : '☀️';
+  // Funzione toast
+  window.showToast = (msg, duration = 3000) => {
+    const container = document.getElementById('toast-container');
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = msg;
+    container.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add('hide');
+      toast.addEventListener('transitionend', () => toast.remove());
+    }, duration);
+  };
+});
 
-  // Toggle theme on click
-  btn.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    const next = current === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-    btn.textContent = next === 'light' ? '🌙' : '☀️';
   });
 });
