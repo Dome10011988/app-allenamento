@@ -17,15 +17,16 @@
       margin: 0;
       padding: 20px;
     }
-    h1, h2 {
+    h1 {
       text-align: center;
-      color: #2c3e50;
+      margin-bottom: 30px;
     }
-    .wrapper {
+    .top-section {
       display: flex;
       flex-wrap: wrap;
-      gap: 30px;
+      gap: 20px;
       justify-content: center;
+      margin-bottom: 30px;
     }
     .box {
       background: #fff;
@@ -34,13 +35,35 @@
       box-shadow: 0 0 10px rgba(0,0,0,0.1);
       flex: 1 1 400px;
       max-width: 600px;
+      min-height: 500px;
     }
-    form input, form button, input[type="file"] {
+    table {
       width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+    th {
+      background: #3498db;
+      color: white;
+    }
+    form, .upload-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+    form input, form button, .upload-section input, .upload-section button {
+      width: 100%;
+      max-width: 300px;
       padding: 10px;
-      margin: 8px 0;
       font-size: 1rem;
-      border-radius: 6px;
+      border-radius: 8px;
       border: 1px solid #ccc;
     }
     button {
@@ -52,23 +75,13 @@
     button:hover {
       background: #2980b9;
     }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 20px;
-    }
-    th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
-    }
-    th {
-      background-color: #3498db;
-      color: white;
+    .bottom-section {
+      max-width: 1200px;
+      margin: 0 auto;
     }
     .home-button {
       text-align: center;
-      margin-top: 30px;
+      margin-top: 40px;
     }
     .home-button button {
       background: #3498db;
@@ -84,9 +97,6 @@
       padding: 6px 10px;
       font-weight: bold;
     }
-    #allenamenti {
-      margin-top: 30px;
-    }
   </style>
 </head>
 
@@ -94,10 +104,17 @@
 
 <h1>🏋️‍♂️ Allenamenti e Risultati</h1>
 
-<div class="wrapper">
-  <!-- Modulo risultati -->
+<!-- PRIMA RIGA: SCHEDA + RISULTATI -->
+<div class="top-section">
+  <!-- Scheda Allenamenti -->
   <div class="box">
-    <h2>📋 Inserisci Risultato Allenamento</h2>
+    <h2>📋 Scheda Allenamenti</h2>
+    <div id="scheda"></div>
+  </div>
+
+  <!-- Inserisci Risultato Allenamento -->
+  <div class="box">
+    <h2>📈 Inserisci Risultato</h2>
     <form id="form-allenamento">
       <input type="date" id="data" required>
       <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
@@ -106,20 +123,18 @@
       <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
       <button type="submit">Salva Risultato</button>
     </form>
-
-    <h3>📸 Oppure carica foto Huawei Health</h3>
-    <input type="file" accept="image/*" id="fotoInput">
-  </div>
-
-  <!-- Modulo caricamento PDF -->
-  <div class="box">
-    <h2>📑 Carica Scheda Allenamento PDF</h2>
-    <input type="file" accept="application/pdf" id="pdfInput">
   </div>
 </div>
 
-<!-- Tabella risultati -->
-<div class="box" style="max-width: 1000px; margin: 30px auto;">
+<!-- SECONDA RIGA: TASTI UPLOAD -->
+<div class="upload-section">
+  <h2>📑 Carica Scheda PDF & 📸 Carica Foto Huawei Health</h2>
+  <input type="file" accept="application/pdf" id="pdfInput">
+  <input type="file" accept="image/*" id="fotoInput">
+</div>
+
+<!-- TERZA RIGA: STORICO RISULTATI -->
+<div class="bottom-section box">
   <h2>📊 Storico Risultati</h2>
   <table id="tabella-risultati">
     <thead>
@@ -135,17 +150,14 @@
   </table>
 </div>
 
-<!-- Allenamenti estratti -->
-<div class="box" id="allenamenti">
-  <h2>📅 Piano Allenamenti Caricato</h2>
-  <div id="scheda"></div>
-</div>
-
+<!-- PULSANTE HOME -->
 <div class="home-button">
   <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
 </div>
 
 <!-- Script funzionale -->
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 <script>
   const form = document.getElementById('form-allenamento');
   const fotoInput = document.getElementById('fotoInput');
