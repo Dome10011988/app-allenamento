@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Allenamenti & Risultati</title>
+  <title>Allenamenti &amp; Risultati</title>
 
   <!-- Librerie -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
@@ -29,7 +29,7 @@
 </head>
 <body>
 
-  <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
+  <h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
 
   <div class="row">
     <!-- Scheda Allenamenti PDF -->
@@ -39,7 +39,7 @@
       <div id="scheda"></div>
     </div>
 
-    <!-- Inserimento/Risultati -->
+    <!-- Inserimento Risultati -->
     <div class="box">
       <h2>📸 Carica Foto Risultato</h2>
       <input type="file" id="fotoInput" accept="image/*">
@@ -81,17 +81,16 @@
   const form       = document.getElementById('form-allenamento');
   const tabBody    = document.getElementById('tabella-body');
 
-  // Ripristino scheda PDF salvata
+  // Ripristina scheda PDF salvata
   const savedScheda = localStorage.getItem('schedaAllenamenti');
   if (savedScheda) schedaDiv.innerHTML = savedScheda;
 
-  // Carico storico risultati
+  // Carica storico risultati
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
   function aggiornaStorico() {
     tabBody.innerHTML = '';
     risultati.forEach(r => {
       tabBody.innerHTML += `
-
         <tr>
           <td>${r.data}</td>
           <td>${r.durata}</td>
@@ -116,75 +115,69 @@
     aggiornaStorico();
   });
 
-  // === OCR Foto: Estrazione DURATA / KCAL / BPM / DATA ===
+  // OCR foto: estrazione DURATA, KCAL, BPM, DATA
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
+    const { data:{ text } } = await Tesseract.recognize(file, 'ita', { logger: m=>console.log(m) });
+    const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
 
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
-      logger: m => console.log(m)
-    });
-
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-
-    // — DURATA (prima occorrenza hh:mm:ss) —
+    // Durata
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // — KCAL: cerco "[numero]" + "kcal" o "calorie"
+    // KCAL: cerca "kcal", prende numero stesso o precedente
     let kcal = '';
-    for (let l of lines) {
-      const m = l.match(/([\d\.,]+)\s*(?=kcal|calorie)/i);
-      if (m) {
-        kcal = m[1].replace(/[.,]/g,'');
+    for (let i=0; i<lines.length; i++) {
+      if (/kcal/i.test(lines[i])) {
+        let m = lines[i].match(/([\d\.,]+)/);
+        if (!m && i>0) m = lines[i-1].match(/([\d\.,]+)/);
+        if (m) kcal = m[1].replace(/[.,]/g,'');
         break;
       }
     }
     if (!kcal) {
-      const big = text.match(/\d{4,}/g);
-      if (big) kcal = big[0];
+      const fb = text.match(/\b(\d{3,})\b/);
+      if (fb) kcal = fb[1];
     }
     if (kcal) document.getElementById('calorie').value = kcal;
 
-    // — BPM: cerca direttamente "XXX bpm"
-    let bpm = '';
+    // BPM: cerca numero + "bpm"
     for (let l of lines) {
       const m = l.match(/(\d{2,3})\s*bpm/i);
-      if (m) { bpm = m[1]; break; }
+      if (m) { document.getElementById('battito').value = m[1]; break; }
     }
-    if (bpm) document.getElementById('battito').value = bpm;
 
-    // — DATA (dd/mm/yyyy) —
+    // Data: dd/mm/yyyy
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
     if (dMatch) {
       let [ , dd, mm, yy ] = dMatch;
-      if (yy.length === 2) yy = '20'+yy;
-      dd = dd.padStart(2,'0');
-      mm = mm.padStart(2,'0');
+      if (yy.length===2) yy='20'+yy;
+      dd=dd.padStart(2,'0'); mm=mm.padStart(2,'0');
       document.getElementById('data').value = `${yy}-${mm}-${dd}`;
     } else {
       document.getElementById('data').valueAsDate = new Date();
     }
   });
 
-  // === Caricamento PDF e creazione tabelle ===
+  // Caricamento PDF e visualizzazione scheda
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async () => {
-      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
+      const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(reader.result) }).promise;
       let txt = '';
-      for (let i=1; i<=pdf.numPages; i++){
+      for (let i=1;i<=pdf.numPages;i++) {
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        txt += content.items.map(item=>item.str).join(' ') + '\n';
+        txt += content.items.map(it=>it.str).join(' ') + '\n';
       }
       schedaDiv.innerHTML = '';
-      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
+      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i) => {
         const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
         let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-        esercizi.forEach(ex=> tbl += `<tr><td>${ex}</td></tr>`);
+        esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
         tbl += '</tbody></table><br>';
         schedaDiv.innerHTML += tbl;
       });
