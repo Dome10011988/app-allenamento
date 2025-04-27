@@ -112,6 +112,9 @@ form.addEventListener('submit', e => {
 });
 
 // OCR Foto Huawei Health
+<script>
+const fotoInput = document.getElementById('fotoInput');
+
 fotoInput.addEventListener('change', async e => {
   const file = e.target.files[0];
   if (!file) return;
@@ -134,14 +137,20 @@ fotoInput.addEventListener('change', async e => {
       const matchDurata = line.match(/(\d{1,2}:\d{2}:\d{2})/);
       if (matchDurata) durata = matchDurata[1];
     }
-    if (!calorie) {
-      const matchKcal = line.match(/(\d{2,4})\s*(kcal|Calorie|KCAL)/i);
-      if (matchKcal) calorie = matchKcal[1];
+
+    // Cerca calorie in tutta la foto
+    const kcalMatches = [...text.matchAll(/(\d{2,4})\s*(kcal|Calorie|KCAL)/gi)];
+    if (kcalMatches.length > 0) {
+      calorie = kcalMatches[kcalMatches.length-1][1]; // prende l'ultimo valore trovato
     }
-    if (!battito) {
-      const matchBattito = line.match(/(\d{2,3})\s*(bpm|BPM|battiti|min)/i);
-      if (matchBattito) battito = matchBattito[1];
+
+    // Cerca battito in tutta la foto
+    const battitoMatches = [...text.matchAll(/(\d{2,3})\s*(bpm|BPM|battiti|min)/gi)];
+    if (battitoMatches.length > 0) {
+      battito = battitoMatches[battitoMatches.length-1][1]; // prende l'ultimo valore trovato
     }
+
+    // Cerca data
     if (!dataAllenamento) {
       const matchData = line.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
       if (matchData) {
@@ -161,7 +170,7 @@ fotoInput.addEventListener('change', async e => {
 
   document.getElementById('giorno').value = "Giorno ?";
 });
-
+</script>
 // Carica PDF Allenamenti
 pdfInput.addEventListener('change', async e => {
   const file = e.target.files[0];
