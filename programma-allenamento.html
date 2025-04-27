@@ -48,14 +48,12 @@
     <form id="form-allenamento">
       <label>Data</label>
       <input type="date" id="data" required>
-      <label>Giorno (es: Giorno 1)</label>
-      <input type="text" id="giorno" placeholder="Giorno 1" required>
       <label>Durata</label>
-      <input type="text" id="durata" placeholder="00:29:40" required>
+      <input type="text" id="durata" placeholder="00:00:00" required>
       <label>KCAL</label>
-      <input type="number" id="calorie" placeholder="413" required>
+      <input type="number" id="calorie" placeholder="000" required>
       <label>Battito Medio (bpm)</label>
-      <input type="number" id="battito" placeholder="132" required>
+      <input type="number" id="battito" placeholder="000" required>
       <button type="submit">Salva Risultato</button>
     </form>
   </div>
@@ -94,7 +92,6 @@ function aggiornaStorico() {
     tabBody.innerHTML += `
       <tr>
         <td>${r.data}</td>
-        <td>${r.giorno}</td>
         <td>${r.durata}</td>
         <td>${r.calorie}</td>
         <td>${r.battito}</td>
@@ -107,7 +104,6 @@ form.addEventListener('submit', e => {
   e.preventDefault();
   risultati.push({
     data: document.getElementById('data').value,
-    giorno: document.getElementById('giorno').value,
     durata: document.getElementById('durata').value,
     calorie: document.getElementById('calorie').value,
     battito: document.getElementById('battito').value
@@ -131,7 +127,7 @@ fotoInput.addEventListener('change', async e => {
   if (durataMatch) document.getElementById('durata').value = durataMatch[1];
 
   // cerca kcal
-  const kcalMatches = [...text.matchAll(/(\d{2,4})\s*(kcal|Calorie|KCAL)/gi)];
+  const kcalMatches = [...text.matchAll(/(\d{2,4})\s*(kcal|Calorie|kcal)/gi)];
   if (kcalMatches.length > 0) {
     document.getElementById('calorie').value = kcalMatches[kcalMatches.length-1][1];
   }
