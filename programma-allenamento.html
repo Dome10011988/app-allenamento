@@ -126,23 +126,28 @@
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL: cerca "kcal", prende numero stesso o precedente
+    // KCAL: prima prova "num + kcal", poi look-behind riga
     let kcal = '';
-    for (let i=0; i<lines.length; i++) {
-      if (/kcal/i.test(lines[i])) {
-        let m = lines[i].match(/([\d\.,]+)/);
-        if (!m && i>0) m = lines[i-1].match(/([\d\.,]+)/);
-        if (m) kcal = m[1].replace(/[.,]/g,'');
-        break;
+    // case "1234 kcal"
+    const sameLine = text.match(/([\d\.,]+)\s*kcal/i);
+    if (sameLine) {
+      kcal = sameLine[1].replace(/[.,]/g,'');
+    } else {
+      // find line containing "kcal"
+      const idx = lines.findIndex(l=>/kcal/i.test(l));
+      if (idx >= 0) {
+        for (let j = idx - 1; j >= 0; j--) {
+          const m = lines[j].match(/([\d\.,]+)/);
+          if (m) {
+            kcal = m[1].replace(/[.,]/g,'');
+            break;
+          }
+        }
       }
-    }
-    if (!kcal) {
-      const fb = text.match(/\b(\d{3,})\b/);
-      if (fb) kcal = fb[1];
     }
     if (kcal) document.getElementById('calorie').value = kcal;
 
-    // BPM: cerca numero + "bpm"
+    // BPM: "XXX bpm"
     for (let l of lines) {
       const m = l.match(/(\d{2,3})\s*bpm/i);
       if (m) { document.getElementById('battito').value = m[1]; break; }
@@ -168,7 +173,7 @@
     reader.onload = async () => {
       const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(reader.result) }).promise;
       let txt = '';
-      for (let i=1;i<=pdf.numPages;i++) {
+      for (let i=1;i<=pdf.numPages;i++){
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
         txt += content.items.map(it=>it.str).join(' ') + '\n';
