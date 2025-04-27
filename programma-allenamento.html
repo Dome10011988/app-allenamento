@@ -195,71 +195,80 @@ fotoInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Pre-elaborazione dell'immagine
+  // 1) Carica e pre-elabora l'immagine
   const img = new Image();
   img.src = URL.createObjectURL(file);
   await new Promise(r => img.onload = r);
 
   const canvas = document.createElement('canvas');
-  const scale = 2; // Maggiore risoluzione
+  const scale = 2;
   canvas.width = img.width * scale;
   canvas.height = img.height * scale;
   const ctx = canvas.getContext('2d');
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   // Scala di grigi
-  const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
   for (let i = 0; i < imgData.data.length; i += 4) {
-    const m = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
-    imgData.data[i] = imgData.data[i + 1] = imgData.data[i + 2] = m;
+    const m = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
+    imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = m;
   }
-  ctx.putImageData(imgData, 0, 0);
+  ctx.putImageData(imgData,0,0);
 
-  // OCR: riconoscimento del testo
+  // 2) OCR
   const { data: { text } } = await Tesseract.recognize(
     canvas.toDataURL(), 'ita',
     { logger: m => console.log(m) }
   );
-  console.log("Testo OCR completo:", text);
+  console.log("OCR completo:\n", text);
 
-  // Regex per estrarre la data (formatto anche i dati in formato yyyy-mm-dd per l'input)
-  const dateMatch = text.match(/(\d{2})[\/\.\-](\d{2})[\/\.\-](\d{2,4})/);
+  // 3) Split in righe significative
+  const lines = text
+    .split(/\r?\n/)
+    .map(l => l.trim())
+    .filter(l => l.length > 0);
+
+  // 4) Data
+  const dateMatch = lines.find(l => /\d{2}[\/\.\-]\d{2}[\/\.\-]\d{2,4}/.test(l));
   if (dateMatch) {
-    let [ , dd, mm, yy ] = dateMatch;
-    if (yy.length === 2) yy = '20' + yy; // formato a 4 cifre
-    dd = dd.padStart(2, '0'); mm = mm.padStart(2, '0');
+    let [dd,mm,yy] = dateMatch.match(/(\d{2})[\/\.\-](\d{2})[\/\.\-](\d{2,4})/).slice(1);
+    if (yy.length === 2) yy = '20'+yy;
     document.getElementById('data').value = `${yy}-${mm}-${dd}`;
   } else {
-    document.getElementById('data').valueAsDate = new Date(); // Usa la data odierna
+    document.getElementById('data').valueAsDate = new Date();
   }
 
-  // Regex per la durata (esempio: "00:29:40")
-  const dMatch = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
-  if (dMatch) document.getElementById('durata').value = dMatch[1];
-
-  // KCAL: cerca "kcal", "Calorie", "KCal", "Kcal"
-  const kMatch = text.match(/(\d+)\s*(kcal|Kcal|Calorie|KCAL)/i);
-  if (kMatch) {
-    document.getElementById('calorie').value = kMatch[1];
-  } else {
-    console.warn("Non ho trovato le kcal nel testo OCR");
+  // 5) Durata (prima riga con pattern hh:mm:ss)
+  const durIdx = lines.findIndex(l => /\d{1,2}:\d{2}:\d{2}/.test(l));
+  if (durIdx >= 0) {
+    const dm = lines[durIdx].match(/(\d{1,2}:\d{2}:\d{2})/);
+    if (dm) document.getElementById('durata').value = dm[1];
   }
 
-  // Frequenza cardiaca media (Battito medio): cerca "bpm" o "battito"
-  let bMatch = text.match(/Frequenza\s*(?:cardiaca\s*)?media[^0-9]*?(\d{2,3})/i);
-  if (!bMatch) {
-    bMatch = text.match(/(\d{2,3})\s*bpm/i);
+  // 6) Prova con regex per KCAL
+  let kc = text.match(/(\d+)\s*(?:kcal|KCal|Calorie)/i);
+  // 7) Se fallisce: prendi la prima riga numerica dopo la durata
+  if (!kc && durIdx >= 0) {
+    const nums = lines
+      .slice(durIdx+1)
+      .filter(l => /^\d+$/.test(l));
+    if (nums.length) kc = [null, nums[0]];
   }
-  if (bMatch) {
-    document.getElementById('battito').value = bMatch[1];
-  } else {
-    console.warn("Non ho trovato il battito medio nel testo OCR");
-  }
+  if (kc) document.getElementById('calorie').value = kc[1];
 
-  // Giorno
-  document.getElementById('giorno').value = "Giorno ?";
+  // 8) Prova con regex per battito medio
+  let bm = text.match(/Frequenza\s*(?:cardiaca\s*)?media[^0-9]*?(\d{2,3})/i)
+        || text.match(/(\d{2,3})\s*bpm/i);
+  // 9) Se fallisce: seconda riga numerica dopo la durata
+  if (!bm && durIdx >= 0) {
+    const nums = lines.slice(durIdx+1).filter(l => /^\d+$/.test(l));
+    if (nums.length > 1) bm = [null, nums[1]];
+  }
+  if (bm) document.getElementById('battito').value = bm[1];
+
+  // 10) Default “giorno”
+  document.getElementById('giorno').value = 'Giorno ?';
 });
-
   // Caricamento PDF per Scheda Allenamenti
   pdfInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
