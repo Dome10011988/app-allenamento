@@ -195,13 +195,13 @@ fotoInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
-  // Carico l’immagine su canvas per migliore OCR
+  // Pre-elaborazione dell'immagine
   const img = new Image();
   img.src = URL.createObjectURL(file);
   await new Promise(r => img.onload = r);
 
   const canvas = document.createElement('canvas');
-  const scale = 2;
+  const scale = 2; // Maggiore risoluzione
   canvas.width = img.width * scale;
   canvas.height = img.height * scale;
   const ctx = canvas.getContext('2d');
@@ -210,42 +210,42 @@ fotoInput.addEventListener('change', async (e) => {
   // Scala di grigi
   const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < imgData.data.length; i += 4) {
-    const m = (imgData.data[i] + imgData.data[i+1] + imgData.data[i+2]) / 3;
-    imgData.data[i] = imgData.data[i+1] = imgData.data[i+2] = m;
+    const m = (imgData.data[i] + imgData.data[i + 1] + imgData.data[i + 2]) / 3;
+    imgData.data[i] = imgData.data[i + 1] = imgData.data[i + 2] = m;
   }
   ctx.putImageData(imgData, 0, 0);
 
-  // OCR
+  // OCR: riconoscimento del testo
   const { data: { text } } = await Tesseract.recognize(
     canvas.toDataURL(), 'ita',
     { logger: m => console.log(m) }
   );
-  console.log("OCR text completo:\n", text);
+  console.log("Testo OCR completo:", text);
 
-  // Data (flessibile)
-  const dateMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
+  // Regex per estrarre la data (formatto anche i dati in formato yyyy-mm-dd per l'input)
+  const dateMatch = text.match(/(\d{2})[\/\.\-](\d{2})[\/\.\-](\d{2,4})/);
   if (dateMatch) {
     let [ , dd, mm, yy ] = dateMatch;
-    if (yy.length === 2) yy = '20' + yy;
-    dd = dd.padStart(2,'0'); mm = mm.padStart(2,'0');
+    if (yy.length === 2) yy = '20' + yy; // formato a 4 cifre
+    dd = dd.padStart(2, '0'); mm = mm.padStart(2, '0');
     document.getElementById('data').value = `${yy}-${mm}-${dd}`;
   } else {
-    document.getElementById('data').valueAsDate = new Date();
+    document.getElementById('data').valueAsDate = new Date(); // Usa la data odierna
   }
 
-  // Durata
-  const dMatch = text.match(/Durata[^0-9]*?(\d{1,2}:\d{2}:\d{2})/i);
+  // Regex per la durata (esempio: "00:29:40")
+  const dMatch = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
   if (dMatch) document.getElementById('durata').value = dMatch[1];
 
-  // KCAL: cerca "kcal", "Calorie" o "KCal"
-  const kMatch = text.match(/(\d{2,4})\s*(?:kcal|KCal|Calorie)/i);
+  // KCAL: cerca "kcal", "Calorie", "KCal", "Kcal"
+  const kMatch = text.match(/(\d+)\s*(kcal|Kcal|Calorie|KCAL)/i);
   if (kMatch) {
     document.getElementById('calorie').value = kMatch[1];
   } else {
-    console.warn("Non ho trovato le kcal: controlla il testo OCR");
+    console.warn("Non ho trovato le kcal nel testo OCR");
   }
 
-  // Battito medio: prende sia "bpm" sia "battito medio"
+  // Frequenza cardiaca media (Battito medio): cerca "bpm" o "battito"
   let bMatch = text.match(/Frequenza\s*(?:cardiaca\s*)?media[^0-9]*?(\d{2,3})/i);
   if (!bMatch) {
     bMatch = text.match(/(\d{2,3})\s*bpm/i);
@@ -253,13 +253,12 @@ fotoInput.addEventListener('change', async (e) => {
   if (bMatch) {
     document.getElementById('battito').value = bMatch[1];
   } else {
-    console.warn("Non ho trovato il battito: controlla il testo OCR");
+    console.warn("Non ho trovato il battito medio nel testo OCR");
   }
 
-  // Default giorno
-  document.getElementById('giorno').value = 'Giorno ?';
+  // Giorno
+  document.getElementById('giorno').value = "Giorno ?";
 });
-
   // Caricamento PDF per Scheda Allenamenti
   pdfInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
