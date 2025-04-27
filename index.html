@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>🏠 Home - Fit Tracker</title>
 
   <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Tema globale e stili base -->
+  <!-- Stili globali -->
   <link rel="stylesheet" href="style.css">
 
-  <!-- Script per toggle tema -->
+  <!-- Script per greeting, toggle tema e toast -->
   <script src="script.js" defer></script>
 
   <style>
-    /* Layout specifico per la Home */
+    /* Stili specifici per la Home */
     body {
       display: flex;
       flex-direction: column;
@@ -29,27 +29,31 @@
       color: var(--primary);
       font-size: 2rem;
     }
-
-    /* Pulsanti blu uniformi */
-    .button {
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
       width: 100%;
-      max-width: 300px;
+      max-width: 320px;
+    }
+    nav li + li {
+      margin-top: 12px;
+    }
+    .button {
+      display: block;
+      width: 100%;
       padding: 16px;
-      margin: 10px 0;
       font-size: 1.2rem;
-      border: none;
-      border-radius: 8px;
-      background: #3498db;       /* Blu principale */
-      color: #ffffff;            /* Testo bianco */
-      cursor: pointer;
-      transition: background 0.2s ease;
+      text-decoration: none;
       text-align: center;
+      border-radius: 8px;
+      background: #3498db;
+      color: #fff;
+      transition: background 0.2s;
     }
     .button:hover {
-      background: #2980b9;       /* Blu scuro per hover */
+      background: #2980b9;
     }
-
-    /* Posiziona il toggle tema in alto a destra */
     #theme-toggle {
       position: fixed;
       top: 15px;
@@ -66,11 +70,19 @@
       justify-content: center;
       cursor: pointer;
     }
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+      pointer-events: none;
+    }
   </style>
 </head>
 <body>
-  <!-- Saluto utente -->
-  <div id="user-greeting" class="user-greeting"></div>
+  <!-- Greeting personalizzato -->
+  <div id="user-greeting" class="user-greeting" aria-live="polite"></div>
 
   <!-- Toggle tema -->
   <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
@@ -78,18 +90,17 @@
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
   <!-- Menu principale -->
-  <button class="button" onclick="location.href='programma-allenamento.html'">
-    💪 Programma Allenamento
-  </button>
-  <button class="button" onclick="location.href='piano-alimentare.html'">
-    🍽️ Piano Alimentare
-  </button>
-  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
-    🛒 Lista Spesa Giornaliera
-  </button>
-  <button class="button" onclick="location.href='aggiungi-peso.html'">
-    ➕ Aggiungi Peso
-  </button>
+  <nav aria-label="Menu principale">
+    <ul>
+      <li><a href="programma-allenamento.html" class="button">💪 Programma Allenamento</a></li>
+      <li><a href="piano-alimentare.html" class="button">🍽️ Piano Alimentare</a></li>
+      <li><a href="lista-spesa-giornaliera.html" class="button">🛒 Lista Spesa Giornaliera</a></li>
+      <li><a href="aggiungi-peso.html" class="button">➕ Aggiungi Peso</a></li>
+    </ul>
+  </nav>
+
+  <!-- Contenitore per le notifiche toast -->
+  <div id="toast-container" role="status" aria-live="polite"></div>
 
   <!-- Registrazione Service Worker -->
   <script>
@@ -101,7 +112,5 @@
       });
     }
   </script>
-  <!-- Toast container -->
-<div id="toast-container"></div>
 </body>
 </html>
