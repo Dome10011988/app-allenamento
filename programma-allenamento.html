@@ -32,18 +32,18 @@
   <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
   <div class="row">
-    <!-- Scheda Allenamenti -->
+    <!-- Scheda Allenamenti PDF -->
     <div class="box">
       <h2>📋 Scheda Allenamenti (PDF)</h2>
       <input type="file" id="pdfInput" accept="application/pdf">
       <div id="scheda"></div>
     </div>
 
-    <!-- Foto Risultati -->
+    <!-- Inserimento/Risultati -->
     <div class="box">
       <h2>📸 Carica Foto Risultato</h2>
       <input type="file" id="fotoInput" accept="image/*">
-      
+
       <h2>📈 Inserisci Risultato</h2>
       <form id="form-allenamento">
         <label>Data</label>
@@ -51,14 +51,15 @@
         <label>Durata (hh:mm:ss)</label>
         <input type="text" id="durata" placeholder="00:29:40" required>
         <label>KCAL</label>
-        <input type="number" id="calorie" placeholder="413" required>
+        <input type="number" id="calorie" placeholder="1375" required>
         <label>Battito Medio (bpm)</label>
-        <input type="number" id="battito" placeholder="132" required>
+        <input type="number" id="battito" placeholder="143" required>
         <button type="submit">Salva Risultato</button>
       </form>
     </div>
   </div>
 
+  <!-- Storico Risultati -->
   <div class="full-width box">
     <h2>📊 Storico Risultati</h2>
     <table>
@@ -74,17 +75,17 @@
   </div>
 
 <script>
-  const fotoInput = document.getElementById('fotoInput');
-  const pdfInput = document.getElementById('pdfInput');
-  const schedaDiv = document.getElementById('scheda');
-  const form = document.getElementById('form-allenamento');
-  const tabBody = document.getElementById('tabella-body');
+  const pdfInput   = document.getElementById('pdfInput');
+  const fotoInput  = document.getElementById('fotoInput');
+  const schedaDiv  = document.getElementById('scheda');
+  const form       = document.getElementById('form-allenamento');
+  const tabBody    = document.getElementById('tabella-body');
 
   // Ripristino scheda PDF salvata
-  const schedaSalvata = localStorage.getItem('schedaAllenamenti');
-  if (schedaSalvata) schedaDiv.innerHTML = schedaSalvata;
+  const savedScheda = localStorage.getItem('schedaAllenamenti');
+  if (savedScheda) schedaDiv.innerHTML = savedScheda;
 
-  // Caricamento storico
+  // Carico storico risultati
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
   function aggiornaStorico() {
     tabBody.innerHTML = '';
@@ -114,78 +115,77 @@
     aggiornaStorico();
   });
 
-  // OCR foto: estrazione linea-per-linea
+  // === OCR Foto: Estrazione DURATA / KCAL / BPM / DATA ===
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-    const { data:{ text } } = await Tesseract.recognize(file, 'ita', { logger: m=>console.log(m) });
-    const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
 
-    // Durata
-    const durLine = lines.find(l=>/\d{1,2}:\d{2}:\d{2}/.test(l));
-    if (durLine) {
-      const m = durLine.match(/(\d{1,2}:\d{2}:\d{2})/);
-      if (m) document.getElementById('durata').value = m[1];
-    }
+    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
+      logger: m => console.log(m)
+    });
 
-    // KCAL: prima unità, poi fallback su numeri di 3 cifre
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+
+    // Durata: prima occorrenza hh:mm:ss
+    const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
+    if (durMatch) document.getElementById('durata').value = durMatch[1];
+
+    // KCAL: cerca "[numero]" + "kcal" o "calorie"
     let kcal = '';
-    const uLine = lines.find(l=>/kcal|calorie/i.test(l));
-    if (uLine) {
-      const m = uLine.match(/(\d{2,4})\s*(?=kcal|calorie)/i);
-      if (m) kcal = m[1];
+    for (let l of lines) {
+      const m = l.match(/([\d\.,]+)\s*(?=kcal|calorie)/i);
+      if (m) {
+        // rimuovo separatori
+        kcal = m[1].replace(/[.,]/g,'');
+        break;
+      }
     }
+    // fallback: primi numeri di almeno 4 cifre
     if (!kcal) {
-      // fallback tra linee numeriche pure di 3 cifre
-      const nums = lines.filter(l=>/^\d{3}$/.test(l));
-      if (nums.length) kcal = nums[0];
+      const big = text.match(/\d{4,}/g);
+      if (big) kcal = big[0];
     }
     if (kcal) document.getElementById('calorie').value = kcal;
 
-    // Battito Medio: cerca "bpm" o "battito"
+    // BPM: cerca direttamente "XXX bpm"
     let bpm = '';
-    const bLine = lines.find(l=>/bpm|battito/i.test(l));
-    if (bLine) {
-      const m = bLine.match(/(\d{2,3})/);
-      if (m) bpm = m[1];
+    for (let l of lines) {
+      const m = l.match(/(\d{2,3})\s*bpm/i);
+      if (m) { bpm = m[1]; break; }
     }
     if (bpm) document.getElementById('battito').value = bpm;
 
-    // Data: primo match dd/mm/yyyy
-    const dLine = lines.find(l=>/\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}/.test(l));
-    if (dLine) {
-      let dm = dLine.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
-      if (dm) {
-        let [_,dd,mm,yy] = dm;
-        if (yy.length===2) yy = '20'+yy;
-        dd = dd.padStart(2,'0'); mm = mm.padStart(2,'0');
-        document.getElementById('data').value = `${yy}-${mm}-${dd}`;
-      }
+    // Data: primo match dd/mm/yyyy o d/m/yy
+    const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
+    if (dMatch) {
+      let [ , dd, mm, yy ] = dMatch;
+      if (yy.length === 2) yy = '20'+yy;
+      dd = dd.padStart(2,'0');
+      mm = mm.padStart(2,'0');
+      document.getElementById('data').value = `${yy}-${mm}-${dd}`;
     } else {
       document.getElementById('data').valueAsDate = new Date();
     }
-
-    document.getElementById('giorno').value = 'Giorno ?';
   });
 
-  // Caricamento PDF e generazione tabelle
+  // === Caricamento PDF e creazione tabelle ===
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async () => {
-      const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(reader.result) }).promise;
+      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
       let txt = '';
-      for (let i=1;i<=pdf.numPages;i++){
+      for (let i=1; i<=pdf.numPages; i++){
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        txt += content.items.map(it=>it.str).join(' ') + '\n';
+        txt += content.items.map(item=>item.str).join(' ') + '\n';
       }
       schedaDiv.innerHTML = '';
       txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
-        const rows = blk.split('-').map(s=>s.trim()).filter(s=>s);
+        const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
         let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-        rows.forEach(r=> tbl += `<tr><td>${r}</td></tr>`);
+        esercizi.forEach(ex=> tbl += `<tr><td>${ex}</td></tr>`);
         tbl += '</tbody></table><br>';
         schedaDiv.innerHTML += tbl;
       });
