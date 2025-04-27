@@ -83,23 +83,22 @@
 
   // Ripristino scheda PDF salvata
   const savedScheda = localStorage.getItem('schedaAllenamenti');
-  if (savedScheda) {
-    schedaDiv.innerHTML = savedScheda;
-  }
+  if (savedScheda) schedaDiv.innerHTML = savedScheda;
 
   // Carico storico risultati
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
   function aggiornaStorico() {
     tabBody.innerHTML = '';
     risultati.forEach(r => {
-      tabBody.innerHTML += ` 
-        <tr> 
-          <td>${r.data}</td> 
-          <td>${r.durata}</td> 
-          <td>${r.calorie}</td> 
-          <td>${r.battito}</td> 
-        </tr>`; 
-    }); 
+      tabBody.innerHTML += `
+
+        <tr>
+          <td>${r.data}</td>
+          <td>${r.durata}</td>
+          <td>${r.calorie}</td>
+          <td>${r.battito}</td>
+        </tr>`;
+    });
   }
   aggiornaStorico();
 
@@ -128,11 +127,11 @@
 
     const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
 
-    // Durata: prima occorrenza hh:mm:ss
+    // — DURATA (prima occorrenza hh:mm:ss) —
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL: cerca "[numero]" + "kcal" o "calorie"
+    // — KCAL: cerco "[numero]" + "kcal" o "calorie"
     let kcal = '';
     for (let l of lines) {
       const m = l.match(/([\d\.,]+)\s*(?=kcal|calorie)/i);
@@ -141,14 +140,13 @@
         break;
       }
     }
-    // fallback: primi numeri di almeno 4 cifre
     if (!kcal) {
       const big = text.match(/\d{4,}/g);
       if (big) kcal = big[0];
     }
     if (kcal) document.getElementById('calorie').value = kcal;
 
-    // BPM: cerca direttamente "XXX bpm"
+    // — BPM: cerca direttamente "XXX bpm"
     let bpm = '';
     for (let l of lines) {
       const m = l.match(/(\d{2,3})\s*bpm/i);
@@ -156,7 +154,7 @@
     }
     if (bpm) document.getElementById('battito').value = bpm;
 
-    // Data: primo match dd/mm/yyyy o d/m/yy
+    // — DATA (dd/mm/yyyy) —
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
     if (dMatch) {
       let [ , dd, mm, yy ] = dMatch;
@@ -183,7 +181,7 @@
         txt += content.items.map(item=>item.str).join(' ') + '\n';
       }
       schedaDiv.innerHTML = '';
-      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=> {
+      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
         const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
         let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
         esercizi.forEach(ex=> tbl += `<tr><td>${ex}</td></tr>`);
