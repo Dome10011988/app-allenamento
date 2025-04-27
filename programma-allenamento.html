@@ -114,7 +114,6 @@
     <h2>📈 Inserisci Risultato</h2>
     <form id="form-allenamento">
       <input type="date" id="data" required>
-      <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
       <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
       <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
       <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
@@ -221,7 +220,6 @@
   pdfInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = async () => {
       const pdfData = new Uint8Array(reader.result);
