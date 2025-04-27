@@ -8,236 +8,210 @@
   <!-- Librerie -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+  <script>
+    // Imposta il worker di PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      'https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.worker.min.js';
+  </script>
 
   <style>
     body {
       font-family: Arial, sans-serif;
       background: #f4f4f4;
       color: #2c3e50;
-      margin: 0;
-      padding: 20px;
+      margin: 0; padding: 20px;
     }
-    h1 {
-      text-align: center;
-      margin-bottom: 30px;
-    }
+    h1 { text-align: center; margin-bottom: 30px; }
     .top-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-      justify-content: center;
-      margin-bottom: 30px;
+      display: flex; flex-wrap: wrap; gap: 20px;
+      justify-content: center; margin-bottom: 30px;
     }
     .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
-      flex: 1 1 400px;
-      max-width: 600px;
-      min-height: 500px;
+      background: #fff; padding: 20px;
+      border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      flex: 1 1 400px; max-width: 600px; min-height: 500px;
     }
     table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
+      width: 100%; border-collapse: collapse; margin-top: 10px;
     }
     th, td {
-      border: 1px solid #ddd;
-      padding: 8px;
-      text-align: left;
+      border: 1px solid #ddd; padding: 8px; text-align: left;
     }
-    th {
-      background: #3498db;
-      color: white;
-    }
+    th { background: #3498db; color: white; }
     form, .upload-section {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 30px;
+      display: flex; flex-direction: column; gap: 10px;
+      align-items: center; margin-bottom: 30px;
     }
-    form input, form button, .upload-section input, .upload-section button {
-      width: 100%;
-      max-width: 300px;
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 8px;
-      border: 1px solid #ccc;
+    input, button {
+      width: 100%; max-width: 300px;
+      padding: 10px; font-size: 1rem;
+      border-radius: 8px; border: 1px solid #ccc;
     }
     button {
-      background: #3498db;
-      color: white;
-      border: none;
-      cursor: pointer;
+      background: #3498db; color: white; border: none; cursor: pointer;
     }
-    button:hover {
-      background: #2980b9;
-    }
-    .bottom-section {
-      max-width: 1200px;
-      margin: 0 auto;
-    }
-    .home-button {
-      text-align: center;
-      margin-top: 40px;
-    }
+    button:hover { background: #2980b9; }
+    .bottom-section { max-width: 1200px; margin: 0 auto; }
+    .home-button { text-align: center; margin-top: 40px; }
     .home-button button {
-      background: #3498db;
-      color: #fff;
-      padding: 10px 20px;
-      border: none;
-      font-size: 1rem;
-      border-radius: 8px;
-      cursor: pointer;
+      background: #3498db; color: #fff; padding: 10px 20px;
+      border: none; font-size: 1rem; border-radius: 8px; cursor: pointer;
     }
     .giorno-titolo {
-      background-color: #ecf0f1;
-      padding: 6px 10px;
-      font-weight: bold;
+      background-color: #ecf0f1; padding: 6px 10px; font-weight: bold;
     }
+    #scheda table { margin-bottom: 20px; }
   </style>
 </head>
 
 <body>
 
-<h1>🏋️‍♂️ Allenamenti e Risultati</h1>
+  <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
-<!-- PRIMA RIGA: SCHEDA + RISULTATI -->
-<div class="top-section">
-  <div class="box">
-    <h2>📋 Scheda Allenamenti</h2>
-    <div id="scheda"></div>
+  <!-- PRIMA RIGA: SCHEDA + FORM RISULTATI -->
+  <div class="top-section">
+    <div class="box">
+      <h2>📋 Scheda Allenamenti</h2>
+      <div id="scheda">Nessuna scheda caricata</div>
+    </div>
+    <div class="box">
+      <h2>📈 Inserisci Risultato</h2>
+      <form id="form-allenamento">
+        <input type="date"   id="data"    required>
+        <input type="text"   id="giorno"  placeholder="Giorno (es: Giorno 1)" required>
+        <input type="text"   id="durata"  placeholder="Durata (es: 00:29:40)" required>
+        <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
+        <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
+        <button type="submit">Salva Risultato</button>
+      </form>
+    </div>
   </div>
-  <div class="box">
-    <h2>📈 Inserisci Risultato</h2>
-    <form id="form-allenamento">
-      <input type="date" id="data" required>
-      <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
-      <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
-      <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
-      <button type="submit">Salva Risultato</button>
-    </form>
+
+  <!-- SECONDA RIGA: UPLOAD -->
+  <div class="upload-section">
+    <h2>📑 Carica Scheda PDF & 📸 Carica Foto Huawei Health</h2>
+    <input type="file" accept="application/pdf" id="pdfInput">
+    <input type="file" accept="image/*"       id="fotoInput">
   </div>
-</div>
 
-<!-- SECONDA RIGA: TASTI UPLOAD -->
-<div class="upload-section">
-  <h2>📑 Carica Scheda PDF &amp; 📸 Carica Foto Huawei Health</h2>
-  <input type="file" accept="application/pdf" id="pdfInput">
-  <input type="file" accept="image/*" id="fotoInput">
-</div>
+  <!-- STORICO RISULTATI -->
+  <div class="bottom-section box">
+    <h2>📊 Storico Risultati</h2>
+    <table id="tabella-risultati">
+      <thead>
+        <tr>
+          <th>Data</th><th>Giorno</th>
+          <th>Durata</th><th>KCAL</th>
+          <th>Battito Medio</th>
+        </tr>
+      </thead>
+      <tbody></tbody>
+    </table>
+  </div>
 
-<!-- TERZA RIGA: STORICO RISULTATI -->
-<div class="bottom-section box">
-  <h2>📊 Storico Risultati</h2>
-  <table id="tabella-risultati">
-    <thead>
-      <tr>
-        <th>Data</th>
-        <th>Giorno</th>
-        <th>Durata</th>
-        <th>KCAL</th>
-        <th>Battito Medio</th>
-      </tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
-<div class="home-button">
-  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-</div>
+  <div class="home-button">
+    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+  </div>
 
 <script>
-  const form = document.getElementById('form-allenamento');
+  const form      = document.getElementById('form-allenamento');
   const fotoInput = document.getElementById('fotoInput');
-  const pdfInput = document.getElementById('pdfInput');
-  const tabellaBody = document.querySelector('#tabella-risultati tbody');
+  const pdfInput  = document.getElementById('pdfInput');
+  const tabBody   = document.querySelector('#tabella-risultati tbody');
   const schedaDiv = document.getElementById('scheda');
-  let risultati = JSON.parse(localStorage.getItem('risultati')) || [];
 
-  // Funzione per mostrare la tabella con i risultati
-  function mostraTabella() {
-    tabellaBody.innerHTML = '';
-    risultati.forEach(d => {
-      const row = `<tr>
-        <td>${d.data}</td>
-        <td>${d.giorno}</td>
-        <td>${d.durata}</td>
-        <td>${d.calorie}</td>
-        <td>${d.battito}</td>
-      </tr>`;
-      tabellaBody.innerHTML += row;
+  let risultati = JSON.parse(localStorage.getItem('risultati')||'[]');
+
+  // Mostra la tabella
+  function mostraTabella(){
+    tabBody.innerHTML = '';
+    risultati.forEach(r=>{
+      tabBody.innerHTML += `
+        <tr>
+          <td>${r.data}</td>
+          <td>${r.giorno}</td>
+          <td>${r.durata}</td>
+          <td>${r.calorie}</td>
+          <td>${r.battito}</td>
+        </tr>`;
     });
   }
 
-  // Gestione del form per salvare i risultati
-  form.addEventListener('submit', (e) => {
+  // Salva dal form
+  form.addEventListener('submit', e=>{
     e.preventDefault();
-    const record = {
-      data: document.getElementById('data').value,
-      giorno: document.getElementById('giorno').value,
-      durata: document.getElementById('durata').value,
+    risultati.push({
+      data:    document.getElementById('data').value,
+      giorno:  document.getElementById('giorno').value,
+      durata:  document.getElementById('durata').value,
       calorie: document.getElementById('calorie').value,
       battito: document.getElementById('battito').value
-    };
-    risultati.push(record);
+    });
     localStorage.setItem('risultati', JSON.stringify(risultati));
     form.reset();
     mostraTabella();
   });
 
-  // OCR per Foto
-  fotoInput.addEventListener('change', async (e) => {
+  // OCR da foto
+  fotoInput.addEventListener('change', async e=>{
     const file = e.target.files[0];
-    if (!file) return;
+    if(!file) return;
 
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
-    console.log("Testo OCR:", text);
+    // OCR
+    const { data:{ text } } = await Tesseract.recognize(file,'ita');
+    console.log('OCR:', text);
 
-    const durataMatch = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
-    const kcalMatch = text.match(/(\d+)\s*kcal/i);
-    const battitoMatch = text.match(/media\s*[:\-]?\s*(\d+)\s*bpm/i);
-    const dataMatch = text.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-
-    if (durataMatch) document.getElementById('durata').value = durataMatch[1];
-    if (kcalMatch) document.getElementById('calorie').value = kcalMatch[1];
-    if (battitoMatch) document.getElementById('battito').value = battitoMatch[1];
-
-    if (dataMatch) {
-      const yyyy_mm_dd = `${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}`;
-      document.getElementById('data').value = yyyy_mm_dd;
-    } else {
-      document.getElementById('data').valueAsDate = new Date();
+    // Estrai data
+    const dm = text.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{2,4})/);
+    if(dm){
+      let [_,dd,mm,yy]=dm;
+      if(yy.length===2) yy='20'+yy;
+      document.getElementById('data').value = `${yy}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
     }
+    // Durata
+    const du = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
+    if(du) document.getElementById('durata').value = du[1];
+    // KCAL
+    const kc = text.match(/(\d+)\s*(?:kcal|Calorie)/i);
+    if(kc) document.getElementById('calorie').value = kc[1];
+    // Battito medio
+    let bm = text.match(/media\s*[:\-]?\s*(\d{2,3})\s*bpm/i);
+    if(!bm) bm = text.match(/Frequenza\s*cardiaca\s*media\s*[:\-]?\s*(\d{2,3})/i);
+    if(bm) document.getElementById('battito').value = bm[1];
 
-    document.getElementById('giorno').value = "Giorno ?";
+    // Giorno
+    document.getElementById('giorno').value = 'Giorno ?';
   });
 
-  // Caricamento PDF per Scheda Allenamenti
-  pdfInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
+  // Carica PDF
+  pdfInput.addEventListener('change', e=>{
+    const f = e.target.files[0];
+    if(!f) return;
     const reader = new FileReader();
-    reader.onload = async () => {
-      const pdfData = new Uint8Array(reader.result);
-      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-      let extractedText = '';
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
+    reader.onload = async ()=>{
+      const doc = await pdfjsLib.getDocument(new Uint8Array(reader.result)).promise;
+      let txt='';
+      for(let i=1;i<=doc.numPages;i++){
+        const page = await doc.getPage(i);
         const content = await page.getTextContent();
-        extractedText += content.items.map(item => item.str).join(' ') + '\n';
+        txt += content.items.map(it=>it.str).join(' ') + '\n';
       }
-
-      mostraAllenamenti(extractedText);
+      // Split e genera tabelle
+      const blocchi = txt.split(/Giorno\s*\d/gi).slice(1);
+      schedaDiv.innerHTML='';
+      blocchi.forEach((b,i)=>{
+        const righe = b.split('-').map(s=>s.trim()).filter(s=>s);
+        let ht = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
+        righe.forEach(r=> ht+=`<tr><td>${r}</td></tr>`);
+        schedaDiv.innerHTML += ht+'</tbody></table><br>';
+      });
     };
-    reader.readAsArrayBuffer(file);
+    reader.readAsArrayBuffer(f);
   });
 
-  // Funzione per mostrare gli allenamenti letti dal PDF
-  function mostraAllenamenti(text) {
-    const giorni = text
+  // Inizializza
+  mostraTabella();
+</script>
+
+</body>
+</html>
