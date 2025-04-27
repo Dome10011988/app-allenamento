@@ -30,14 +30,12 @@
   <h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
 
   <div class="row">
-    <!-- Scheda PDF -->
     <div class="box">
       <h2>📋 Scheda Allenamenti (PDF)</h2>
       <input type="file" id="pdfInput" accept="application/pdf">
       <div id="scheda"></div>
     </div>
 
-    <!-- Risultati & OCR -->
     <div class="box">
       <h2>📸 Carica Foto Risultato</h2>
       <input type="file" id="fotoInput" accept="image/*">
@@ -58,7 +56,6 @@
     </div>
   </div>
 
-  <!-- Storico -->
   <div class="full-width box">
     <h2>📊 Storico Risultati</h2>
     <table>
@@ -69,17 +66,21 @@
     </table>
   </div>
 
-  <script>
-    const fotoInput  = document.getElementById('fotoInput');
-    const pdfInput   = document.getElementById('pdfInput');
-    const schedaDiv  = document.getElementById('scheda');
-    const tabBody    = document.getElementById('tabella-body');
-    const form       = document.getElementById('form-allenamento');
-    let risultati    = JSON.parse(localStorage.getItem('risultati')||'[]');
+  <div class="home-button">
+    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+  </div>
 
-    function aggiornaStorico(){
+  <script>
+    const fotoInput = document.getElementById('fotoInput');
+    const pdfInput = document.getElementById('pdfInput');
+    const schedaDiv = document.getElementById('scheda');
+    const tabBody = document.getElementById('tabella-body');
+    const form = document.getElementById('form-allenamento');
+    let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
+
+    function aggiornaStorico() {
       tabBody.innerHTML = '';
-      risultati.forEach(r=>{
+      risultati.forEach(r => {
         tabBody.innerHTML += `
           <tr>
             <td>${r.data}</td>
@@ -93,12 +94,12 @@
     aggiornaStorico();
 
     // Salva form
-    form.addEventListener('submit', e=>{
+    form.addEventListener('submit', e => {
       e.preventDefault();
       risultati.push({
-        data:    document.getElementById('data').value,
-        giorno:  document.getElementById('giorno').value,
-        durata:  document.getElementById('durata').value,
+        data: document.getElementById('data').value,
+        giorno: document.getElementById('giorno').value,
+        durata: document.getElementById('durata').value,
         calorie: document.getElementById('calorie').value,
         battito: document.getElementById('battito').value
       });
@@ -108,25 +109,25 @@
     });
 
     // OCR Foto: parsing per righe e prima occorrenza
-    fotoInput.addEventListener('change', async e=>{
+    fotoInput.addEventListener('change', async e => {
       const file = e.target.files[0];
-      if(!file) return;
-      const { data:{ text } } = await Tesseract.recognize(file, 'ita');
-      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+      if (!file) return;
+      const { data: { text } } = await Tesseract.recognize(file, 'ita');
+      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
 
       // helper per trovare prima occorrenza che matcha
       const findFirst = (arr, regex) => {
         const item = arr.find(l => regex.test(l));
-        return item ? (item.match(regex)[1]||item) : '';
+        return item ? (item.match(regex)[1] || item) : '';
       };
 
       // Estrazione
-      const dateRaw    = findFirst(lines, /(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})/);
-      if(dateRaw){
-        let [d,m,y] = dateRaw.split(/[/.\-]/);
-        if(y.length===2) y='20'+y;
+      const dateRaw = findFirst(lines, /(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})/);
+      if (dateRaw) {
+        let [d, m, y] = dateRaw.split(/[/.\-]/);
+        if (y.length === 2) y = '20' + y; // formato a 4 cifre
         document.getElementById('data').value =
-          `${y.padStart(4,'0')}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+          `${y.padStart(4, '0')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
       }
 
       document.getElementById('durata').value =
@@ -143,30 +144,33 @@
     });
 
     // PDF: estrai scheda
-    pdfInput.addEventListener('change', e=>{
+    pdfInput.addEventListener('change', e => {
       const file = e.target.files[0];
-      if(!file) return;
+      if (!file) return;
       const reader = new FileReader();
-      reader.onload = async ()=>{
+      reader.onload = async () => {
         const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
         let txt = '';
-        for(let i=1;i<=pdf.numPages;i++){
+        for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
           const content = await page.getTextContent();
-          txt += content.items.map(it=>it.str).join(' ') + '\n';
+          txt += content.items.map(it => it.str).join(' ') + '\n';
         }
         // crea tabelle per ogni "Giorno X"
         schedaDiv.innerHTML = '';
-        txt.split(/Giorno\s*\d+/).slice(1).forEach((blk,i)=>{
-          const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
-          let html = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-          esercizi.forEach(ex=> html += `<tr><td>${ex}</td></tr>`);
+        txt.split(/Giorno\s*\d/).slice(1).forEach((blk, i) => {
+          const esercizi = blk.split('-').map(s => s.trim()).filter(s => s);
+          let html = `<table><thead><tr><th>Giorno ${i + 1}</th></tr></thead><tbody>`;
+          esercizi.forEach(ex => html += `<tr><td>${ex}</td></tr>`);
           html += '</tbody></table><br>';
           schedaDiv.innerHTML += html;
         });
       };
       reader.readAsArrayBuffer(file);
     });
+
+    // Carica i dati salvati
+    aggiornaStorico();
   </script>
 </body>
 </html>
