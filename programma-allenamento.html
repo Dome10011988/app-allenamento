@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Allenamento & Risultati</title>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
@@ -68,7 +68,7 @@
     }
     .home-button button {
       background: #3498db;
-      color: #fff;
+      color: white;
       padding: 10px 20px;
       border: none;
       font-size: 1rem;
@@ -133,6 +133,7 @@
       <h2>📋 Inserisci Risultato Allenamento</h2>
       <form id="form-allenamento">
         <input type="date" id="data" required>
+        <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
         <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
         <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
         <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
@@ -166,69 +167,60 @@
   </div>
 
   <script>
-  const form = document.getElementById('form-allenamento');
-  const fileInput = document.getElementById('fileInput');
-  const tabellaBody = document.querySelector('#tabella tbody');
-  let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
+    const form = document.getElementById('form-allenamento');
+    const fileInput = document.getElementById('fileInput');
+    const tabellaBody = document.querySelector('#tabella tbody');
+    let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
 
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    const record = {
-      data: document.getElementById('data').value,
-      giorno: document.getElementById('giorno').value,
-      durata: document.getElementById('durata').value,
-      calorie: document.getElementById('calorie').value,
-      battito: document.getElementById('battito').value
-    };
-    dati.push(record);
-    localStorage.setItem('allenamenti', JSON.stringify(dati));
-    form.reset();
-    mostraTabella();
-  });
-
-  function mostraTabella() {
-    tabellaBody.innerHTML = '';
-    dati.forEach(d => {
-      const row = `<tr>
-        <td>${d.data}</td>
-        <td>${d.giorno}</td>
-        <td>${d.durata}</td>
-        <td>${d.calorie}</td>
-        <td>${d.battito}</td>
-      </tr>`;
-      tabellaBody.innerHTML += row;
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const record = {
+        data: document.getElementById('data').value,
+        giorno: document.getElementById('giorno').value,
+        durata: document.getElementById('durata').value,
+        calorie: document.getElementById('calorie').value,
+        battito: document.getElementById('battito').value
+      };
+      dati.push(record);
+      localStorage.setItem('allenamenti', JSON.stringify(dati));
+      form.reset();
+      mostraTabella();
     });
-  }
 
-  fileInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
+    function mostraTabella() {
+      tabellaBody.innerHTML = '';
+      dati.forEach(d => {
+        const row = `<tr>
+          <td>${d.data}</td>
+          <td>${d.giorno}</td>
+          <td>${d.durata}</td>
+          <td>${d.calorie}</td>
+          <td>${d.battito}</td>
+        </tr>`;
+        tabellaBody.innerHTML += row;
+      });
+    }
 
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+    fileInput.addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const { data: { text } } = await Tesseract.recognize(file, 'ita');
+      const data = text.match(/\d{2}\/\d{2}\/\d{4}/); // Formato data
+      const kcal = text.match(/(\d+)\s*kcal/i); // KCAL
+      const durata = text.match(/(\d{2}:\d{2}:\d{2})/); // Durata
+      const battito = text.match(/frequenza.*?(\d+)\s?bpm/i); // Frequenza cardiaca media
 
-    console.log(text); // Debug
+      if (data) document.getElementById('data').value = data[0];
+      if (kcal) document.getElementById('calorie').value = kcal[1];
+      if (durata) document.getElementById('durata').value = durata[1];
+      if (battito) document.getElementById('battito').value = battito[1];
 
-    const kcal = text.match(/(\d{2,4})\s*kcal/i); // Cerca il numero prima di kcal
-    const durata = text.match(/(?:Durata|Time|Tempo)\s*:?[\s\-]*([\d]{2}:[\d]{2}:[\d]{2})/i) || text.match(/(\d{2}:\d{2}:\d{2})/);
-    const battito = text.match(/frequenza cardiaca media\s*(\d+)/i) || text.match(/(\d{2,3})\s*bpm/i);
-    const dataAllenamento = text.match(/(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+      document.getElementById('giorno').value = "Giorno ?";
+      document.getElementById('data').valueAsDate = new Date();
+    });
 
-    if (kcal) document.getElementById('calorie').value = kcal[1];
-    if (durata) document.getElementById('durata').value = durata[1];
-    if (battito) document.getElementById('battito').value = battito[1];
-    if (dataAllenamento) document.getElementById('data').value = formattaData(dataAllenamento);
+    mostraTabella();
+  </script>
 
-    document.getElementById('giorno').value = "";
-  });
-
-  function formattaData(match) {
-    let giorno = match[1].padStart(2, '0');
-    let mese = match[2].padStart(2, '0');
-    let anno = match[3];
-    return `${anno}-${mese}-${giorno}`;
-  }
-
-  mostraTabella();
-</script>
 </body>
 </html>
