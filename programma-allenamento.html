@@ -2,145 +2,170 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Allenamenti &amp; Risultati (OCR Assistito)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Allenamenti &amp; Risultati</title>
+
+  <!-- Tesseract.js per OCR e Pdf.js per scheda PDF -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+
   <style>
-    body { font-family: Arial,sans-serif; background:#f4f4f4; margin:0; padding:20px; color:#2c3e50 }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
     h1 { text-align:center; margin-bottom:20px }
-    .container { max-width:800px; margin:0 auto }
-    .section { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); margin-bottom:20px }
-    label { display:block; margin:10px 0 5px }
-    select, input, button { width:100%; padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc }
-    button { margin-top:10px; background:#3498db; color:#fff; border:none; cursor:pointer }
+    .row { display:flex; flex-wrap:wrap; gap:20px; }
+    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px; }
+    form label { display:block; margin:8px 0 4px }
+    input, button, table { width:100%; }
+    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc; }
+    button { background:#3498db; color:#fff; border:none; cursor:pointer; margin-top:10px }
     button:hover { background:#2980b9 }
-    table { width:100%; border-collapse:collapse; margin-top:10px }
-    th,td { border:1px solid #ddd; padding:8px; text-align:left }
+    table { border-collapse:collapse; margin-top:10px }
+    th, td { border:1px solid #ddd; padding:8px; text-align:left }
     th { background:#3498db; color:#fff }
+    .full-width { max-width:1000px; margin:20px auto }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
-    <div class="section">
-      <h2>📸 Carica Foto Risultato</h2>
-      <input type="file" id="fotoInput" accept="image/*">
-      <div id="ocr-ui" style="display:none;">
-        <label for="sel-date">Seleziona la DATA</label>
-        <select id="sel-date"></select>
-        <label for="sel-durata">Seleziona la DURATA</label>
-        <select id="sel-durata"></select>
-        <label for="sel-kcal">Seleziona le KCAL</label>
-        <select id="sel-kcal"></select>
-        <label for="sel-battito">Seleziona il BATTITO MEDIO</label>
-        <select id="sel-battito"></select>
-        <button id="apply-ocr">Applica e Riempi Form</button>
-      </div>
+  <h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
+
+  <div class="row">
+    <!-- Scheda PDF -->
+    <div class="box">
+      <h2>📋 Scheda Allenamenti (PDF)</h2>
+      <input type="file" id="pdfInput" accept="application/pdf">
+      <div id="scheda"></div>
     </div>
 
-    <div class="section">
+    <!-- Risultati & OCR -->
+    <div class="box">
+      <h2>📸 Carica Foto Risultato</h2>
+      <input type="file" id="fotoInput" accept="image/*">
       <h2>📈 Inserisci Risultato</h2>
       <form id="form-allenamento">
-        <label>Data</label><input type="date" id="data" required>
-        <label>Giorno (es: Giorno 1)</label><input type="text" id="giorno" placeholder="Giorno 1" required>
-        <label>Durata</label><input type="text" id="durata" placeholder="00:29:40" required>
-        <label>KCAL</label><input type="number" id="calorie" placeholder="413" required>
-        <label>Battito Medio</label><input type="number" id="battito" placeholder="132" required>
+        <label>Data</label>
+        <input type="date" id="data" required>
+        <label>Giorno (es: Giorno 1)</label>
+        <input type="text" id="giorno" placeholder="Giorno 1" required>
+        <label>Durata</label>
+        <input type="text" id="durata" placeholder="00:29:40" required>
+        <label>KCAL</label>
+        <input type="number" id="calorie" placeholder="413" required>
+        <label>Battito Medio (bpm)</label>
+        <input type="number" id="battito" placeholder="132" required>
         <button type="submit">Salva Risultato</button>
       </form>
     </div>
+  </div>
 
-    <div class="section">
-      <h2>📊 Storico Risultati</h2>
-      <table>
-        <thead><tr><th>Data</th><th>Giorno</th><th>Durata</th><th>KCAL</th><th>Battito</th></tr></thead>
-        <tbody id="tabella-body"></tbody>
-      </table>
-    </div>
+  <!-- Storico -->
+  <div class="full-width box">
+    <h2>📊 Storico Risultati</h2>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Giorno</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr>
+      </thead>
+      <tbody id="tabella-body"></tbody>
+    </table>
   </div>
 
   <script>
-    const fotoInput = document.getElementById('fotoInput');
-    const ocrUi      = document.getElementById('ocr-ui');
-    const selDate    = document.getElementById('sel-date');
-    const selDur     = document.getElementById('sel-durata');
-    const selKcal    = document.getElementById('sel-kcal');
-    const selBatt    = document.getElementById('sel-battito');
-    const btnApply   = document.getElementById('apply-ocr');
-    const form       = document.getElementById('form-allenamento');
+    const fotoInput  = document.getElementById('fotoInput');
+    const pdfInput   = document.getElementById('pdfInput');
+    const schedaDiv  = document.getElementById('scheda');
     const tabBody    = document.getElementById('tabella-body');
-
-    let ocrLines = [];
-    let risultati = JSON.parse(localStorage.getItem('risultati')||'[]');
+    const form       = document.getElementById('form-allenamento');
+    let risultati    = JSON.parse(localStorage.getItem('risultati')||'[]');
 
     function aggiornaStorico(){
       tabBody.innerHTML = '';
       risultati.forEach(r=>{
-        tabBody.innerHTML += `<tr>
-          <td>${r.data}</td><td>${r.giorno}</td>
-          <td>${r.durata}</td><td>${r.calorie}</td><td>${r.battito}</td>
-        </tr>`;
+        tabBody.innerHTML += `
+          <tr>
+            <td>${r.data}</td>
+            <td>${r.giorno}</td>
+            <td>${r.durata}</td>
+            <td>${r.calorie}</td>
+            <td>${r.battito}</td>
+          </tr>`;
       });
     }
     aggiornaStorico();
 
-    fotoInput.addEventListener('change', async e=>{
-      const file = e.target.files[0];
-      if(!file) return;
-      // OCR
-      const { data:{ text } } = await Tesseract.recognize(file,'ita',{ logger:m=>{} });
-      ocrLines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
-      // Popola i select
-      [selDate,selDur,selKcal,selBatt].forEach(s=>s.innerHTML='<option>— seleziona —</option>');
-      ocrLines.forEach(l=>{
-        // data candidate
-        if(/\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(l))
-          selDate.innerHTML += `<option>${l}</option>`;
-        // durata candidate
-        if(/\d{1,2}:\d{2}:\d{2}/.test(l))
-          selDur.innerHTML += `<option>${l}</option>`;
-        // kcal candidate
-        if(/\d+\s*(kcal|calorie)/i.test(l))
-          selKcal.innerHTML += `<option>${l}</option>`;
-        // battito candidate
-        if(/\d{2,3}\s*(bpm|battito)/i.test(l))
-          selBatt.innerHTML += `<option>${l}</option>`;
-      });
-      ocrUi.style.display = 'block';
-    });
-
-    btnApply.addEventListener('click', ()=>{
-      // Data
-      let d = selDate.value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
-      if(d){
-        let [_,dd,mm,yy]=d;
-        if(yy.length===2) yy='20'+yy;
-        document.getElementById('data').value = `${yy.padStart(4,'0')}-${mm.padStart(2,'0')}-${dd.padStart(2,'0')}`;
-      }
-      // Durata
-      document.getElementById('durata').value = selDur.value.match(/(\d{1,2}:\d{2}:\d{2})/)[1];
-      // Kcal
-      document.getElementById('calorie').value = (selKcal.value.match(/(\d+)/)||[])[1]||'';
-      // Battito
-      document.getElementById('battito').value = (selBatt.value.match(/(\d{2,3})/)||[])[1]||'';
-      // default
-      document.getElementById('giorno').value = 'Giorno ?';
-      ocrUi.style.display = 'none';
-    });
-
+    // Salva form
     form.addEventListener('submit', e=>{
       e.preventDefault();
       risultati.push({
-        data:document.getElementById('data').value,
-        giorno:document.getElementById('giorno').value,
-        durata:document.getElementById('durata').value,
-        calorie:document.getElementById('calorie').value,
-        battito:document.getElementById('battito').value
+        data:    document.getElementById('data').value,
+        giorno:  document.getElementById('giorno').value,
+        durata:  document.getElementById('durata').value,
+        calorie: document.getElementById('calorie').value,
+        battito: document.getElementById('battito').value
       });
-      localStorage.setItem('risultati',JSON.stringify(risultati));
+      localStorage.setItem('risultati', JSON.stringify(risultati));
       form.reset();
       aggiornaStorico();
+    });
+
+    // OCR Foto: parsing per righe e prima occorrenza
+    fotoInput.addEventListener('change', async e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const { data:{ text } } = await Tesseract.recognize(file, 'ita');
+      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+
+      // helper per trovare prima occorrenza che matcha
+      const findFirst = (arr, regex) => {
+        const item = arr.find(l => regex.test(l));
+        return item ? (item.match(regex)[1]||item) : '';
+      };
+
+      // Estrazione
+      const dateRaw    = findFirst(lines, /(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})/);
+      if(dateRaw){
+        let [d,m,y] = dateRaw.split(/[/.\-]/);
+        if(y.length===2) y='20'+y;
+        document.getElementById('data').value =
+          `${y.padStart(4,'0')}-${m.padStart(2,'0')}-${d.padStart(2,'0')}`;
+      }
+
+      document.getElementById('durata').value =
+        findFirst(lines, /(\d{1,2}:\d{2}:\d{2})/);
+
+      document.getElementById('calorie').value =
+        findFirst(lines, /(\d+)(?=\s*(?:kcal|Kcal|Calorie))/i);
+
+      document.getElementById('battito').value =
+        findFirst(lines, /(\d{2,3})(?=\s*(?:bpm|battito))/i);
+
+      // default giorno
+      document.getElementById('giorno').value = 'Giorno ?';
+    });
+
+    // PDF: estrai scheda
+    pdfInput.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = async ()=>{
+        const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
+        let txt = '';
+        for(let i=1;i<=pdf.numPages;i++){
+          const page = await pdf.getPage(i);
+          const content = await page.getTextContent();
+          txt += content.items.map(it=>it.str).join(' ') + '\n';
+        }
+        // crea tabelle per ogni "Giorno X"
+        schedaDiv.innerHTML = '';
+        txt.split(/Giorno\s*\d+/).slice(1).forEach((blk,i)=>{
+          const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
+          let html = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
+          esercizi.forEach(ex=> html += `<tr><td>${ex}</td></tr>`);
+          html += '</tbody></table><br>';
+          schedaDiv.innerHTML += html;
+        });
+      };
+      reader.readAsArrayBuffer(file);
     });
   </script>
 </body>
