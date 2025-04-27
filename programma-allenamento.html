@@ -221,26 +221,31 @@ fotoInput.addEventListener('change', async (e) => {
     ctx.putImageData(imageData, 0, 0);
 
     // Esegui OCR
-    const { data: { text } } = await Tesseract.recognize(canvas.toDataURL(), 'ita', {
+  const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
       tessedit_char_whitelist: '0123456789kcalKCAL: ',
       logger: m => console.log(m)
     });
 
-    console.log("Testo OCR:", text);
+  console.log("Testo OCR:", text);
 
     // Estrai i dati con regex
-    const kcalMatch = text.match(/(?:Calorie|KCAL|kcal)[^\d]*(\d+)/i);
-    const durataMatch = text.match(/(?:Durata|Tempo)[^\d]*(\d{1,2}:\d{2}(?::\d{2})?)/i);
-    const battitoMatch = text.match(/(?:Battito medio|Frequenza media)[^\d]*(\d+)/i);
+     const durataMatch = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
+  const kcalMatch = text.match(/(\d+)\s*kcal/i);
+  const battitoMatch = text.match(/media\s*[:\-]?\s*(\d+)\s*bpm/i);
+  const dataMatch = text.match(/(\d{2})\/(\d{2})\/(\d{4})/);
 
-    if (kcalMatch) document.getElementById('calorie').value = kcalMatch[1];
-    if (durataMatch) document.getElementById('durata').value = durataMatch[1];
-    if (battitoMatch) document.getElementById('battito').value = battitoMatch[1];
-
-    document.getElementById('giorno').value = "Giorno ?";
+  if (durataMatch) document.getElementById('durata').value = durataMatch[1];
+  if (kcalMatch) document.getElementById('calorie').value = kcalMatch[1];
+  if (battitoMatch) document.getElementById('battito').value = battitoMatch[1];
+  
+  if (dataMatch) {
+    // Se trova la data (tipo 25/04/2025), formatta per l'input date
+    const yyyy_mm_dd = `${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}`;
+    document.getElementById('data').value = yyyy_mm_dd;
+  } else {
+    // Se la data non viene letta, usa quella di oggi
     document.getElementById('data').valueAsDate = new Date();
-  };
-});
+  }
 
 // 📑 CARICAMENTO SCHEDA PDF ALLENAMENTI
 pdfInput.addEventListener('change', async (e) => {
