@@ -3,9 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Allenamento & Risultati</title>
+  <title>Allenamenti & Risultati</title>
+
+  <!-- Librerie -->
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -32,7 +35,7 @@
       flex: 1 1 400px;
       max-width: 600px;
     }
-    input, button {
+    form input, form button, input[type="file"] {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
@@ -69,53 +72,56 @@
     }
     .home-button button {
       background: #3498db;
-      color: white;
+      color: #fff;
       padding: 10px 20px;
       border: none;
       font-size: 1rem;
       border-radius: 8px;
       cursor: pointer;
     }
+    .giorno-titolo {
+      background-color: #ecf0f1;
+      padding: 6px 10px;
+      font-weight: bold;
+    }
+    #allenamenti {
+      margin-top: 30px;
+    }
   </style>
 </head>
+
 <body>
 
-<h1>🏋️‍♂️ Piano Allenamento + Risultati</h1>
+<h1>🏋️‍♂️ Allenamenti e Risultati</h1>
 
 <div class="wrapper">
-  <!-- Piano Allenamento -->
+  <!-- Modulo risultati -->
   <div class="box">
-    <h2>📥 Carica Piano Allenamento (PDF)</h2>
-    <input type="file" accept="application/pdf" id="upload-pdf">
-    <h3>📋 Piano Allenamento</h3>
-    <div id="piano-container">
-      <table id="piano-tabella">
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Risultati Allenamento -->
-  <div class="box">
-    <h2>📸 Carica Risultato Allenamento (Foto)</h2>
-    <input type="file" accept="image/*" id="upload-foto">
-
-    <h2>📋 Inserisci Risultati Manualmente</h2>
+    <h2>📋 Inserisci Risultato Allenamento</h2>
     <form id="form-allenamento">
       <input type="date" id="data" required>
       <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
       <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
       <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
       <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
-      <button type="submit">Salva Allenamento</button>
+      <button type="submit">Salva Risultato</button>
     </form>
+
+    <h3>📸 Oppure carica foto Huawei Health</h3>
+    <input type="file" accept="image/*" id="fotoInput">
+  </div>
+
+  <!-- Modulo caricamento PDF -->
+  <div class="box">
+    <h2>📑 Carica Scheda Allenamento PDF</h2>
+    <input type="file" accept="application/pdf" id="pdfInput">
   </div>
 </div>
 
-<!-- Storico Allenamenti -->
+<!-- Tabella risultati -->
 <div class="box" style="max-width: 1000px; margin: 30px auto;">
-  <h2>📊 Storico Allenamenti</h2>
-  <table id="tabella">
+  <h2>📊 Storico Risultati</h2>
+  <table id="tabella-risultati">
     <thead>
       <tr>
         <th>Data</th>
@@ -129,17 +135,25 @@
   </table>
 </div>
 
+<!-- Allenamenti estratti -->
+<div class="box" id="allenamenti">
+  <h2>📅 Piano Allenamenti Caricato</h2>
+  <div id="scheda"></div>
+</div>
+
 <div class="home-button">
   <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
 </div>
 
+<!-- Script funzionale -->
 <script>
   const form = document.getElementById('form-allenamento');
-  const tabellaBody = document.querySelector('#tabella tbody');
-  const pianoTabella = document.querySelector('#piano-tabella tbody');
-  const uploadPdf = document.getElementById('upload-pdf');
-  const uploadFoto = document.getElementById('upload-foto');
-  let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
+  const fotoInput = document.getElementById('fotoInput');
+  const pdfInput = document.getElementById('pdfInput');
+  const tabellaBody = document.querySelector('#tabella-risultati tbody');
+  const schedaDiv = document.getElementById('scheda');
+
+  let risultati = JSON.parse(localStorage.getItem('risultati')) || [];
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
@@ -150,15 +164,15 @@
       calorie: document.getElementById('calorie').value,
       battito: document.getElementById('battito').value
     };
-    dati.push(record);
-    localStorage.setItem('allenamenti', JSON.stringify(dati));
+    risultati.push(record);
+    localStorage.setItem('risultati', JSON.stringify(risultati));
     form.reset();
     mostraTabella();
   });
 
   function mostraTabella() {
     tabellaBody.innerHTML = '';
-    dati.forEach(d => {
+    risultati.forEach(d => {
       const row = `<tr>
         <td>${d.data}</td>
         <td>${d.giorno}</td>
@@ -170,14 +184,15 @@
     });
   }
 
-  uploadFoto.addEventListener('change', async (e) => {
+  fotoInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     const { data: { text } } = await Tesseract.recognize(file, 'ita');
-    
+    console.log(text);
+
     const kcal = text.match(/(\d+)\s*kcal/i);
     const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
-    const battito = text.match(/frequenza.*?(\d+)\s?bpm/i);
+    const battito = text.match(/frequenza.*?(\d+)/i);
 
     if (kcal) document.getElementById('calorie').value = kcal[1];
     if (durata) document.getElementById('durata').value = durata[1];
@@ -187,23 +202,44 @@
     document.getElementById('data').valueAsDate = new Date();
   });
 
-  uploadPdf.addEventListener('change', (e) => {
+  pdfInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     const reader = new FileReader();
-    reader.onload = function(event) {
-      const typedarray = new Uint8Array(event.target.result);
-      pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-        pdf.getPage(1).then(function(page) {
-          page.getTextContent().then(function(content) {
-            const testo = content.items.map(item => item.str).join(' ');
-            pianoTabella.innerHTML = `<tr><td>${testo.replace(/\. /g, '.<br>')}</td></tr>`;
-          });
-        });
-      });
+    reader.onload = async () => {
+      const pdfData = new Uint8Array(reader.result);
+      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+      let extractedText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const content = await page.getTextContent();
+        extractedText += content.items.map(item => item.str).join(' ') + '\n';
+      }
+
+      mostraAllenamenti(extractedText);
     };
     reader.readAsArrayBuffer(file);
   });
+
+  function mostraAllenamenti(text) {
+    const giorni = text.split(/Giorno\s*\d/gi).slice(1);
+    schedaDiv.innerHTML = '';
+
+    giorni.forEach((g, idx) => {
+      const titolo = `Giorno ${idx + 1}`;
+      const esercizi = g.trim().split('-').map(e => e.trim()).filter(e => e);
+
+      let tabella = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
+      esercizi.forEach(ex => {
+        tabella += `<tr><td>${ex}</td></tr>`;
+      });
+      tabella += '</tbody></table>';
+
+      schedaDiv.innerHTML += tabella + "<br>";
+    });
+  }
 
   mostraTabella();
 </script>
