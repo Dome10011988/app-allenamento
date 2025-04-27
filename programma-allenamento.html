@@ -45,8 +45,6 @@
       <form id="form-allenamento">
         <label>Data</label>
         <input type="date" id="data" required>
-        <label>Giorno (es: Giorno 1)</label>
-        <input type="text" id="giorno" placeholder="Giorno 1" required>
         <label>Durata</label>
         <input type="text" id="durata" placeholder="00:29:40" required>
         <label>KCAL</label>
@@ -91,7 +89,6 @@
       tabBody.innerHTML += `
         <tr>
           <td>${r.data}</td>
-          <td>${r.giorno}</td>
           <td>${r.durata}</td>
           <td>${r.calorie}</td>
           <td>${r.battito}</td>
@@ -104,7 +101,6 @@
     e.preventDefault();
     risultati.push({
       data: document.getElementById('data').value,
-      giorno: document.getElementById('giorno').value,
       durata: document.getElementById('durata').value,
       calorie: document.getElementById('calorie').value,
       battito: document.getElementById('battito').value
