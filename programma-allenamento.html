@@ -146,7 +146,6 @@
   </table>
 </div>
 
-<!-- PULSANTE HOME -->
 <div class="home-button">
   <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
 </div>
@@ -190,101 +189,76 @@
     mostraTabella();
   });
 
-  // 📸 FOTO OCR per estrazione dei dati
-<script>
-  fotoInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
+  // OCR per Foto
+fotoInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
 
-    // Eseguiamo l'OCR sull'immagine
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
-      logger: m => console.log(m)
-    });
+  const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+  console.log("Testo OCR:", text);
 
-    // Mostriamo il testo estratto per capire meglio cosa Tesseract sta leggendo
-    console.log("Testo OCR estratto:", text);
+  const durataMatch = text.match(/Durata\s*[:\-]?\s*(\d{2}:\d{2}:\d{2})/i);
+  const kcalMatch = text.match(/(\d+)\s*kcal/i);
+  const battitoMatch = text.match(/media\s*[:\-]?\s*(\d+)\s*bpm/i);
+  const dataMatch = text.match(/(\d{2})\/(\d{2})\/(\d{4})/);
 
-    // Split del testo in righe per analizzare facilmente
-    const lines = text.split(/\r?\n/).map(line => line.trim()).filter(line => line.length > 0);
-    console.log("Righe separate:", lines);
+  if (durataMatch) document.getElementById('durata').value = durataMatch[1];
+  if (kcalMatch) document.getElementById('calorie').value = kcalMatch[1];
+  if (battitoMatch) document.getElementById('battito').value = battitoMatch[1];
 
-    // Estrazione della data (assumendo un formato tipo 25/04/2025 o 25-04-2025)
-    const dateLine = lines.find(line => /\d{2}[\/\-]\d{2}[\/\-]\d{4}/.test(line));
-    if (dateLine) {
-      const dateMatch = dateLine.match(/(\d{2})[\/\-](\d{2})[\/\-](\d{4})/);
-      if (dateMatch) {
-        const [ , day, month, year ] = dateMatch;
-        document.getElementById('data').value = `${year}-${month}-${day}`;
-      }
-    } else {
-      document.getElementById('data').valueAsDate = new Date(); // Imposta la data odierna se non trovata
-    }
-
-    // Estrazione delle calorie (cerca "kcal" o "Kcal")
-    const kcalLine = lines.find(line => /kcal/i.test(line));
-    if (kcalLine) {
-      const kcalMatch = kcalLine.match(/(\d+)\s*kcal/i);
-      if (kcalMatch) {
-        document.getElementById('calorie').value = kcalMatch[1];
-      }
-    }
-
-    // Estrazione della durata e battito (esempio "00:29:40 - 132 bpm")
-    const dbLine = lines.find(line => /\d{2}:\d{2}:\d{2}/.test(line) && /bpm/i.test(line));
-    if (dbLine) {
-      const dbMatch = dbLine.match(/(\d{2}:\d{2}:\d{2})\s*[-]?\s*(\d{2,3})\s*bpm/i);
-      if (dbMatch) {
-        document.getElementById('durata').value = dbMatch[1];
-        document.getElementById('battito').value = dbMatch[2];
-      }
-    }
-
-    // Impostazione del valore per "Giorno"
-    document.getElementById('giorno').value = 'Giorno ?'; // Aggiungi logica per identificare il giorno, se necessario
-  });
-</script>
-
-  // 📑 PDF per Scheda Allenamenti
-pdfInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const pdfData = new Uint8Array(reader.result);
-      const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
-      let extractedText = '';
-
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        extractedText += content.items.map(item => item.str).join(' ') + '\n';
-      }
-
-      mostraAllenamenti(extractedText);
-    };
-    reader.readAsArrayBuffer(file);
-  });
-
-  function mostraAllenamenti(text) {
-    const giorni = text.split(/Giorno\s*\d/gi).slice(1);
-    schedaDiv.innerHTML = '';
-
-    giorni.forEach((g, idx) => {
-      const titolo = `Giorno ${idx + 1}`;
-      const esercizi = g.trim().split('-').map(e => e.trim()).filter(e => e);
-
-      let tabella = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
-      esercizi.forEach(ex => {
-        tabella += `<tr><td>${ex}</td></tr>`;
-      });
-      tabella += '</tbody></table>';
-
-      schedaDiv.innerHTML += tabella + "<br>";
-    });
+  if (dataMatch) {
+    const yyyy_mm_dd = `${dataMatch[3]}-${dataMatch[2]}-${dataMatch[1]}`;
+    document.getElementById('data').value = yyyy_mm_dd;
+  } else {
+    document.getElementById('data').valueAsDate = new Date();
   }
 
-  // Carica i dati salvati
-  mostraTabella();
+  document.getElementById('giorno').value = "Giorno ?";
+});
+
+// Caricamento PDF per Scheda Allenamenti
+pdfInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const pdfData = new Uint8Array(reader.result);
+    const pdf = await pdfjsLib.getDocument({ data: pdfData }).promise;
+    let extractedText = '';
+
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      extractedText += content.items.map(item => item.str).join(' ') + '\n';
+    }
+
+    mostraAllenamenti(extractedText);
+  };
+  reader.readAsArrayBuffer(file);
+});
+
+// Funzione per mostrare gli allenamenti letti dal PDF
+function mostraAllenamenti(text) {
+  const giorni = text.split(/Giorno\s*\d/gi).slice(1);
+  schedaDiv.innerHTML = '';
+
+  giorni.forEach((g, idx) => {
+    const titolo = `Giorno ${idx + 1}`;
+    const esercizi = g.trim().split('-').map(e => e.trim()).filter(e => e);
+
+    let tabella = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
+    esercizi.forEach(ex => {
+      tabella += `<tr><td>${ex}</td></tr>`;
+    });
+    tabella += '</tbody></table>';
+
+    schedaDiv.innerHTML += tabella + "<br>";
+  });
+}
+
+// Carica i dati salvati
+mostraTabella();
 </script>
 
 </body>
