@@ -3,9 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Allenamenti &amp; Risultati</title>
+  <title>Allenamenti & Risultati</title>
 
-  <!-- Pdf.js e Tesseract.js -->
+  <!-- Librerie -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
@@ -24,62 +24,61 @@
     th, td { border:1px solid #ddd; padding:8px; text-align:left }
     th { background:#3498db; color:#fff }
     .home-button { text-align:center; margin-top:40px }
-    .home-button button { background:#3498db; color:#fff; padding:10px 20px; border:none; border-radius:8px; cursor:pointer }
+    .home-button button { background:#3498db; color:#fff; padding:10px 20px; font-size:1rem; border-radius:8px; border:none; cursor:pointer }
   </style>
 </head>
 <body>
 
-<h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
+  <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
-<div class="row">
-  <!-- Scheda PDF -->
-  <div class="box">
-    <h2>📋 Scheda Allenamenti (PDF)</h2>
-    <input type="file" id="pdfInput" accept="application/pdf">
-    <div id="scheda"></div>
+  <div class="row">
+    <!-- Scheda Allenamenti -->
+    <div class="box">
+      <h2>📋 Scheda Allenamenti (PDF)</h2>
+      <input type="file" id="pdfInput" accept="application/pdf">
+      <div id="scheda"></div>
+    </div>
+
+    <!-- Foto Risultati -->
+    <div class="box">
+      <h2>📸 Carica Foto Risultato</h2>
+      <input type="file" id="fotoInput" accept="image/*">
+      
+      <h2>📈 Inserisci Risultato</h2>
+      <form id="form-allenamento">
+        <label>Data</label>
+        <input type="date" id="data" required>
+        <label>Durata (hh:mm:ss)</label>
+        <input type="text" id="durata" placeholder="00:29:40" required>
+        <label>KCAL</label>
+        <input type="number" id="calorie" placeholder="413" required>
+        <label>Battito Medio (bpm)</label>
+        <input type="number" id="battito" placeholder="132" required>
+        <button type="submit">Salva Risultato</button>
+      </form>
+    </div>
   </div>
 
-  <!-- Upload Foto & Inserimento -->
-  <div class="box">
-    <h2>📸 Carica Foto Risultato</h2>
-    <input type="file" id="fotoInput" accept="image/*">
-
-    <h2>📈 Inserisci Risultato</h2>
-    <form id="form-allenamento">
-      <label>Data</label>
-      <input type="date" id="data" required>
-      <label>Durata (hh:mm:ss)</label>
-      <input type="text" id="durata" placeholder="00:29:40" required>
-      <label>KCAL</label>
-      <input type="number" id="calorie" placeholder="413" required>
-      <label>Battito Medio (bpm)</label>
-      <input type="number" id="battito" placeholder="132" required>
-      <button type="submit">Salva Risultato</button>
-    </form>
+  <div class="full-width box">
+    <h2>📊 Storico Risultati</h2>
+    <table>
+      <thead>
+        <tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr>
+      </thead>
+      <tbody id="tabella-body"></tbody>
+    </table>
   </div>
-</div>
 
-<!-- Storico Risultati -->
-<div class="full-width box">
-  <h2>📊 Storico Risultati</h2>
-  <table>
-    <thead>
-      <tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr>
-    </thead>
-    <tbody id="tabella-body"></tbody>
-  </table>
-</div>
-
-<div class="home-button">
-  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-</div>
+  <div class="home-button">
+    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+  </div>
 
 <script>
-  const pdfInput  = document.getElementById('pdfInput');
   const fotoInput = document.getElementById('fotoInput');
+  const pdfInput = document.getElementById('pdfInput');
   const schedaDiv = document.getElementById('scheda');
-  const form      = document.getElementById('form-allenamento');
-  const tabBody   = document.getElementById('tabella-body');
+  const form = document.getElementById('form-allenamento');
+  const tabBody = document.getElementById('tabella-body');
 
   // Ripristino scheda PDF salvata
   const schedaSalvata = localStorage.getItem('schedaAllenamenti');
@@ -153,9 +152,9 @@
     if (bpm) document.getElementById('battito').value = bpm;
 
     // Data: primo match dd/mm/yyyy
-    const dLine = lines.find(l=>/\d{1,2}[\/.\-]\d{1,2}[\/.\-]\d{2,4}/.test(l));
+    const dLine = lines.find(l=>/\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4}/.test(l));
     if (dLine) {
-      let dm = dLine.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+      let dm = dLine.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
       if (dm) {
         let [_,dd,mm,yy] = dm;
         if (yy.length===2) yy = '20'+yy;
@@ -165,6 +164,8 @@
     } else {
       document.getElementById('data').valueAsDate = new Date();
     }
+
+    document.getElementById('giorno').value = 'Giorno ?';
   });
 
   // Caricamento PDF e generazione tabelle
