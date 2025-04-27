@@ -144,9 +144,62 @@
     });
 
     // PDF: estrai scheda
-    pdfInput.addEventListener('change', e => {
-      const file = e.target.files[0];
-      if (!file) return;
+  <script>
+  // … tutto il resto rimane invariato …
+
+  fotoInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // 1) Riconoscimento OCR
+    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
+      logger: m => console.log(m)
+    });
+    console.log("OCR TEXT:", text);
+
+    // 2) Estrazione DURATA (es. 00:29:40)
+    const durataMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
+    if (durataMatch) {
+      document.getElementById('durata').value = durataMatch[1];
+    }
+
+    // 3) Estrazione KCAL (es. 413 kcal / Calorie)
+    // Cerca numeri seguiti da "kcal" o "Calorie" (case-insensitive)
+    const kcalMatch = text.match(/(\d{2,4})\s*(?=kcal|Kcal|Calorie|KCAL)/i);
+    if (kcalMatch) {
+      document.getElementById('calorie').value = kcalMatch[1];
+    } else {
+      console.warn("Nessuna kcal trovata");
+    }
+
+    // 4) Estrazione BATTITO MEDIO (bpm)
+    // Prima prova "bpm", poi fallback su "Frequenza media"
+    let battitoMatch = text.match(/(\d{2,3})\s*(?=bpm|BPM)/i);
+    if (!battitoMatch) {
+      battitoMatch = text.match(/Frequenza\s*(?:cardiaca\s*)?media.*?(\d{2,3})/i);
+    }
+    if (battitoMatch) {
+      document.getElementById('battito').value = battitoMatch[1];
+    } else {
+      console.warn("Nessun battito medio trovato");
+    }
+
+    // 5) Estrazione DATA (dd/mm/yyyy) → input type=date
+    const dateMatch = text.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
+    if (dateMatch) {
+      let [ , dd, mm, yy ] = dateMatch;
+      if (yy.length === 2) yy = '20' + yy;
+      dd = dd.padStart(2,'0'); mm = mm.padStart(2,'0');
+      document.getElementById('data').value = `${yy}-${mm}-${dd}`;
+    } else {
+      document.getElementById('data').valueAsDate = new Date();
+    }
+
+    // 6) Default per il campo giorno
+    document.getElementById('giorno').value = 'Giorno ?';
+  });
+</script>
+
       const reader = new FileReader();
       reader.onload = async () => {
         const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
