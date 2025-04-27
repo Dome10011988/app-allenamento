@@ -83,21 +83,23 @@
 
   // Ripristino scheda PDF salvata
   const savedScheda = localStorage.getItem('schedaAllenamenti');
-  if (savedScheda) schedaDiv.innerHTML = savedScheda;
+  if (savedScheda) {
+    schedaDiv.innerHTML = savedScheda;
+  }
 
   // Carico storico risultati
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
   function aggiornaStorico() {
     tabBody.innerHTML = '';
     risultati.forEach(r => {
-      tabBody.innerHTML += `
-        <tr>
-          <td>${r.data}</td>
-          <td>${r.durata}</td>
-          <td>${r.calorie}</td>
-          <td>${r.battito}</td>
-        </tr>`;
-    });
+      tabBody.innerHTML += ` 
+        <tr> 
+          <td>${r.data}</td> 
+          <td>${r.durata}</td> 
+          <td>${r.calorie}</td> 
+          <td>${r.battito}</td> 
+        </tr>`; 
+    }); 
   }
   aggiornaStorico();
 
@@ -135,7 +137,6 @@
     for (let l of lines) {
       const m = l.match(/([\d\.,]+)\s*(?=kcal|calorie)/i);
       if (m) {
-        // rimuovo separatori
         kcal = m[1].replace(/[.,]/g,'');
         break;
       }
@@ -182,7 +183,7 @@
         txt += content.items.map(item=>item.str).join(' ') + '\n';
       }
       schedaDiv.innerHTML = '';
-      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
+      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=> {
         const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
         let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
         esercizi.forEach(ex=> tbl += `<tr><td>${ex}</td></tr>`);
