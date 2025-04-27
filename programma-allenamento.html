@@ -3,20 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Allenamenti &amp; Risultati</title>
+  <title>Allenamenti & Risultati</title>
 
-  <!-- Tesseract.js per OCR e Pdf.js per scheda PDF -->
+  <!-- PDF.js e Tesseract.js -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; color: #2c3e50; margin:0; padding:20px }
     h1 { text-align:center; margin-bottom:20px }
-    .row { display:flex; flex-wrap:wrap; gap:20px; }
-    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px; }
+    .row { display:flex; flex-wrap:wrap; gap:20px; justify-content:center }
+    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px }
     form label { display:block; margin:8px 0 4px }
-    input, button, table { width:100%; }
-    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc; }
+    input, button, table { width:100% }
+    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc }
     button { background:#3498db; color:#fff; border:none; cursor:pointer; margin-top:10px }
     button:hover { background:#2980b9 }
     table { border-collapse:collapse; margin-top:10px }
@@ -27,19 +27,22 @@
 </head>
 <body>
 
-  <h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
+  <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
   <div class="row">
+    <!-- PDF Scheda -->
     <div class="box">
       <h2>📋 Scheda Allenamenti (PDF)</h2>
       <input type="file" id="pdfInput" accept="application/pdf">
-      <div id="scheda"></div>
+      <div id="scheda" style="margin-top:10px"></div>
     </div>
 
+    <!-- OCR Foto + Form -->
     <div class="box">
       <h2>📸 Carica Foto Risultato</h2>
       <input type="file" id="fotoInput" accept="image/*">
-      <h2>📈 Inserisci Risultato</h2>
+
+      <h2 style="margin-top:20px">📈 Inserisci Risultato</h2>
       <form id="form-allenamento">
         <label>Data</label>
         <input type="date" id="data" required>
@@ -56,6 +59,7 @@
     </div>
   </div>
 
+  <!-- Storico Risultati -->
   <div class="full-width box">
     <h2>📊 Storico Risultati</h2>
     <table>
@@ -66,164 +70,113 @@
     </table>
   </div>
 
-  <div class="home-button">
+  <div style="text-align:center; margin-top:20px">
     <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
   </div>
 
   <script>
+    // Elementi
     const fotoInput = document.getElementById('fotoInput');
-    const pdfInput = document.getElementById('pdfInput');
+    const pdfInput  = document.getElementById('pdfInput');
     const schedaDiv = document.getElementById('scheda');
-    const tabBody = document.getElementById('tabella-body');
-    const form = document.getElementById('form-allenamento');
-    let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
+    const form      = document.getElementById('form-allenamento');
+    const tabBody   = document.getElementById('tabella-body');
 
-    function aggiornaStorico() {
+    // Carica da localStorage
+    let risultati = JSON.parse(localStorage.getItem('risultati')||'[]');
+
+    // Aggiorna la tabella storico
+    function aggiornaStorico(){
       tabBody.innerHTML = '';
-      risultati.forEach(r => {
-        tabBody.innerHTML += `
-          <tr>
-            <td>${r.data}</td>
-            <td>${r.giorno}</td>
-            <td>${r.durata}</td>
-            <td>${r.calorie}</td>
-            <td>${r.battito}</td>
-          </tr>`;
+      risultati.forEach(r=>{
+        tabBody.innerHTML += `<tr>
+          <td>${r.data}</td>
+          <td>${r.giorno}</td>
+          <td>${r.durata}</td>
+          <td>${r.calorie}</td>
+          <td>${r.battito}</td>
+        </tr>`;
       });
     }
     aggiornaStorico();
 
-    // Salva form
-    form.addEventListener('submit', e => {
+    // Form submit
+    form.addEventListener('submit', e=>{
       e.preventDefault();
       risultati.push({
-        data: document.getElementById('data').value,
-        giorno: document.getElementById('giorno').value,
-        durata: document.getElementById('durata').value,
-        calorie: document.getElementById('calorie').value,
-        battito: document.getElementById('battito').value
+        data:     document.getElementById('data').value,
+        giorno:   document.getElementById('giorno').value,
+        durata:   document.getElementById('durata').value,
+        calorie:  document.getElementById('calorie').value,
+        battito:  document.getElementById('battito').value
       });
       localStorage.setItem('risultati', JSON.stringify(risultati));
       form.reset();
       aggiornaStorico();
     });
 
-    // OCR Foto: parsing per righe e prima occorrenza
-    fotoInput.addEventListener('change', async e => {
+    // OCR FOTO
+    fotoInput.addEventListener('change', async e=>{
       const file = e.target.files[0];
-      if (!file) return;
-      const { data: { text } } = await Tesseract.recognize(file, 'ita');
-      const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+      if(!file) return;
+      const { data:{ text } } = await Tesseract.recognize(file,'ita');
+      const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
 
-      // helper per trovare prima occorrenza che matcha
-      const findFirst = (arr, regex) => {
-        const item = arr.find(l => regex.test(l));
-        return item ? (item.match(regex)[1] || item) : '';
+      // helper per prima occorrenza regex
+      const find = (regex)=>{
+        const ln = lines.find(l=>regex.test(l));
+        return ln?(ln.match(regex)[1]||ln):'';
       };
 
-      // Estrazione
-      const dateRaw = findFirst(lines, /(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})/);
-      if (dateRaw) {
-        let [d, m, y] = dateRaw.split(/[/.\-]/);
-        if (y.length === 2) y = '20' + y; // formato a 4 cifre
-        document.getElementById('data').value =
-          `${y.padStart(4, '0')}-${m.padStart(2, '0')}-${d.padStart(2, '0')}`;
+      // Data
+      const dateRaw = find(/(\d{1,2}[\/\.\-]\d{1,2}[\/\.\-]\d{2,4})/);
+      if(dateRaw){
+        let [d,m,y] = dateRaw.split(/[\/\.\-]/);
+        if(y.length===2) y='20'+y;
+        d=d.padStart(2,'0'); m=m.padStart(2,'0');
+        document.getElementById('data').value = `${y}-${m}-${d}`;
       }
 
-      document.getElementById('durata').value =
-        findFirst(lines, /(\d{1,2}:\d{2}:\d{2})/);
+      // Durata
+      document.getElementById('durata').value = find(/(\d{1,2}:\d{2}:\d{2})/);
 
-      document.getElementById('calorie').value =
-        findFirst(lines, /(\d+)(?=\s*(?:kcal|Kcal|Calorie))/i);
+      // KCAL
+      document.getElementById('calorie').value = find(/(\d{2,4})(?=\s*(?:kcal|Kcal|Calorie))/i);
 
-      document.getElementById('battito').value =
-        findFirst(lines, /(\d{2,3})(?=\s*(?:bpm|battito))/i);
+      // Battito medio
+      let bpm = find(/(\d{2,3})(?=\s*bpm)/i);
+      if(!bpm) bpm = find(/Frequenza\s*(?:cardiaca\s*)?media.*?(\d{2,3})/i);
+      document.getElementById('battito').value = bpm;
 
-      // default giorno
       document.getElementById('giorno').value = 'Giorno ?';
     });
 
-    // PDF: estrai scheda
-  <script>
-  // … tutto il resto rimane invariato …
-
-  fotoInput.addEventListener('change', async (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    // 1) Riconoscimento OCR
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
-      logger: m => console.log(m)
-    });
-    console.log("OCR TEXT:", text);
-
-    // 2) Estrazione DURATA (es. 00:29:40)
-    const durataMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
-    if (durataMatch) {
-      document.getElementById('durata').value = durataMatch[1];
-    }
-
-    // 3) Estrazione KCAL (es. 413 kcal / Calorie)
-    // Cerca numeri seguiti da "kcal" o "Calorie" (case-insensitive)
-    const kcalMatch = text.match(/(\d{2,4})\s*(?=kcal|Kcal|Calorie|KCAL)/i);
-    if (kcalMatch) {
-      document.getElementById('calorie').value = kcalMatch[1];
-    } else {
-      console.warn("Nessuna kcal trovata");
-    }
-
-    // 4) Estrazione BATTITO MEDIO (bpm)
-    // Prima prova "bpm", poi fallback su "Frequenza media"
-    let battitoMatch = text.match(/(\d{2,3})\s*(?=bpm|BPM)/i);
-    if (!battitoMatch) {
-      battitoMatch = text.match(/Frequenza\s*(?:cardiaca\s*)?media.*?(\d{2,3})/i);
-    }
-    if (battitoMatch) {
-      document.getElementById('battito').value = battitoMatch[1];
-    } else {
-      console.warn("Nessun battito medio trovato");
-    }
-
-    // 5) Estrazione DATA (dd/mm/yyyy) → input type=date
-    const dateMatch = text.match(/(\d{1,2})[\/.\-](\d{1,2})[\/.\-](\d{2,4})/);
-    if (dateMatch) {
-      let [ , dd, mm, yy ] = dateMatch;
-      if (yy.length === 2) yy = '20' + yy;
-      dd = dd.padStart(2,'0'); mm = mm.padStart(2,'0');
-      document.getElementById('data').value = `${yy}-${mm}-${dd}`;
-    } else {
-      document.getElementById('data').valueAsDate = new Date();
-    }
-
-    // 6) Default per il campo giorno
-    document.getElementById('giorno').value = 'Giorno ?';
-  });
-</script>
-
+    // PDF SCHEDA
+    pdfInput.addEventListener('change', e=>{
+      const file = e.target.files[0];
+      if(!file) return;
       const reader = new FileReader();
-      reader.onload = async () => {
-        const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
-        let txt = '';
-        for (let i = 1; i <= pdf.numPages; i++) {
+      reader.onload = async ()=>{
+        const pdf = await pdfjsLib.getDocument({data:new Uint8Array(reader.result)}).promise;
+        let txt='';
+        for(let i=1;i<=pdf.numPages;i++){
           const page = await pdf.getPage(i);
-          const content = await page.getTextContent();
-          txt += content.items.map(it => it.str).join(' ') + '\n';
+          const items = await page.getTextContent();
+          txt += items.items.map(it=>it.str).join(' ')+'\n';
         }
-        // crea tabelle per ogni "Giorno X"
-        schedaDiv.innerHTML = '';
-        txt.split(/Giorno\s*\d/).slice(1).forEach((blk, i) => {
-          const esercizi = blk.split('-').map(s => s.trim()).filter(s => s);
-          let html = `<table><thead><tr><th>Giorno ${i + 1}</th></tr></thead><tbody>`;
-          esercizi.forEach(ex => html += `<tr><td>${ex}</td></tr>`);
-          html += '</tbody></table><br>';
-          schedaDiv.innerHTML += html;
-        });
+        // split e tabella
+        schedaDiv.innerHTML='';
+        txt.split(/Giorno\s*\d/gi).slice(1)
+          .forEach((blk,i)=>{
+            const rows = blk.split('-').map(s=>s.trim()).filter(s=>s);
+            let html = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
+            rows.forEach(r=> html+=`<tr><td>${r}</td></tr>`);
+            schedaDiv.innerHTML += html+'</tbody></table><br>';
+          });
       };
       reader.readAsArrayBuffer(file);
     });
 
-    // Carica i dati salvati
-    aggiornaStorico();
   </script>
 </body>
 </html>
