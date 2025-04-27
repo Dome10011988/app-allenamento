@@ -32,7 +32,7 @@
       flex: 1 1 400px;
       max-width: 600px;
     }
-    form input, form button, input[type="file"] {
+    input, button {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
@@ -76,138 +76,137 @@
       border-radius: 8px;
       cursor: pointer;
     }
-    .giorno-titolo {
-      background-color: #ecf0f1;
-      padding: 6px 10px;
-      font-weight: bold;
-    }
   </style>
 </head>
 <body>
 
-  <h1>🏋️‍♂️ Piano Allenamento + Risultati</h1>
+<h1>🏋️‍♂️ Piano Allenamento + Risultati</h1>
 
-  <div class="wrapper">
-    <!-- Piano Allenamento -->
-    <div class="box">
-      <h2>📆 Programma Dettagliato</h2>
+<div class="wrapper">
+  <!-- Piano Allenamento -->
+  <div class="box">
+    <h2>📥 Carica Piano Allenamento (PDF)</h2>
+    <input type="file" accept="application/pdf" id="upload-pdf">
+    <h3>📋 Piano Allenamento</h3>
+    <div id="piano-container">
       <table id="piano-tabella">
-        <!-- I dettagli del piano allenamento saranno caricati qui -->
+        <tbody></tbody>
       </table>
     </div>
-
-    <!-- Modulo Risultati -->
-    <div class="box">
-      <h2>📋 Inserisci Risultato Allenamento</h2>
-      <form id="form-allenamento">
-        <input type="date" id="data" required>
-        <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
-        <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
-        <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
-        <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
-        <button type="submit">Salva Allenamento</button>
-      </form>
-
-      <h3>📸 Oppure carica foto (.jpg)</h3>
-      <input type="file" accept="image/*" id="fileInput">
-    </div>
   </div>
 
-  <!-- Tabella risultati -->
-  <div class="box" style="max-width: 1000px; margin: 30px auto;">
-    <h2>📊 Storico Allenamenti</h2>
-    <table id="tabella">
-      <thead>
-        <tr>
-          <th>Data</th>
-          <th>Giorno</th>
-          <th>Durata</th>
-          <th>KCAL</th>
-          <th>Battito Medio</th>
-        </tr>
-      </thead>
-      <tbody></tbody>
-    </table>
+  <!-- Risultati Allenamento -->
+  <div class="box">
+    <h2>📸 Carica Risultato Allenamento (Foto)</h2>
+    <input type="file" accept="image/*" id="upload-foto">
+
+    <h2>📋 Inserisci Risultati Manualmente</h2>
+    <form id="form-allenamento">
+      <input type="date" id="data" required>
+      <input type="text" id="giorno" placeholder="Giorno (es: Giorno 1)" required>
+      <input type="text" id="durata" placeholder="Durata (es: 00:29:40)" required>
+      <input type="number" id="calorie" placeholder="KCAL (es: 413)" required>
+      <input type="number" id="battito" placeholder="Battito Medio (es: 132)" required>
+      <button type="submit">Salva Allenamento</button>
+    </form>
   </div>
+</div>
 
-  <div class="home-button">
-    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-  </div>
+<!-- Storico Allenamenti -->
+<div class="box" style="max-width: 1000px; margin: 30px auto;">
+  <h2>📊 Storico Allenamenti</h2>
+  <table id="tabella">
+    <thead>
+      <tr>
+        <th>Data</th>
+        <th>Giorno</th>
+        <th>Durata</th>
+        <th>KCAL</th>
+        <th>Battito Medio</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
 
-  <script>
-    const form = document.getElementById('form-allenamento');
-    const fileInput = document.getElementById('fileInput');
-    const tabellaBody = document.querySelector('#tabella tbody');
-    const pianoTabella = document.getElementById('piano-tabella');
-    let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
+<div class="home-button">
+  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+</div>
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const record = {
-        data: document.getElementById('data').value,
-        giorno: document.getElementById('giorno').value,
-        durata: document.getElementById('durata').value,
-        calorie: document.getElementById('calorie').value,
-        battito: document.getElementById('battito').value
-      };
-      dati.push(record);
-      localStorage.setItem('allenamenti', JSON.stringify(dati));
-      form.reset();
-      mostraTabella();
+<script>
+  const form = document.getElementById('form-allenamento');
+  const tabellaBody = document.querySelector('#tabella tbody');
+  const pianoTabella = document.querySelector('#piano-tabella tbody');
+  const uploadPdf = document.getElementById('upload-pdf');
+  const uploadFoto = document.getElementById('upload-foto');
+  let dati = JSON.parse(localStorage.getItem('allenamenti')) || [];
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const record = {
+      data: document.getElementById('data').value,
+      giorno: document.getElementById('giorno').value,
+      durata: document.getElementById('durata').value,
+      calorie: document.getElementById('calorie').value,
+      battito: document.getElementById('battito').value
+    };
+    dati.push(record);
+    localStorage.setItem('allenamenti', JSON.stringify(dati));
+    form.reset();
+    mostraTabella();
+  });
+
+  function mostraTabella() {
+    tabellaBody.innerHTML = '';
+    dati.forEach(d => {
+      const row = `<tr>
+        <td>${d.data}</td>
+        <td>${d.giorno}</td>
+        <td>${d.durata}</td>
+        <td>${d.calorie}</td>
+        <td>${d.battito}</td>
+      </tr>`;
+      tabellaBody.innerHTML += row;
     });
+  }
 
-    function mostraTabella() {
-      tabellaBody.innerHTML = '';
-      dati.forEach(d => {
-        const row = `<tr>
-          <td>${d.data}</td>
-          <td>${d.giorno}</td>
-          <td>${d.durata}</td>
-          <td>${d.calorie}</td>
-          <td>${d.battito}</td>
-        </tr>`;
-        tabellaBody.innerHTML += row;
-      });
-    }
+  uploadFoto.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const { data: { text } } = await Tesseract.recognize(file, 'ita');
+    
+    const kcal = text.match(/(\d+)\s*kcal/i);
+    const durata = text.match(/(\d{2}:\d{2}:\d{2})/);
+    const battito = text.match(/frequenza.*?(\d+)\s?bpm/i);
 
-    // Caricamento piano allenamento PDF
-    function caricaPianoPDF(file) {
-      const reader = new FileReader();
-      reader.onload = function(event) {
-        const typedarray = new Uint8Array(event.target.result);
-        pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
-          pdf.getPage(1).then(function(page) {
-            const scale = 1.5;
-            const viewport = page.getViewport({ scale: scale });
-            const canvas = document.createElement('canvas');
-            const context = canvas.getContext('2d');
-            canvas.height = viewport.height;
-            canvas.width = viewport.width;
-            page.render({ canvasContext: context, viewport: viewport }).promise.then(function() {
-              const data = context.getImageData(0, 0, canvas.width, canvas.height);
-              // Creare una nuova tabella per visualizzare il piano estratto
-              // Processa il contenuto PDF e convertilo in una tabella
-              pianoTabella.innerHTML = `
-                <tr><th>Dettaglio Piano</th></tr>
-                <tr><td>Dettagli estratti dal PDF</td></tr>
-              `;
-            });
+    if (kcal) document.getElementById('calorie').value = kcal[1];
+    if (durata) document.getElementById('durata').value = durata[1];
+    if (battito) document.getElementById('battito').value = battito[1];
+
+    document.getElementById('giorno').value = "Giorno ?";
+    document.getElementById('data').valueAsDate = new Date();
+  });
+
+  uploadPdf.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      const typedarray = new Uint8Array(event.target.result);
+      pdfjsLib.getDocument(typedarray).promise.then(function(pdf) {
+        pdf.getPage(1).then(function(page) {
+          page.getTextContent().then(function(content) {
+            const testo = content.items.map(item => item.str).join(' ');
+            pianoTabella.innerHTML = `<tr><td>${testo.replace(/\. /g, '.<br>')}</td></tr>`;
           });
         });
-      };
-      reader.readAsArrayBuffer(file);
-    }
+      });
+    };
+    reader.readAsArrayBuffer(file);
+  });
 
-    fileInput.addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (file) {
-        caricaPianoPDF(file);
-      }
-    });
-
-    mostraTabella();
-  </script>
+  mostraTabella();
+</script>
 
 </body>
 </html>
-
