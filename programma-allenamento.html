@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Allenamenti & Risultati</title>
+  <title>Allenamenti &amp; Risultati</title>
 
   <!-- Librerie -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
@@ -12,54 +12,50 @@
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
     h1 { text-align:center; margin-bottom:20px }
-    .row { display:flex; flex-wrap:wrap; gap:20px; justify-content:center }
-    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px }
-    .full-width { max-width:1000px; margin:20px auto }
+    .row { display:flex; flex-wrap:wrap; gap:20px; }
+    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px; }
     form label { display:block; margin:8px 0 4px }
-    input, button, table { width:100% }
-    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc }
+    input, button, table { width:100%; }
+    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc; }
     button { background:#3498db; color:#fff; border:none; cursor:pointer; margin-top:10px }
     button:hover { background:#2980b9 }
     table { border-collapse:collapse; margin-top:10px }
     th, td { border:1px solid #ddd; padding:8px; text-align:left }
     th { background:#3498db; color:#fff }
-    .home-button { text-align:center; margin-top:40px }
-    .home-button button { background:#3498db; color:#fff; padding:10px 20px; font-size:1rem; border-radius:8px; border:none; cursor:pointer }
+    .full-width { max-width:1000px; margin:20px auto }
+    .home-button { text-align: center; margin-top: 40px; }
+    .home-button button { background: #3498db; color: white; padding: 10px 20px; font-size: 1rem; border-radius: 8px; border: none; cursor: pointer; }
   </style>
 </head>
 <body>
 
-  <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
+  <h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
 
   <div class="row">
-    <!-- Scheda Allenamenti PDF -->
     <div class="box">
       <h2>📋 Scheda Allenamenti (PDF)</h2>
       <input type="file" id="pdfInput" accept="application/pdf">
       <div id="scheda"></div>
     </div>
 
-    <!-- Inserimento/Risultati -->
     <div class="box">
       <h2>📸 Carica Foto Risultato</h2>
       <input type="file" id="fotoInput" accept="image/*">
-
       <h2>📈 Inserisci Risultato</h2>
       <form id="form-allenamento">
         <label>Data</label>
         <input type="date" id="data" required>
-        <label>Durata (hh:mm:ss)</label>
+        <label>Durata</label>
         <input type="text" id="durata" placeholder="00:29:40" required>
         <label>KCAL</label>
-        <input type="number" id="calorie" placeholder="1375" required>
+        <input type="number" id="calorie" placeholder="413" required>
         <label>Battito Medio (bpm)</label>
-        <input type="number" id="battito" placeholder="143" required>
+        <input type="number" id="battito" placeholder="132" required>
         <button type="submit">Salva Risultato</button>
       </form>
     </div>
   </div>
 
-  <!-- Storico Risultati -->
   <div class="full-width box">
     <h2>📊 Storico Risultati</h2>
     <table>
@@ -75,18 +71,13 @@
   </div>
 
 <script>
-  const pdfInput   = document.getElementById('pdfInput');
-  const fotoInput  = document.getElementById('fotoInput');
-  const schedaDiv  = document.getElementById('scheda');
-  const form       = document.getElementById('form-allenamento');
-  const tabBody    = document.getElementById('tabella-body');
+  const fotoInput = document.getElementById('fotoInput');
+  const pdfInput  = document.getElementById('pdfInput');
+  const schedaDiv = document.getElementById('scheda');
+  const tabBody   = document.getElementById('tabella-body');
+  const form      = document.getElementById('form-allenamento');
+  let risultati   = JSON.parse(localStorage.getItem('risultati') || '[]');
 
-  // Ripristino scheda PDF salvata
-  const savedScheda = localStorage.getItem('schedaAllenamenti');
-  if (savedScheda) schedaDiv.innerHTML = savedScheda;
-
-  // Carico storico risultati
-  let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
   function aggiornaStorico() {
     tabBody.innerHTML = '';
     risultati.forEach(r => {
@@ -101,93 +92,75 @@
   }
   aggiornaStorico();
 
-  // Salvataggio manuale
   form.addEventListener('submit', e => {
     e.preventDefault();
     risultati.push({
-      data:    document.getElementById('data').value,
-      durata:  document.getElementById('durata').value,
-      calorie: document.getElementById('calorie').value,
-      battito: document.getElementById('battito').value
+      data:     document.getElementById('data').value,
+      durata:   document.getElementById('durata').value,
+      calorie:  document.getElementById('calorie').value,
+      battito:  document.getElementById('battito').value
     });
     localStorage.setItem('risultati', JSON.stringify(risultati));
     form.reset();
     aggiornaStorico();
   });
 
-  // === OCR Foto: Estrazione DURATA / KCAL / BPM / DATA ===
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
+    const { data:{ text } } = await Tesseract.recognize(file, 'ita');
+    const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+    console.log('OCR Lines:', lines);
 
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', {
-      logger: m => console.log(m)
-    });
-
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-
-    // Durata: prima occorrenza hh:mm:ss
-    const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
-    if (durMatch) document.getElementById('durata').value = durMatch[1];
-
-    // KCAL: cerca "[numero]" + "kcal" o "calorie"
-    let kcal = '';
-    for (let l of lines) {
-      const m = l.match(/([\d\.,]+)\s*(?=kcal|calorie)/i);
-      if (m) {
-        // rimuovo separatori
-        kcal = m[1].replace(/[.,]/g,'');
-        break;
-      }
+    // DATA
+    const dateMatch = lines.find(l=>/\d{1,2}[\/.-]\d{1,2}[\/.-]\d{2,4}/.test(l));
+    if (dateMatch) {
+      let [d,m,y] = dateMatch.split(/[\/.-]/);
+      if (y.length===2) y='20'+y;
+      d=d.padStart(2,'0'); m=m.padStart(2,'0');
+      document.getElementById('data').value = `${y}-${m}-${d}`;
     }
-    // fallback: primi numeri di almeno 4 cifre
-    if (!kcal) {
-      const big = text.match(/\d{4,}/g);
-      if (big) kcal = big[0];
-    }
-    if (kcal) document.getElementById('calorie').value = kcal;
 
-    // BPM: cerca direttamente "XXX bpm"
-    let bpm = '';
-    for (let l of lines) {
-      const m = l.match(/(\d{2,3})\s*bpm/i);
-      if (m) { bpm = m[1]; break; }
-    }
-    if (bpm) document.getElementById('battito').value = bpm;
+    // DURATA
+    const dur = lines.find(l=>/\d{1,2}:\d{2}:\d{2}/.test(l));
+    if (dur) document.getElementById('durata').value = dur.match(/\d{1,2}:\d{2}:\d{2}/)[0];
 
-    // Data: primo match dd/mm/yyyy o d/m/yy
-    const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
-    if (dMatch) {
-      let [ , dd, mm, yy ] = dMatch;
-      if (yy.length === 2) yy = '20'+yy;
-      dd = dd.padStart(2,'0');
-      mm = mm.padStart(2,'0');
-      document.getElementById('data').value = `${yy}-${mm}-${dd}`;
-    } else {
-      document.getElementById('data').valueAsDate = new Date();
+    // KCAL: trova la riga che contiene “kcal” e prendi il numero dalla riga precedente
+    const kcalIdx = lines.findIndex(l=>/kcal/i.test(l));
+    if (kcalIdx>0) {
+      let val = lines[kcalIdx-1].replace(/\./g,'')  // elimina migliaia
+                              .replace(',','.')    // virgolette decimali
+                              .match(/[\d.]+/);
+      if (val) document.getElementById('calorie').value = val[0];
+    }
+
+    // BATTITO MEDIO: cerca la prima riga con “bpm” o “Battito”
+    const bpmLine = lines.find(l=>/bpm|battito media/i.test(l));
+    if (bpmLine) {
+      let v = bpmLine.match(/(\d{2,3})/);
+      if (v) document.getElementById('battito').value = v[1];
     }
   });
 
-  // === Caricamento PDF e creazione tabelle ===
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
     reader.onload = async () => {
-      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
+      const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(reader.result) }).promise;
       let txt = '';
-      for (let i=1; i<=pdf.numPages; i++){
+      for (let i=1;i<=pdf.numPages;i++){
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        txt += content.items.map(item=>item.str).join(' ') + '\n';
+        txt += content.items.map(it=>it.str).join(' ') + '\n';
       }
       schedaDiv.innerHTML = '';
       txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
-        const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
-        let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-        esercizi.forEach(ex=> tbl += `<tr><td>${ex}</td></tr>`);
-        tbl += '</tbody></table><br>';
-        schedaDiv.innerHTML += tbl;
+        const rows = blk.split('-').map(s=>s.trim()).filter(Boolean);
+        let html = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
+        rows.forEach(r=> html += `<tr><td>${r}</td></tr>`);
+        html += '</tbody></table><br>';
+        schedaDiv.innerHTML += html;
       });
       localStorage.setItem('schedaAllenamenti', schedaDiv.innerHTML);
     };
