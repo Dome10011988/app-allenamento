@@ -4,69 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🏠 Home - Fit Tracker</title>
-
-  <!-- PWA manifest -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Tema globale e stili base -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Script per toggle tema -->
   <script src="script.js" defer></script>
-
-  <style>
-    /* Layout specifico per la Home */
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 20px 20px;
-      background: var(--bg);
-      color: var(--text);
-    }
-    h1 {
-      margin-bottom: 40px;
-      color: var(--primary);
-      font-size: 2rem;
-    }
-
-    /* Pulsanti blu uniformi */
-    .button {
-      width: 100%;
-      max-width: 300px;
-      padding: 16px;
-      margin: 10px 0;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 8px;
-      background: #3498db;       /* Blu principale */
-      color: #ffffff;            /* Testo bianco */
-      cursor: pointer;
-      transition: background 0.2s ease;
-      text-align: center;
-    }
-    .button:hover {
-      background: #2980b9;       /* Blu scuro per hover */
-    }
-
-    /* Posiziona il toggle tema in alto a destra */
-    #theme-toggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background: var(--bg-alt);
-      color: var(--secondary);
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-  </style>
 </head>
 <body>
   <!-- Saluto utente -->
@@ -77,19 +17,10 @@
 
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
-  <!-- Menu principale -->
-  <button class="button" onclick="location.href='programma-allenamento.html'">
-    💪 Programma Allenamento
-  </button>
-  <button class="button" onclick="location.href='piano-alimentare.html'">
-    🍽️ Piano Alimentare
-  </button>
-  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
-    🛒 Lista Spesa Giornaliera
-  </button>
-  <button class="button" onclick="location.href='aggiungi-peso.html'">
-    ➕ Aggiungi Peso
-  </button>
+  <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
 
   <!-- Registrazione Service Worker -->
   <script>
@@ -102,7 +33,21 @@
     }
   </script>
 
-  <!-- Toast container -->
+  <!-- Inline script per il greeting -->
+  <script>
+  document.addEventListener('DOMContentLoaded', () => {
+    let user = localStorage.getItem('username');
+    if (!user) {
+      user = prompt("Benvenuto in Fit Tracker! Come ti chiami?");
+      if (user) localStorage.setItem('username', user);
+    }
+    if (user) {
+      document.getElementById('user-greeting').innerText = `Ciao, ${user}!`;
+    }
+  });
+  </script>
+
+  <!-- Contenitore per eventuali toast -->
   <div id="toast-container"></div>
 </body>
 </html>
