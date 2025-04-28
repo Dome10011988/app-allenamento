@@ -1,36 +1,63 @@
-document.addEventListener('DOMContentLoaded', () => {
-  // Greeting utente
-  let name = localStorage.getItem('ft_name');
-  if (!name) {
-    name = prompt('Come ti chiami?') || 'Amico';
-    localStorage.setItem('ft_name', name);
+// === Gestione Toggle Tema Chiaro/Scuro ===
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    if (document.documentElement.getAttribute('data-theme') === 'dark') {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('theme', 'dark');
+    }
+  });
+
+  // Imposta tema salvato
+  if (localStorage.getItem('theme') === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
   }
-  document.getElementById('user-greeting').textContent = `Ciao, ${name}!`;
+}
 
-  // T// Toggle tema e saluto utente
+// === Toast notification semplice ===
+function showToast(message) {
+  const toastContainer = document.getElementById('toast-container') || createToastContainer();
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  toastContainer.appendChild(toast);
+}
+
+function createToastContainer() {
+  const container = document.createElement('div');
+  container.id = 'toast-container';
+  document.body.appendChild(container);
+  return container;
+}
+
+// === Nome utente salvato ===
 document.addEventListener('DOMContentLoaded', () => {
-  const toggle = document.getElementById('theme-toggle');
-  const current = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', current);
-  toggle.textContent = current === 'light' ? '🌙' : '☀️';
-  toggle.onclick = () => {
-    const next = document.documentElement.getAttribute('data-theme') === 'light' ? 'dark' : 'light';
-    document.documentElement.setAttribute('data-theme', next);
-    localStorage.setItem('theme', next);
-    toggle.textContent = next === 'light' ? '🌙' : '☀️';
-    showToast('Tema cambiato su ' + next);
-  };
-
-  const user = localStorage.getItem('userName') || 'Utente';
-  const greet = document.getElementById('user-greeting');
-  greet.textContent = 'Benvenuto, ' + user + '!';
+  const userGreeting = document.getElementById('user-greeting');
+  const username = localStorage.getItem('username');
+  if (username && userGreeting) {
+    userGreeting.innerHTML = `Ciao, <strong>${username}</strong>!`;
+  }
 });
 
-function showToast(msg) {
-  const c = document.getElementById('toast-container');
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  c.appendChild(t);
-  setTimeout(() => t.remove(), 3000);
+// === Service Worker Update (gestione aggiornamenti automatici) ===
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js')
+    .then(reg => {
+      console.log('Service Worker registrato');
+
+      reg.onupdatefound = () => {
+        const installingWorker = reg.installing;
+        installingWorker.onstatechange = () => {
+          if (installingWorker.state === 'installed') {
+            if (navigator.serviceWorker.controller) {
+              showToast('Aggiornamento disponibile! Ricarica la pagina.');
+            }
+          }
+        };
+      };
+    })
+    .catch(err => console.error('Errore Service Worker:', err));
 }
