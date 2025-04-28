@@ -5,15 +5,14 @@
   "display": "standalone",
   "background_color": "#f4f4f4",
   "theme_color": "#3498db",
-  "description": "App per monitorare allenamenti, dieta e peso.",
   "icons": [
     {
-      "src": "kettlebell-preview.png",
+      "src": "assets/kettlebell-preview.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "kettlebell-preview.png",
+      "src": "assets/kettlebell-preview.png",
       "sizes": "512x512",
       "type": "image/png"
     }
