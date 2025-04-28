@@ -123,19 +123,21 @@
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL
-   const kcalMatch = text.match(/([\d.,]+)\s*kcal/i);
-if (kcalMatch) {
-  const raw = kcalMatch[1];
-  document.getElementById('calorie').value = raw.replace(/[.,]/g,'');
-  }
-// Estrai BPM (prima “123 bpm”, altrimenti “Frequenza cardiaca media 123”)
-let bpmMatch = text.match(/(\d{2,3})(?=\s*bpm)/i);
-if (!bpmMatch) {
-  bpmMatch = text.match(/Frequenza\s*cardiaca\s*media\D*(\d{2,3})/i);
-}
-if (bpmMatch) {
-  document.getElementById('battito').value = bpmMatch[1];
+    // KCAL: cerca numero sopra "kcal"
+    let kcal = '';
+    const idx = lines.findIndex(l => /kcal/i.test(l));
+    if (idx > 0) {
+      const possibleNum = lines[idx-1].replace(/[^\d.,]/g, '').replace(',', '.');
+      kcal = possibleNum.replace(/\./g,''); // togli i separatori
+    }
+    if (kcal) document.getElementById('calorie').value = kcal;
+
+    // BPM
+    for (let l of lines) {
+      const m = l.match(/(\d{2,3})\s*bpm/i);
+      if (m) { document.getElementById('battito').value = m[1]; break; }
+    }
+
     // Data
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
     if (dMatch) {
