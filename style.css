@@ -1,30 +1,3 @@
-#toast-container {
-  position: fixed;
-  bottom: 20px;
-  left: 50%;
-  transform: translateX(-50%);
-  z-index: 1000;
-}
-.toast {
-  background: var(--primary);
-  color: var(--header-text);
-  padding: 12px 20px;
-  border-radius: 6px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-  margin-top: 8px;
-  opacity: 0;
-  animation: fadein 0.3s forwards, fadeout 0.3s 2.7s forwards;
-}
-@keyframes fadein { to { opacity: 1; } }
-@keyframes fadeout { to { opacity: 0; } }
-.user-greeting {
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto 20px;
-  font-size: 1.1rem;
-  color: var(--secondary);
-  text-align: right;
-}
 /* === Variabili di Tema === */
 :root {
   --bg: #f4f4f4;
@@ -37,7 +10,7 @@
   --muted: #777777;
 }
 
-/* Tema scuro (se usi il toggle) */
+/* Tema scuro opzionale */
 [data-theme="dark"] {
   --bg: #121212;
   --bg-alt: #1e1e1e;
@@ -103,17 +76,20 @@ body {
   cursor: pointer;
 }
 
-/* === Navbar (se presente) === */
-header, .navbar {
+/* === Tabelle === */
+table {
   width: 100%;
-  background: var(--primary);
-  padding: 20px;
-  text-align: center;
-  color: var(--header-text);
+  border-collapse: collapse;
+  margin-top: 10px;
 }
-header h1, .navbar h1 {
-  margin: 0;
-  font-size: 2rem;
+th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+th {
+  background: var(--primary);
+  color: #ffffff;
 }
 
 /* === Footer === */
