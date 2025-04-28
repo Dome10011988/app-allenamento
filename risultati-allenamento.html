@@ -38,6 +38,27 @@
       background: var(--primary);
       color: var(--header-text);
     }
+    .form-nuovo {
+      margin-top: 30px;
+    }
+    .form-nuovo input, .form-nuovo button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .form-nuovo button {
+      background: var(--primary);
+      color: var(--header-text);
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .form-nuovo button:hover {
+      background: var(--primary-hover);
+    }
     .home-button {
       text-align: center;
       margin-top: 30px;
@@ -75,6 +96,18 @@
       <!-- Qui verranno caricati i risultati -->
     </tbody>
   </table>
+
+  <!-- Form per aggiungere nuovo risultato -->
+  <div class="form-nuovo">
+    <h2>➕ Aggiungi Nuovo Risultato</h2>
+    <form id="form-nuovo-risultato">
+      <input type="date" id="new-data" required>
+      <input type="text" id="new-durata" placeholder="Durata (es: 00:45:30)" required>
+      <input type="number" id="new-calorie" placeholder="Kcal (es: 450)" required>
+      <input type="number" id="new-battito" placeholder="Battito medio (es: 135)" required>
+      <button type="submit">Salva Risultato</button>
+    </form>
+  </div>
 </div>
 
 <div class="home-button">
@@ -82,8 +115,8 @@
 </div>
 
 <script>
-  // Carica dati salvati su localStorage
   const tabBody = document.getElementById('tabella-body');
+  const formNuovo = document.getElementById('form-nuovo-risultato');
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
 
   function aggiornaStorico() {
@@ -100,6 +133,21 @@
   }
 
   aggiornaStorico();
+
+  // Salva un nuovo risultato
+  formNuovo.addEventListener('submit', e => {
+    e.preventDefault();
+    const nuovo = {
+      data: document.getElementById('new-data').value,
+      durata: document.getElementById('new-durata').value,
+      calorie: document.getElementById('new-calorie').value,
+      battito: document.getElementById('new-battito').value
+    };
+    risultati.push(nuovo);
+    localStorage.setItem('risultati', JSON.stringify(risultati));
+    formNuovo.reset();
+    aggiornaStorico();
+  });
 </script>
 
 </body>
