@@ -1,69 +1,69 @@
 const CACHE_NAME = 'fit-tracker-v2';
 const ASSETS = [
   '/index.html',
-  '/aggiungi-peso.html',
-  '/piano-alimentare.html',
   '/programma-allenamento.html',
+  '/piano-alimentare.html',
   '/lista-spesa-giornaliera.html',
+  '/aggiungi-peso.html',
   '/risultati-allenamento.html',
   '/app.html',
-  '/style.css',
   '/script.js',
+  '/style.css',
   '/manifest.json',
   '/kettlebell-preview.png'
 ];
 
-// Installazione: cache degli asset
+// Installazione: precache degli asset
 self.addEventListener('install', event => {
+  console.log('[ServiceWorker] Installazione');
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => {
+      console.log('[ServiceWorker] Caching assets');
+      return cache.addAll(ASSETS);
+    })
   );
+  self.skipWaiting();
 });
 
 // Attivazione: elimina vecchie cache
 self.addEventListener('activate', event => {
+  console.log('[ServiceWorker] Attivazione');
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
         keys.filter(key => key !== CACHE_NAME)
             .map(key => caches.delete(key))
       )
-    ).then(() => self.clients.claim())
+    )
+  );
+  self.clients.claim();
+});
+
+// Fetch: carica da cache prima, altrimenti dalla rete
+self.addEventListener('fetch', event => {
+  if (event.request.method !== 'GET') return;
+
+  event.respondWith(
+    caches.match(event.request)
+      .then(response => {
+        if (response) return response; // Se in cache, ritorna
+        return fetch(event.request)      // Altrimenti va online
+          .then(res => {
+            return caches.open(CACHE_NAME).then(cache => {
+              cache.put(event.request, res.clone());
+              return res;
+            });
+          })
+          .catch(() => caches.match('/index.html')); // Offline fallback
+      })
   );
 });
 
-// Fetch: usa cache prima, poi rete
-self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req)
-        .then(res => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match('/index.html'))
-    );
-  } else {
-    event.respondWith(
-      caches.match(req)
-        .then(cached => cached || fetch(req).then(res => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-          return res;
-        }))
-    );
-  }
-});
-
-// Push Notification (opzionale)
+// Push Notifications (se vuoi implementarle)
 self.addEventListener('push', event => {
   const data = event.data?.json() || {
-    title: 'Fit Tracker',
-    body: 'Hai nuovi allenamenti o piani da vedere!',
+    title: 'Promemoria Fit Tracker',
+    body: 'Non dimenticare di aggiornare i tuoi dati!',
     icon: '/kettlebell-preview.png'
   };
   const options = {
@@ -72,11 +72,14 @@ self.addEventListener('push', event => {
     badge: data.icon,
     data: { url: '/index.html' }
   };
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
-// Clic sulla notifica
 self.addEventListener('notificationclick', event => {
   event.notification.close();
-  event.waitUntil(clients.openWindow(event.notification.data.url));
+  event.waitUntil(
+    clients.openWindow(event.notification.data.url)
+  );
 });
