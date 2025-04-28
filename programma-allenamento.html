@@ -109,6 +109,7 @@
     aggiornaStorico();
   });
 
+  // OCR Foto: Data, Durata, KCAL, BPM
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -119,28 +120,16 @@
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL Migliorato: cerca numero vicino a "kcal"
-    let kcal = '';
-    for (let i = 0; i < lines.length; i++) {
-      if (/kcal/i.test(lines[i])) {
-        for (let j = i-2; j <= i+2; j++) {
-          if (lines[j]) {
-            const numMatch = lines[j].match(/(\d{2,4})/);
-            if (numMatch) {
-              kcal = numMatch[1];
-              break;
-            }
-          }
-        }
-        break;
-      }
+    // KCAL: numero vicino a "kcal"
+    let kcalMatch = text.match(/(\d{1,4})\s*kcal/i);
+    if (kcalMatch) {
+      document.getElementById('calorie').value = kcalMatch[1];
     }
-    if (kcal) document.getElementById('calorie').value = kcal;
 
     // BPM
-    for (let l of lines) {
-      const m = l.match(/(\d{2,3})\s*bpm/i);
-      if (m) { document.getElementById('battito').value = m[1]; break; }
+    let bpmMatch = text.match(/(\d{2,3})\s*bpm/i);
+    if (bpmMatch) {
+      document.getElementById('battito').value = bpmMatch[1];
     }
 
     // Data
@@ -156,6 +145,7 @@
     }
   });
 
+  // Caricamento scheda Allenamenti PDF
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
