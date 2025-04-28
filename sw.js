@@ -1,4 +1,5 @@
-const CACHE_NAME = 'app-allenamento-v2'; // aggiorna versione cache!
+const CACHE_NAME = 'app-allenamento-' + Date.now(); // Cache sempre unica!
+
 const ASSETS = [
   '/index.html',
   '/aggiungi-peso.html',
@@ -20,34 +21,31 @@ self.addEventListener('install', event => {
   );
 });
 
-// Attivazione: pulizia vecchie cache
+// Pulizia vecchie cache
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(keys.map(key => {
-        if (key !== CACHE_NAME) {
-          return caches.delete(key);
-        }
-      }))
+      Promise.all(
+        keys.map(key => {
+          if (key !== CACHE_NAME) {
+            return caches.delete(key);
+          }
+        })
+      )
     ).then(() => self.clients.claim())
   );
 });
 
-// Intercetta richieste
+// Gestione fetch
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cachedResponse => {
-      return cachedResponse || fetch(event.request);
+    caches.match(event.request).then(cached => {
+      return cached || fetch(event.request);
     })
   );
 });
 
-// Aggiorna subito la pagina quando il nuovo SW è attivo
-self.addEventListener('controllerchange', () => {
-  window.location.reload();
-});
-
-// Push Notification (resta uguale)
+// Push notification
 self.addEventListener('push', event => {
   const data = event.data?.json() || {
     title: 'Promemoria Allenamento',
@@ -60,7 +58,9 @@ self.addEventListener('push', event => {
     badge: data.icon,
     data: { url: '/index.html' }
   };
-  event.waitUntil(self.registration.showNotification(data.title, options));
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
 self.addEventListener('notificationclick', event => {
