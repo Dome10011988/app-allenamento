@@ -1,15 +1,21 @@
 {
-  "name": "App Allenamento",
-  "short_name": "Allenamento",
-  "description": "Monitora allenamenti, piano alimentare e lista spesa settimanale.",
-  "start_url": "/index.html",
-  "scope": "/",
+  "name": "Fit Tracker",
+  "short_name": "FitTracker",
+  "start_url": "index.html",
   "display": "standalone",
-  "orientation": "portrait",
-  "background_color": "#ffffff",
+  "background_color": "#f4f4f4",
   "theme_color": "#3498db",
+  "description": "App per tracciare allenamenti, alimentazione e risultati.",
   "icons": [
-    { "src": "/kettlebell-preview.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/kettlebell-preview.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
