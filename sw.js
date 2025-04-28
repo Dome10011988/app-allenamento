@@ -1,27 +1,9 @@
-const CACHE_NAME = 'app-allenamento-' + Date.now(); // Cache sempre unica!
+const CACHE_NAME = 'app-allenamento-' + Date.now();
 
-const ASSETS = [
-  '/index.html',
-  '/aggiungi-peso.html',
-  '/piano-alimentare.html',
-  '/programma-allenamento.html',
-  '/lista-spesa-giornaliera.html',
-  '/allenamenti-risultati.html',
-  '/script.js',
-  '/style.css',
-  '/manifest.json',
-  '/kettlebell-preview.png'
-];
-
-// Installa e pre-cacha i file
 self.addEventListener('install', event => {
-  self.skipWaiting(); // forza subito l'attivazione
-  event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
-  );
+  self.skipWaiting(); // Subito attivo
 });
 
-// Pulizia vecchie cache
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -36,11 +18,22 @@ self.addEventListener('activate', event => {
   );
 });
 
-// Gestione fetch
+// Salva dinamicamente le risorse
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request).then(cached => {
-      return cached || fetch(event.request);
+    caches.match(event.request).then(response => {
+      if (response) {
+        return response; // Rispondi dalla cache
+      }
+      return fetch(event.request).then(networkResponse => {
+        if (event.request.method === 'GET' && networkResponse.status === 200) {
+          const clone = networkResponse.clone();
+          caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, clone);
+          });
+        }
+        return networkResponse;
+      }).catch(() => caches.match('/index.html')); // fallback offline
     })
   );
 });
