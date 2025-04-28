@@ -1,218 +1,50 @@
-<!DOCTYPE html>
-<html lang="it">
+<!DOCTYPE html><html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Allenamenti & Risultati</title>
-
-  <!-- Librerie -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estrazione Automatica da PDF</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
-    h1 { text-align:center; margin-bottom:20px }
-    .row { display:flex; flex-wrap:wrap; gap:20px; justify-content:center }
-    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px }
-    .full-width { max-width:1000px; margin:20px auto }
-    form label { display:block; margin:8px 0 4px }
-    input, button, table { width:100% }
-    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc }
-    button { background:#3498db; color:#fff; border:none; cursor:pointer; margin-top:10px }
-    button:hover { background:#2980b9 }
-    table { border-collapse:collapse; margin-top:10px }
-    th, td { border:1px solid #ddd; padding:8px; text-align:left }
-    th { background:#3498db; color:#fff }
-    .home-button { text-align:center; margin-top:40px }
-    .home-button button { background:#3498db; color:#fff; padding:10px 20px; font-size:1rem; border-radius:8px; border:none; cursor:pointer }
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input, button { margin-top: 10px; padding: 8px; width: 100%; }
+    label { margin-top: 15px; display: block; }
   </style>
 </head>
-
 <body>
+  <h2>Carica PDF Allenamento</h2>
+  <input type="file" id="file-pdf" accept="application/pdf"><label>Durata</label> <input type="text" id="durata" placeholder="00:00:00">
 
-<h1>🏋️‍♂️ Allenamenti & Risultati</h1>
+<label>KCAL</label> <input type="text" id="kcal" placeholder="000">
 
-<div class="row">
-  <!-- Scheda Allenamenti PDF -->
-  <div class="box">
-    <h2>📋 Scheda Allenamenti (PDF)</h2>
-    <input type="file" id="pdfInput" accept="application/pdf">
-    <div id="scheda"></div>
-  </div>
+<label>Battito Medio</label> <input type="text" id="bpm" placeholder="000">
 
-  <!-- Inserimento Risultati -->
-  <div class="box">
-    <h2>📸 Carica Foto Risultato</h2>
-    <input type="file" id="fotoInput" accept="image/*">
+  <script>
+    document.getElementById('file-pdf').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
 
-    <h2>📈 Inserisci Risultato</h2>
-    <form id="form-allenamento">
-      <label>Data</label>
-      <input type="date" id="data" required>
-      <label>Durata (hh:mm:ss)</label>
-      <input type="text" id="durata" placeholder="00:00:00" required>
-      <label>KCAL</label>
-      <input type="number" id="calorie" placeholder="000" required>
-      <label>Battito Medio (bpm)</label>
-      <input type="number" id="battito" placeholder="000" required>
-      <button type="submit">Salva Risultato</button>
-    </form>
-  </div>
-</div>
+      const fileReader = new FileReader();
+      fileReader.onload = async function() {
+        const typedarray = new Uint8Array(this.result);
 
-<!-- Storico Risultati -->
-<div class="full-width box">
-  <h2>📊 Storico Risultati</h2>
-  <table>
-    <thead>
-      <tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr>
-    </thead>
-    <tbody id="tabella-body"></tbody>
-  </table>
-</div>
+        const pdf = await pdfjsLib.getDocument(typedarray).promise;
+        const page = await pdf.getPage(1);
+        const textContent = await page.getTextContent();
 
-<div class="home-button">
-  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-</div>
+        let fullText = textContent.items.map(item => item.str).join(' ');
+        console.log(fullText);
 
-<script>
-  const pdfInput = document.getElementById('pdfInput');
-  const fotoInput = document.getElementById('fotoInput');
-  const schedaDiv = document.getElementById('scheda');
-  const form = document.getElementById('form-allenamento');
-  const tabBody = document.getElementById('tabella-body');
+        // Estrai i dati con regex
+        const durata = fullText.match(/Durata[:\s]*(\d{2}:\d{2}:\d{2})/i);
+        const kcal = fullText.match(/KCAL[:\s]*(\d+)/i);
+        const bpm = fullText.match(/Battito Medio[:\s]*(\d+)/i);
 
-  const savedScheda = localStorage.getItem('schedaAllenamenti');
-  if (savedScheda) schedaDiv.innerHTML = savedScheda;
+        if (durata) document.getElementById('durata').value = durata[1];
+        if (kcal) document.getElementById('kcal').value = kcal[1];
+        if (bpm) document.getElementById('bpm').value = bpm[1];
+      };
 
-  let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
-  function aggiornaStorico() {
-    tabBody.innerHTML = '';
-    risultati.forEach(r => {
-      tabBody.innerHTML += `<tr>
-        <td>${r.data}</td>
-        <td>${r.durata}</td>
-        <td>${r.calorie}</td>
-        <td>${r.battito}</td>
-      </tr>`;
+      fileReader.readAsArrayBuffer(file);
     });
-  }
-  aggiornaStorico();
-
-  form.addEventListener('submit', e => {
-    e.preventDefault();
-    risultati.push({
-      data: document.getElementById('data').value,
-      durata: document.getElementById('durata').value,
-      calorie: document.getElementById('calorie').value,
-      battito: document.getElementById('battito').value
-    });
-    localStorage.setItem('risultati', JSON.stringify(risultati));
-    form.reset();
-    aggiornaStorico();
-  });
-
-  // OCR Foto: Data, Durata, KCAL, BPM
-  fotoInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const { data:{ text } } = await Tesseract.recognize(file, 'ita', { logger: m=>console.log(m) });
-    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
-
-    // Durata
-    const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
-    if (durMatch) document.getElementById('durata').value = durMatch[1];
-
-    // Miglior estrazione KCAL
-let kcal = '';
-let foundKcal = false;
-
-for (let i = 0; i < lines.length; i++) {
-  const line = lines[i];
-  
-  // Miglior estrazione KCAL
-let kcal = '';
-let foundKcal = false;
-
-for (let i = 0; i < lines.length; i++) {
-  const line = lines[i];
-  
-  // Cerca linea con "kcal"
-  if (/kcal/i.test(line)) {
-    // Prima prova: trova numero sulla stessa riga
-    const sameLine = line.match(/(\d{2,4})\s*kcal/i);
-    if (sameLine) {
-      kcal = sameLine[1];
-      foundKcal = true;
-      break;
-    }
-    // Se non c'è numero sulla stessa riga, prova riga precedente
-    if (i > 0) {
-      const prevLine = lines[i-1].match(/(\d{2,4})/);
-      if (prevLine) {
-        kcal = prevLine[1];
-        foundKcal = true;
-        break;
-      }
-    }
-    // Se non c'è numero sulla riga precedente, prova successiva
-    if (i < lines.length - 1) {
-      const nextLine = lines[i+1].match(/(\d{2,4})/);
-      if (nextLine) {
-        kcal = nextLine[1];
-        foundKcal = true;
-        break;
-      }
-    }
-  }
-}
-
-// Se ha trovato, e valore > 100, assegna
-if (foundKcal && parseInt(kcal) > 100) {
-  document.getElementById('calorie').value = kcal;
-} else {
-  console.warn('KCAL non trovate correttamente:', kcal);
-}
-
-    // Data
-    const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
-    if (dMatch) {
-      let [ , dd, mm, yy ] = dMatch;
-      if (yy.length === 2) yy = '20' + yy;
-      dd = dd.padStart(2,'0');
-      mm = mm.padStart(2,'0');
-      document.getElementById('data').value = `${yy}-${mm}-${dd}`;
-    } else {
-      document.getElementById('data').valueAsDate = new Date();
-    }
-  });
-
-  // Caricamento scheda Allenamenti PDF
-  pdfInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = async () => {
-      const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(reader.result) }).promise;
-      let txt = '';
-      for (let i=1; i<=pdf.numPages; i++){
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        txt += content.items.map(item=>item.str).join(' ') + '\n';
-      }
-      schedaDiv.innerHTML = '';
-      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
-        const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
-        let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-        esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
-        tbl += '</tbody></table><br>';
-        schedaDiv.innerHTML += tbl;
-      });
-      localStorage.setItem('schedaAllenamenti', schedaDiv.innerHTML);
-    };
-    reader.readAsArrayBuffer(file);
-  });
-</script>
-
-</body>
+  </script></body>
 </html>
