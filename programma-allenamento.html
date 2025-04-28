@@ -123,28 +123,13 @@
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL: cerca numero sopra "kcal"
-    let kcal = '';
-
-// Cerca sulla stessa riga
-let lineKcal = lines.find(l => /\d[\d.,]*\s*(kcal|Calorie)/i.test(l));
-if (lineKcal) {
-  kcal = (lineKcal.match(/\d[\d.,]*/)[0] || '').replace(/[.,]/g, '');
-}
-
-// Se non trovato sulla stessa riga, cerca la riga sopra "kcal"
-if (!kcal) {
-  const idx = lines.findIndex(l => /kcal/i.test(l));
-  if (idx > 0) {
-    const possibleNum = lines[idx-1].match(/\d[\d.,]*/);
-    if (possibleNum) {
-      kcal = possibleNum[0].replace(/[.,]/g, '');
-    }
+    // KCAL
+    const kcalMatch = text.match(/([\d.,]+)\s*kcal/i);
+    if (kcalMatch) {
+    const raw = kcalMatch[1];
+    const cleaned = raw.replace(/[.,]/g,'');
+    document.getElementById('calorie').value = cleaned;
   }
-}
-
-// Assegna il valore se trovato
-if (kcal) document.getElementById('calorie').value = kcal;
 
     // Data
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
