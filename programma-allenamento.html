@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Allenamenti &amp; Risultati</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Allenamenti & Risultati</title>
 
   <!-- Librerie -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
@@ -27,86 +27,83 @@
     .home-button button { background:#3498db; color:#fff; padding:10px 20px; font-size:1rem; border-radius:8px; border:none; cursor:pointer }
   </style>
 </head>
+
 <body>
 
-  <h1>🏋️‍♂️ Allenamenti &amp; Risultati</h1>
+<h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
-  <div class="row">
-    <!-- Scheda Allenamenti PDF -->
-    <div class="box">
-      <h2>📋 Scheda Allenamenti (PDF)</h2>
-      <input type="file" id="pdfInput" accept="application/pdf">
-      <div id="scheda"></div>
-    </div>
-
-    <!-- Inserimento Risultati -->
-    <div class="box">
-      <h2>📸 Carica Foto Risultato</h2>
-      <input type="file" id="fotoInput" accept="image/*">
-
-      <h2>📈 Inserisci Risultato</h2>
-      <form id="form-allenamento">
-        <label>Data</label>
-        <input type="date" id="data" required>
-        <label>Durata (hh:mm:ss)</label>
-        <input type="text" id="durata" placeholder="00:29:40" required>
-        <label>KCAL</label>
-        <input type="number" id="calorie" placeholder="1375" required>
-        <label>Battito Medio (bpm)</label>
-        <input type="number" id="battito" placeholder="143" required>
-        <button type="submit">Salva Risultato</button>
-      </form>
-    </div>
+<div class="row">
+  <!-- Scheda Allenamenti PDF -->
+  <div class="box">
+    <h2>📋 Scheda Allenamenti (PDF)</h2>
+    <input type="file" id="pdfInput" accept="application/pdf">
+    <div id="scheda"></div>
   </div>
 
-  <!-- Storico Risultati -->
-  <div class="full-width box">
-    <h2>📊 Storico Risultati</h2>
-    <table>
-      <thead>
-        <tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr>
-      </thead>
-      <tbody id="tabella-body"></tbody>
-    </table>
-  </div>
+  <!-- Inserimento Risultati -->
+  <div class="box">
+    <h2>📸 Carica Foto Risultato</h2>
+    <input type="file" id="fotoInput" accept="image/*">
 
-  <div class="home-button">
-    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+    <h2>📈 Inserisci Risultato</h2>
+    <form id="form-allenamento">
+      <label>Data</label>
+      <input type="date" id="data" required>
+      <label>Durata (hh:mm:ss)</label>
+      <input type="text" id="durata" placeholder="00:29:40" required>
+      <label>KCAL</label>
+      <input type="number" id="calorie" placeholder="1375" required>
+      <label>Battito Medio (bpm)</label>
+      <input type="number" id="battito" placeholder="143" required>
+      <button type="submit">Salva Risultato</button>
+    </form>
   </div>
+</div>
+
+<!-- Storico Risultati -->
+<div class="full-width box">
+  <h2>📊 Storico Risultati</h2>
+  <table>
+    <thead>
+      <tr><th>Data</th><th>Durata</th><th>KCAL</th><th>Battito Medio</th></tr>
+    </thead>
+    <tbody id="tabella-body"></tbody>
+  </table>
+</div>
+
+<div class="home-button">
+  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+</div>
 
 <script>
-  const pdfInput   = document.getElementById('pdfInput');
-  const fotoInput  = document.getElementById('fotoInput');
-  const schedaDiv  = document.getElementById('scheda');
-  const form       = document.getElementById('form-allenamento');
-  const tabBody    = document.getElementById('tabella-body');
+  const pdfInput = document.getElementById('pdfInput');
+  const fotoInput = document.getElementById('fotoInput');
+  const schedaDiv = document.getElementById('scheda');
+  const form = document.getElementById('form-allenamento');
+  const tabBody = document.getElementById('tabella-body');
 
-  // Ripristina scheda PDF salvata
   const savedScheda = localStorage.getItem('schedaAllenamenti');
   if (savedScheda) schedaDiv.innerHTML = savedScheda;
 
-  // Carica storico risultati
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
   function aggiornaStorico() {
     tabBody.innerHTML = '';
     risultati.forEach(r => {
-      tabBody.innerHTML += `
-        <tr>
-          <td>${r.data}</td>
-          <td>${r.durata}</td>
-          <td>${r.calorie}</td>
-          <td>${r.battito}</td>
-        </tr>`;
+      tabBody.innerHTML += `<tr>
+        <td>${r.data}</td>
+        <td>${r.durata}</td>
+        <td>${r.calorie}</td>
+        <td>${r.battito}</td>
+      </tr>`;
     });
   }
   aggiornaStorico();
 
-  // Salvataggio manuale
   form.addEventListener('submit', e => {
     e.preventDefault();
     risultati.push({
-      data:    document.getElementById('data').value,
-      durata:  document.getElementById('durata').value,
+      data: document.getElementById('data').value,
+      durata: document.getElementById('durata').value,
       calorie: document.getElementById('calorie').value,
       battito: document.getElementById('battito').value
     });
@@ -115,57 +112,46 @@
     aggiornaStorico();
   });
 
-  // OCR foto: estrazione DURATA, KCAL, BPM, DATA
+  // OCR Foto: Data, Durata, KCAL, BPM
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
     const { data:{ text } } = await Tesseract.recognize(file, 'ita', { logger: m=>console.log(m) });
-    const lines = text.split(/\r?\n/).map(l=>l.trim()).filter(l=>l);
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
 
     // Durata
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL: prima prova "num + kcal", poi look-behind riga
+    // KCAL: cerca numero sopra "kcal"
     let kcal = '';
-    // case "1234 kcal"
-    const sameLine = text.match(/([\d\.,]+)\s*kcal/i);
-    if (sameLine) {
-      kcal = sameLine[1].replace(/[.,]/g,'');
-    } else {
-      // find line containing "kcal"
-      const idx = lines.findIndex(l=>/kcal/i.test(l));
-      if (idx >= 0) {
-        for (let j = idx - 1; j >= 0; j--) {
-          const m = lines[j].match(/([\d\.,]+)/);
-          if (m) {
-            kcal = m[1].replace(/[.,]/g,'');
-            break;
-          }
-        }
-      }
+    const idx = lines.findIndex(l => /kcal/i.test(l));
+    if (idx > 0) {
+      const possibleNum = lines[idx-1].replace(/[^\d.,]/g, '').replace(',', '.');
+      kcal = possibleNum.replace(/\./g,''); // togli i separatori
     }
     if (kcal) document.getElementById('calorie').value = kcal;
 
-    // BPM: "XXX bpm"
+    // BPM
     for (let l of lines) {
       const m = l.match(/(\d{2,3})\s*bpm/i);
       if (m) { document.getElementById('battito').value = m[1]; break; }
     }
 
-    // Data: dd/mm/yyyy
+    // Data
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
     if (dMatch) {
       let [ , dd, mm, yy ] = dMatch;
-      if (yy.length===2) yy='20'+yy;
-      dd=dd.padStart(2,'0'); mm=mm.padStart(2,'0');
+      if (yy.length === 2) yy = '20' + yy;
+      dd = dd.padStart(2,'0');
+      mm = mm.padStart(2,'0');
       document.getElementById('data').value = `${yy}-${mm}-${dd}`;
     } else {
       document.getElementById('data').valueAsDate = new Date();
     }
   });
 
-  // Caricamento PDF e visualizzazione scheda
+  // Caricamento scheda Allenamenti PDF
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -173,13 +159,13 @@
     reader.onload = async () => {
       const pdf = await pdfjsLib.getDocument({ data:new Uint8Array(reader.result) }).promise;
       let txt = '';
-      for (let i=1;i<=pdf.numPages;i++){
+      for (let i=1; i<=pdf.numPages; i++){
         const page = await pdf.getPage(i);
         const content = await page.getTextContent();
-        txt += content.items.map(it=>it.str).join(' ') + '\n';
+        txt += content.items.map(item=>item.str).join(' ') + '\n';
       }
       schedaDiv.innerHTML = '';
-      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i) => {
+      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk,i)=>{
         const esercizi = blk.split('-').map(s=>s.trim()).filter(s=>s);
         let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
         esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
