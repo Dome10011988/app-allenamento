@@ -1,12 +1,12 @@
 {
   "name": "Fit Tracker",
   "short_name": "FitTracker",
+  "description": "App di gestione Allenamenti, Peso e Alimentazione",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#f4f4f4",
   "theme_color": "#3498db",
-  "description": "App per gestire allenamenti, piani alimentari e risultati.",
-  "orientation": "portrait-primary",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "kettlebell-preview.png",
@@ -18,5 +18,7 @@
       "sizes": "512x512",
       "type": "image/png"
     }
-  ]
+  ],
+  "scope": "/",
+  "prefer_related_applications": false
 }
