@@ -123,14 +123,13 @@
     const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
-    // KCAL: cerca numero sopra "kcal"
-    let kcal = '';
-    const idx = lines.findIndex(l => /kcal/i.test(l));
-    if (idx > 0) {
-      const possibleNum = lines[idx-1].replace(/[^\d.,]/g, '').replace(',', '.');
-      kcal = possibleNum.replace(/\./g,''); // togli i separatori
-    }
-    if (kcal) document.getElementById('calorie').value = kcal;
+   // Cerca kcal nel testo OCR
+const kcalMatch = text.match(/([\d\.]+)\s*kcal/i);
+if (kcalMatch) {
+  let kcalString = kcalMatch[1];
+  kcalString = kcalString.replace(/\./g, ''); // Rimuove i punti
+  document.getElementById('calorie').value = parseInt(kcalString, 10);
+}
 
     // BPM
     for (let l of lines) {
