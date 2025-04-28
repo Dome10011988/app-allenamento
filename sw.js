@@ -13,7 +13,7 @@ const ASSETS = [
   '/kettlebell-preview.png'
 ];
 
-// INSTALLAZIONE: salva i file statici nella cache
+// Installazione: salva in cache tutti gli asset essenziali
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -22,58 +22,60 @@ self.addEventListener('install', event => {
   );
 });
 
-// ATTIVAZIONE: pulizia delle vecchie cache
+// Attivazione: cancella vecchie cache se presenti
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
+        keys.filter(key => key !== CACHE_NAME)
+            .map(key => caches.delete(key))
       )
     ).then(() => self.clients.claim())
   );
 });
 
-// FETCH: strategia "cache first, network fallback"
+// Fetch: serve contenuti da cache, se non trovati, scarica e aggiorna
 self.addEventListener('fetch', event => {
-  const req = event.request;
-  
-  if (req.method !== 'GET') return;
-
+  if (event.request.method !== 'GET') return; // ignora POST ecc
   event.respondWith(
-    caches.match(req)
-      .then(cached => cached || fetch(req)
-        .then(res => {
-          // Aggiorna cache con nuove risposte
-          return caches.open(CACHE_NAME)
-            .then(cache => {
-              cache.put(req, res.clone());
-              return res;
-            });
+    caches.match(event.request).then(cachedResponse => {
+      return cachedResponse || fetch(event.request)
+        .then(response => {
+          return caches.open(CACHE_NAME).then(cache => {
+            cache.put(event.request, response.clone());
+            return response;
+          });
         })
-        .catch(() => caches.match('/index.html')) // fallback offline
-      )
+        .catch(() => {
+          if (event.request.mode === 'navigate') {
+            return caches.match('/index.html');
+          }
+        });
+    })
   );
 });
 
-// PUSH notifications
+// Push Notifications (se vorrai attivarle)
 self.addEventListener('push', event => {
   const data = event.data?.json() || {
     title: 'Promemoria Allenamento',
     body: 'È ora di allenarti! 💪',
     icon: '/kettlebell-preview.png'
   };
-  
+
   const options = {
     body: data.body,
     icon: data.icon,
     badge: data.icon,
     data: { url: '/index.html' }
   };
-  
-  event.waitUntil(self.registration.showNotification(data.title, options));
+
+  event.waitUntil(
+    self.registration.showNotification(data.title, options)
+  );
 });
 
-// Quando clicchi su notifica
+// Click sulla notifica
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(
