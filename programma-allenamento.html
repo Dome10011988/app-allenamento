@@ -33,14 +33,12 @@
 <h1>🏋️‍♂️ Allenamenti & Risultati</h1>
 
 <div class="row">
-  <!-- Scheda Allenamenti PDF -->
   <div class="box">
     <h2>📋 Scheda Allenamenti (PDF)</h2>
     <input type="file" id="pdfInput" accept="application/pdf">
     <div id="scheda"></div>
   </div>
 
-  <!-- Inserimento Risultati -->
   <div class="box">
     <h2>📸 Carica Foto Risultato</h2>
     <input type="file" id="fotoInput" accept="image/*">
@@ -60,7 +58,6 @@
   </div>
 </div>
 
-<!-- Storico Risultati -->
 <div class="full-width box">
   <h2>📊 Storico Risultati</h2>
   <table>
@@ -112,42 +109,53 @@
     aggiornaStorico();
   });
 
-  // OCR Foto: Data, Durata, KCAL, BPM
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-
     const { data:{ text } } = await Tesseract.recognize(file, 'ita', { logger: m=>console.log(m) });
-    const cleanText = text.replace(/\s+/g, ' '); // normalizza il testo
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
 
     // Durata
-    const durataMatch = cleanText.match(/(\d{1,2}:\d{2}:\d{2})/);
-    if (durataMatch) document.getElementById('durata').value = durataMatch[1];
+    const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
+    if (durMatch) document.getElementById('durata').value = durMatch[1];
+
+    // KCAL Migliorato: cerca numero vicino a "kcal"
+    let kcal = '';
+    for (let i = 0; i < lines.length; i++) {
+      if (/kcal/i.test(lines[i])) {
+        for (let j = i-2; j <= i+2; j++) {
+          if (lines[j]) {
+            const numMatch = lines[j].match(/(\d{2,4})/);
+            if (numMatch) {
+              kcal = numMatch[1];
+              break;
+            }
+          }
+        }
+        break;
+      }
+    }
+    if (kcal) document.getElementById('calorie').value = kcal;
+
+    // BPM
+    for (let l of lines) {
+      const m = l.match(/(\d{2,3})\s*bpm/i);
+      if (m) { document.getElementById('battito').value = m[1]; break; }
+    }
 
     // Data
-    const dataMatch = cleanText.match(/(\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})/);
-    if (dataMatch) {
-      let [ dd, mm, yyyy ] = dataMatch[1].split(/[\/\-\.]/);
-      if (yyyy.length === 2) yyyy = '20' + yyyy;
-      document.getElementById('data').value = `${yyyy}-${mm.padStart(2, '0')}-${dd.padStart(2, '0')}`;
+    const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
+    if (dMatch) {
+      let [ , dd, mm, yy ] = dMatch;
+      if (yy.length === 2) yy = '20' + yy;
+      dd = dd.padStart(2,'0');
+      mm = mm.padStart(2,'0');
+      document.getElementById('data').value = `${yy}-${mm}-${dd}`;
     } else {
       document.getElementById('data').valueAsDate = new Date();
     }
-
-    // KCAL
-    const kcalMatch = cleanText.match(/(\d{1,4})\s*kcal/i);
-    if (kcalMatch) {
-      document.getElementById('calorie').value = kcalMatch[1];
-    }
-
-    // Battito Medio
-    const bpmMatch = cleanText.match(/(\d{2,3})\s*bpm/i);
-    if (bpmMatch) {
-      document.getElementById('battito').value = bpmMatch[1];
-    }
   });
 
-  // Caricamento PDF Allenamenti
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
