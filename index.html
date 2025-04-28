@@ -1,75 +1,42 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>🏠 Home - Fit Tracker</title>
 
-  <!-- Manifest PWA -->
   <link rel="manifest" href="manifest.json">
-
-  <!-- Favicon (opzionale) -->
-  <link rel="icon" href="kettlebell-preview.png" type="image/png">
-
-  <!-- Stile -->
   <link rel="stylesheet" href="style.css">
-
-  <!-- Script -->
   <script src="script.js" defer></script>
-  <script src="app.js" defer></script>
-
 </head>
-
 <body>
 
-  <!-- Toggle tema -->
-  <button id="theme-toggle" aria-label="Toggle tema">🌙</button>
+<div id="user-greeting" class="user-greeting"></div>
 
-  <!-- Saluto utente -->
-  <div id="user-greeting" class="user-greeting"></div>
+<!-- Toggle Tema -->
+<button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
-  <h1>🏠 Benvenuto in Fit Tracker</h1>
+<h1>🏠 Benvenuto in Fit Tracker</h1>
 
-  <!-- Menu principale -->
-  <button class="button" onclick="location.href='programma-allenamento.html'">
-    💪 Programma Allenamento
-  </button>
+<!-- Pulsanti principali -->
+<button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
+<button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
+<button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
+<button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
+<button class="button" onclick="location.href='risultati-allenamento.html'">📈 Allenamenti & Risultati</button>
 
-  <button class="button" onclick="location.href='piano-alimentare.html'">
-    🍽️ Piano Alimentare
-  </button>
+<div id="toast-container"></div>
 
-  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
-    🛒 Lista Spesa Giornaliera
-  </button>
-
-  <button class="button" onclick="location.href='aggiungi-peso.html'">
-    ➕ Aggiungi Peso
-  </button>
-
-  <div id="toast-container"></div>
-
-  <!-- Service Worker -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-          .then(reg => {
-            console.log('✅ Service Worker registrato con successo.');
-            reg.onupdatefound = () => {
-              const newWorker = reg.installing;
-              newWorker.onstatechange = () => {
-                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                  console.log('⚡ Nuova versione disponibile, aggiorno...');
-                  window.location.reload();
-                }
-              };
-            };
-          })
-          .catch(err => console.error('❌ Errore durante registrazione Service Worker:', err));
-      });
-    }
-  </script>
+<!-- Service Worker Registration -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker registrato!'))
+        .catch(err => console.error('Errore registrazione SW:', err));
+    });
+  }
+</script>
 
 </body>
 </html>
