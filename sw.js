@@ -1,67 +1,65 @@
-const CACHE_NAME = 'app-allenamento-v1';
+const CACHE_NAME = 'app-allenamento-v2'; // aggiorna versione cache!
 const ASSETS = [
   '/index.html',
   '/aggiungi-peso.html',
   '/piano-alimentare.html',
   '/programma-allenamento.html',
   '/lista-spesa-giornaliera.html',
+  '/allenamenti-risultati.html',
   '/script.js',
   '/style.css',
   '/manifest.json',
   '/kettlebell-preview.png'
 ];
 
+// Installa e pre-cacha i file
 self.addEventListener('install', event => {
+  self.skipWaiting(); // forza subito l'attivazione
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then(cache => cache.addAll(ASSETS))
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
 });
 
+// Attivazione: pulizia vecchie cache
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      )
+      Promise.all(keys.map(key => {
+        if (key !== CACHE_NAME) {
+          return caches.delete(key);
+        }
+      }))
     ).then(() => self.clients.claim())
   );
 });
 
+// Intercetta richieste
 self.addEventListener('fetch', event => {
-  const req = event.request;
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req)
-        .then(res => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-          return res;
-        })
-        .catch(() => caches.match('/index.html'))
-    );
-  } else {
-    event.respondWith(
-      caches.match(req).then(cached =>
-        cached || fetch(req).then(res => {
-          const copy = res.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(req, copy));
-          return res;
-        })
-      )
-    );
-  }
+  event.respondWith(
+    caches.match(event.request).then(cachedResponse => {
+      return cachedResponse || fetch(event.request);
+    })
+  );
 });
 
-// Gestione push notifications
+// Aggiorna subito la pagina quando il nuovo SW è attivo
+self.addEventListener('controllerchange', () => {
+  window.location.reload();
+});
+
+// Push Notification (resta uguale)
 self.addEventListener('push', event => {
   const data = event.data?.json() || {
     title: 'Promemoria Allenamento',
     body: 'È ora di allenarti! 💪',
     icon: '/kettlebell-preview.png'
   };
-  const options = { body: data.body, icon: data.icon, badge: data.icon, data: { url: '/index.html' } };
+  const options = {
+    body: data.body,
+    icon: data.icon,
+    badge: data.icon,
+    data: { url: '/index.html' }
+  };
   event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
