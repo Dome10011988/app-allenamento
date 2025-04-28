@@ -124,13 +124,18 @@
     if (durMatch) document.getElementById('durata').value = durMatch[1];
 
     // KCAL
-    const kcalMatch = text.match(/([\d.,]+)\s*kcal/i);
-    if (kcalMatch) {
-    const raw = kcalMatch[1];
-    const cleaned = raw.replace(/[.,]/g,'');
-    document.getElementById('calorie').value = cleaned;
+   const kcalMatch = text.match(/([\d.,]+)\s*kcal/i);
+if (kcalMatch) {
+  const raw = kcalMatch[1];
+  document.getElementById('calorie').value = raw.replace(/[.,]/g,'');
   }
-
+// Estrai BPM (prima “123 bpm”, altrimenti “Frequenza cardiaca media 123”)
+let bpmMatch = text.match(/(\d{2,3})(?=\s*bpm)/i);
+if (!bpmMatch) {
+  bpmMatch = text.match(/Frequenza\s*cardiaca\s*media\D*(\d{2,3})/i);
+}
+if (bpmMatch) {
+  document.getElementById('battito').value = bpmMatch[1];
     // Data
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
     if (dMatch) {
