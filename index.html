@@ -24,14 +24,17 @@
 
   <!-- Registrazione Service Worker -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(() => console.log('Service Worker registrato'))
-          .catch(err => console.error('Errore SW:', err));
-      });
-    }
-  </script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('sw.js')
+        .then(reg => {
+          console.log('✅ Service Worker registrato:', reg.scope);
+        })
+        .catch(err => console.error('❌ Errore registrazione SW:', err));
+    });
+  }
+</script>
+
 
   <!-- Inline script per il greeting -->
   <script>
