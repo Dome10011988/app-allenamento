@@ -8,12 +8,11 @@
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
+
 <body>
-  <!-- Saluto utente -->
   <div id="user-greeting" class="user-greeting"></div>
 
-  <!-- Toggle tema -->
-  <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+  <button id="theme-toggle" aria-label="Toggle tema">🌙</button>
 
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
@@ -21,36 +20,18 @@
   <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
   <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
   <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
+  <button class="button" onclick="location.href='risultati-allenamento.html'">📈 Risultati Allenamento</button>
 
-  <!-- Registrazione Service Worker -->
-  <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(reg => {
-          console.log('✅ Service Worker registrato:', reg.scope);
-        })
-        .catch(err => console.error('❌ Errore registrazione SW:', err));
-    });
-  }
-</script>
-
-
-  <!-- Inline script per il greeting -->
-  <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    let user = localStorage.getItem('username');
-    if (!user) {
-      user = prompt("Benvenuto in Fit Tracker! Come ti chiami?");
-      if (user) localStorage.setItem('username', user);
-    }
-    if (user) {
-      document.getElementById('user-greeting').innerText = `Ciao, ${user}!`;
-    }
-  });
-  </script>
-
-  <!-- Contenitore per eventuali toast -->
   <div id="toast-container"></div>
+
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker registrato'))
+          .catch(err => console.error('Errore SW:', err));
+      });
+    }
+  </script>
 </body>
 </html>
