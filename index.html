@@ -124,6 +124,24 @@
       });
     }
   </script>
-
+<script>
+// Forza il refresh automatico se è disponibile un nuovo Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(registration => {
+    registration.onupdatefound = () => {
+      const newWorker = registration.installing;
+      newWorker.onstatechange = () => {
+        if (newWorker.state === 'installed') {
+          if (navigator.serviceWorker.controller) {
+            // C'è un nuovo aggiornamento, forziamo il reload
+            console.log('Nuova versione disponibile, aggiornamento...');
+            window.location.reload();
+          }
+        }
+      };
+    };
+  }).catch(err => console.error('Errore nella registrazione del SW', err));
+}
+</script>
 </body>
 </html>
