@@ -146,12 +146,6 @@ if (!kcal) {
 // Assegna il valore se trovato
 if (kcal) document.getElementById('calorie').value = kcal;
 
-    // BPM
-    for (let l of lines) {
-      const m = l.match(/(\d{2,3})\s*bpm/i);
-      if (m) { document.getElementById('battito').value = m[1]; break; }
-    }
-
     // Data
     const dMatch = text.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
     if (dMatch) {
