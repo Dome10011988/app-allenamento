@@ -1,199 +1,26 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Fit Tracker</title>
+// Controllo supporto notifiche
+if ('Notification' in window && navigator.serviceWorker) {
+  Notification.requestPermission().then(permission => {
+    if (permission === 'granted') {
+      console.log('Permesso notifiche concesso.');
+    } else {
+      console.warn('Permesso notifiche negato.');
+    }
+  });
+}
 
-  <!-- Librerie -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
-
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
-    h1 { text-align:center; margin-bottom:20px }
-    .row { display:flex; flex-wrap:wrap; gap:20px; justify-content:center }
-    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); flex:1 1 350px }
-    .full-width { max-width:1000px; margin:20px auto }
-    form label { display:block; margin:8px 0 4px }
-    input, button, table { width:100% }
-    input, button { padding:8px; font-size:1rem; border-radius:4px; border:1px solid #ccc }
-    button { background:#3498db; color:#fff; border:none; cursor:pointer; margin-top:10px }
-    button:hover { background:#2980b9 }
-    table { border-collapse:collapse; margin-top:10px }
-    th, td { border:1px solid #ddd; padding:8px; text-align:left }
-    th { background:#3498db; color:#fff }
-    .home-button { text-align:center; margin-top:40px }
-    .home-button button { background:#3498db; color:#fff; padding:10px 20px; font-size:1rem; border-radius:8px; border:none; cursor:pointer }
-  </style>
-</head>
-<body>
-
-  <h1>🏋️‍♂️ Benvenuto in Fit Tracker</h1>
-
-  <!-- Sezione Allenamento -->
-  <div class="row">
-    <div class="box">
-      <h2>💪 Programma Allenamento</h2>
-      <form id="form-allenamento">
-        <label>Giorno</label>
-        <input type="text" id="giorno-allenamento" required placeholder="Giorno 1">
-        <label>Durata</label>
-        <input type="text" id="durata-allenamento" placeholder="00:30:00" required>
-        <button type="submit">Salva Allenamento</button>
-      </form>
-      <table id="tabella-allenamento">
-        <thead><tr><th>Giorno</th><th>Durata</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <!-- Sezione Piano Alimentare -->
-    <div class="box">
-      <h2>🍽️ Piano Alimentare</h2>
-      <form id="form-alimentazione">
-        <label>Data</label>
-        <input type="date" id="data-alimentazione" required>
-        <label>Calorie</label>
-        <input type="number" id="calorie-alimentazione" placeholder="500" required>
-        <button type="submit">Salva Piano Alimentare</button>
-      </form>
-      <table id="tabella-alimentazione">
-        <thead><tr><th>Data</th><th>Calorie</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- Sezione Lista della Spesa -->
-  <div class="row">
-    <div class="box">
-      <h2>🛒 Lista Spesa Giornaliera</h2>
-      <form id="form-spesa">
-        <label>Prodotto</label>
-        <input type="text" id="prodotto" placeholder="Es. Mela" required>
-        <button type="submit">Aggiungi Prodotto</button>
-      </form>
-      <table id="tabella-spesa">
-        <thead><tr><th>Prodotto</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-
-    <!-- Sezione Aggiungi Peso -->
-    <div class="box">
-      <h2>➕ Aggiungi Peso</h2>
-      <form id="form-peso">
-        <label>Data</label>
-        <input type="date" id="data-peso" required>
-        <label>Peso (kg)</label>
-        <input type="number" id="peso" placeholder="70" required>
-        <button type="submit">Aggiungi Peso</button>
-      </form>
-      <table id="tabella-peso">
-        <thead><tr><th>Data</th><th>Peso (kg)</th></tr></thead>
-        <tbody></tbody>
-      </table>
-    </div>
-  </div>
-
-  <div class="home-button">
-    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-  </div>
-
-<script>
-  // Funzioni per il salvataggio e recupero dei dati tramite localStorage
-  function aggiornaTabella(idTabella, dati) {
-    const tabBody = document.querySelector(idTabella + ' tbody');
-    tabBody.innerHTML = '';
-    dati.forEach(d => {
-      const row = document.createElement('tr');
-      Object.values(d).forEach(val => {
-        const cell = document.createElement('td');
-        cell.textContent = val;
-        row.appendChild(cell);
-      });
-      tabBody.appendChild(row);
+// Funzione per inviare una notifica manualmente (esempio)
+function inviaNotifica(titolo = 'Fit Tracker', corpo = 'Torna a controllare i tuoi risultati!') {
+  if (Notification.permission === 'granted') {
+    navigator.serviceWorker.getRegistration().then(registration => {
+      if (registration) {
+        registration.showNotification(titolo, {
+          body: corpo,
+          icon: '/kettlebell-preview.png',
+          badge: '/kettlebell-preview.png',
+          data: { url: '/index.html' }
+        });
+      }
     });
   }
-
-  // Funzione per il recupero dei dati da localStorage
-  function recuperaDati(key) {
-    return JSON.parse(localStorage.getItem(key)) || [];
-  }
-
-  // Funzione per il salvataggio dei dati in localStorage
-  function salvaDati(key, dati) {
-    localStorage.setItem(key, JSON.stringify(dati));
-  }
-
-  // Programma Allenamento
-  const formAllenamento = document.getElementById('form-allenamento');
-  let allenamenti = recuperaDati('allenamenti');
-  aggiornaTabella('#tabella-allenamento', allenamenti);
-
-  formAllenamento.addEventListener('submit', e => {
-    e.preventDefault();
-    const nuovoAllenamento = {
-      giorno: document.getElementById('giorno-allenamento').value,
-      durata: document.getElementById('durata-allenamento').value
-    };
-    allenamenti.push(nuovoAllenamento);
-    salvaDati('allenamenti', allenamenti);
-    formAllenamento.reset();
-    aggiornaTabella('#tabella-allenamento', allenamenti);
-  });
-
-  // Piano Alimentare
-  const formAlimentazione = document.getElementById('form-alimentazione');
-  let alimentazione = recuperaDati('alimentazione');
-  aggiornaTabella('#tabella-alimentazione', alimentazione);
-
-  formAlimentazione.addEventListener('submit', e => {
-    e.preventDefault();
-    const nuovoPiano = {
-      data: document.getElementById('data-alimentazione').value,
-      calorie: document.getElementById('calorie-alimentazione').value
-    };
-    alimentazione.push(nuovoPiano);
-    salvaDati('alimentazione', alimentazione);
-    formAlimentazione.reset();
-    aggiornaTabella('#tabella-alimentazione', alimentazione);
-  });
-
-  // Lista Spesa
-  const formSpesa = document.getElementById('form-spesa');
-  let spesa = recuperaDati('spesa');
-  aggiornaTabella('#tabella-spesa', spesa);
-
-  formSpesa.addEventListener('submit', e => {
-    e.preventDefault();
-    const nuovoProdotto = {
-      prodotto: document.getElementById('prodotto').value
-    };
-    spesa.push(nuovoProdotto);
-    salvaDati('spesa', spesa);
-    formSpesa.reset();
-    aggiornaTabella('#tabella-spesa', spesa);
-  });
-
-  // Aggiungi Peso
-  const formPeso = document.getElementById('form-peso');
-  let peso = recuperaDati('peso');
-  aggiornaTabella('#tabella-peso', peso);
-
-  formPeso.addEventListener('submit', e => {
-    e.preventDefault();
-    const nuovoPeso = {
-      data: document.getElementById('data-peso').value,
-      peso: document.getElementById('peso').value
-    };
-    peso.push(nuovoPeso);
-    salvaDati('peso', peso);
-    formPeso.reset();
-    aggiornaTabella('#tabella-peso', peso);
-  });
-</script>
-
-</body>
-</html>
+}
