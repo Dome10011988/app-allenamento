@@ -5,143 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>🏠 Home - Fit Tracker</title>
 
-  <!-- Manifest per PWA -->
+  <!-- Manifest PWA -->
   <link rel="manifest" href="manifest.json">
 
-  <!-- Stili -->
-  <link rel="stylesheet" href="style.css">
+  <!-- Favicon (opzionale) -->
+  <link rel="icon" href="kettlebell-preview.png" type="image/png">
 
-  <!-- Icona per installazione PWA -->
-  <link rel="apple-touch-icon" href="kettlebell-preview.png">
+  <!-- Stile -->
+  <link rel="stylesheet" href="style.css">
 
   <!-- Script -->
   <script src="script.js" defer></script>
+  <script src="app.js" defer></script>
 
-  <style>
-    body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 60px 20px 20px;
-      background: var(--bg);
-      color: var(--text);
-    }
-    h1 {
-      margin-bottom: 40px;
-      color: var(--primary);
-      font-size: 2rem;
-    }
-    .button {
-      width: 100%;
-      max-width: 300px;
-      padding: 16px;
-      margin: 10px 0;
-      font-size: 1.2rem;
-      border: none;
-      border-radius: 8px;
-      background: var(--primary);
-      color: white;
-      cursor: pointer;
-      transition: background 0.2s;
-      text-align: center;
-    }
-    .button:hover {
-      background: var(--primary-hover);
-    }
-    #theme-toggle {
-      position: fixed;
-      top: 15px;
-      right: 15px;
-      background: var(--bg-alt);
-      color: var(--secondary);
-      border: 2px solid var(--secondary);
-      border-radius: 50%;
-      width: 40px;
-      height: 40px;
-      font-size: 1.2rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-    }
-    #toast-container {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      z-index: 1000;
-    }
-    .toast {
-      background: var(--primary);
-      color: var(--header-text);
-      padding: 12px 20px;
-      border-radius: 6px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-      margin-top: 8px;
-      opacity: 0;
-      animation: fadein 0.3s forwards, fadeout 0.3s 2.7s forwards;
-    }
-    @keyframes fadein { to { opacity: 1; } }
-    @keyframes fadeout { to { opacity: 0; } }
-  </style>
 </head>
 
 <body>
 
-  <!-- Pulsante Tema -->
+  <!-- Toggle tema -->
   <button id="theme-toggle" aria-label="Toggle tema">🌙</button>
 
-  <!-- Titolo -->
+  <!-- Saluto utente -->
+  <div id="user-greeting" class="user-greeting"></div>
+
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
-  <!-- Pulsanti Menu -->
+  <!-- Menu principale -->
   <button class="button" onclick="location.href='programma-allenamento.html'">
     💪 Programma Allenamento
   </button>
+
   <button class="button" onclick="location.href='piano-alimentare.html'">
     🍽️ Piano Alimentare
   </button>
+
   <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
     🛒 Lista Spesa Giornaliera
   </button>
+
   <button class="button" onclick="location.href='aggiungi-peso.html'">
     ➕ Aggiungi Peso
   </button>
-  <button class="button" onclick="location.href='risultati-allenamento.html'">
-    📈 Allenamenti & Risultati
-  </button>
 
-  <!-- Toast Notifiche -->
   <div id="toast-container"></div>
 
   <!-- Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('Service Worker registrato!', reg))
-          .catch(err => console.error('Errore SW:', err));
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => {
+            console.log('✅ Service Worker registrato con successo.');
+            reg.onupdatefound = () => {
+              const newWorker = reg.installing;
+              newWorker.onstatechange = () => {
+                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                  console.log('⚡ Nuova versione disponibile, aggiorno...');
+                  window.location.reload();
+                }
+              };
+            };
+          })
+          .catch(err => console.error('❌ Errore durante registrazione Service Worker:', err));
       });
     }
   </script>
-<script>
-// Forza il refresh automatico se è disponibile un nuovo Service Worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').then(registration => {
-    registration.onupdatefound = () => {
-      const newWorker = registration.installing;
-      newWorker.onstatechange = () => {
-        if (newWorker.state === 'installed') {
-          if (navigator.serviceWorker.controller) {
-            // C'è un nuovo aggiornamento, forziamo il reload
-            console.log('Nuova versione disponibile, aggiornamento...');
-            window.location.reload();
-          }
-        }
-      };
-    };
-  }).catch(err => console.error('Errore nella registrazione del SW', err));
-}
-</script>
+
 </body>
 </html>
