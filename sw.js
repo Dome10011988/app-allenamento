@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fit-tracker-v1';
+const CACHE_NAME = 'app-allenamento-v2';
 const ASSETS = [
   '/',
   '/index.html',
