@@ -5,9 +5,7 @@
   "display": "standalone",
   "background_color": "#f4f4f4",
   "theme_color": "#3498db",
-  "orientation": "portrait-primary",
-  "scope": "/",
-  "description": "La tua app per allenamenti, alimentazione e progressi personali.",
+  "description": "App per monitorare allenamenti, dieta e peso.",
   "icons": [
     {
       "src": "kettlebell-preview.png",
