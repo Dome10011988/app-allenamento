@@ -1,17 +1,21 @@
+// sw.js
+
 const CACHE_NAME = 'fit-tracker-v2';
 const ASSETS = [
+  '/',
   '/index.html',
   '/programma-allenamento.html',
   '/piano-alimentare.html',
   '/lista-spesa-giornaliera.html',
   '/aggiungi-peso.html',
   '/risultati-allenamento.html',
+  '/manifest.json',
   '/style.css',
   '/script.js',
-  '/manifest.json',
-  '/kettlebell-preview.png'
+  '/kettlebell-preview.png' // icona esempio
 ];
 
+// Installazione
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
@@ -20,47 +24,47 @@ self.addEventListener('install', event => {
   );
 });
 
+// Attivazione (pulizia vecchie cache)
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME)
-          .map(key => caches.delete(key))
-      )
+      Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))
     ).then(() => self.clients.claim())
   );
 });
 
+// Gestione fetch (offline fallback)
 self.addEventListener('fetch', event => {
-  const req = event.request;
-  event.respondWith(
-    caches.match(req).then(cached => 
-      cached || fetch(req).then(res => {
-        return caches.open(CACHE_NAME).then(cache => {
-          cache.put(req, res.clone());
-          return res;
-        });
-      })
-    )
-  );
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
+  } else {
+    event.respondWith(
+      caches.match(event.request).then(cached => cached || fetch(event.request))
+    );
+  }
 });
 
-// Gestione notifiche push (opzionale)
+// Notifiche Push (facoltativo)
 self.addEventListener('push', event => {
-  const data = event.data?.json() || {
-    title: 'Allenamento!',
-    body: 'Non dimenticare il tuo workout di oggi! 💪',
-    icon: '/kettlebell-preview.png'
-  };
+  const data = event.data?.json() || { title: 'Allenati ora!', body: 'Non dimenticare il tuo workout 💪' };
   const options = {
     body: data.body,
-    icon: data.icon,
-    badge: data.icon,
+    icon: '/kettlebell-preview.png',
+    badge: '/kettlebell-preview.png',
     data: { url: '/' }
   };
   event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
+// Clic su notifica
 self.addEventListener('notificationclick', event => {
   event.notification.close();
   event.waitUntil(clients.openWindow(event.notification.data.url));
