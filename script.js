@@ -1,45 +1,61 @@
-// === SCRIPT GESTIONE THEME TOGGLE, TOAST E STORAGE ===
-
-// Toggle tema chiaro/scuro
-const toggle = document.getElementById('theme-toggle');
-if (toggle) {
-  toggle.addEventListener('click', () => {
-    document.body.toggleAttribute('data-theme', 'dark');
-    if (document.body.hasAttribute('data-theme')) {
-      localStorage.setItem('theme', 'dark');
-    } else {
-      localStorage.removeItem('theme');
-    }
+// Tema chiaro/scuro
+const themeToggle = document.getElementById('theme-toggle');
+if (themeToggle) {
+  themeToggle.addEventListener('click', () => {
+    const current = document.documentElement.getAttribute('data-theme');
+    const newTheme = current === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', newTheme);
+    localStorage.setItem('theme', newTheme);
   });
+
+  const savedTheme = localStorage.getItem('theme');
+  if (savedTheme) {
+    document.documentElement.setAttribute('data-theme', savedTheme);
+  }
 }
 
-// Ripristina tema salvato
-if (localStorage.getItem('theme') === 'dark') {
-  document.body.setAttribute('data-theme', 'dark');
-}
-
-// Toast messaggi
-function showToast(msg) {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.innerText = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// Gestione nome utente
+// Gestione del nome utente nella Home
 const userGreeting = document.getElementById('user-greeting');
 if (userGreeting) {
-  const username = localStorage.getItem('username');
-  if (username) {
-    userGreeting.innerHTML = `Ciao, <strong>${username}</strong>! 👋`;
-  } else {
-    const nome = prompt('Inserisci il tuo nome:');
-    if (nome) {
-      localStorage.setItem('username', nome);
-      userGreeting.innerHTML = `Ciao, <strong>${nome}</strong>! 👋`;
+  let nomeUtente = localStorage.getItem('nomeUtente');
+
+  if (!nomeUtente) {
+    nomeUtente = prompt("Inserisci il tuo nome:");
+    if (nomeUtente) {
+      localStorage.setItem('nomeUtente', nomeUtente);
     }
   }
+
+  if (nomeUtente) {
+    userGreeting.textContent = `Ciao, ${nomeUtente}! 👋`;
+  }
+}
+
+// Toast automatico
+function showToast(message) {
+  const container = document.getElementById('toast-container');
+  if (container) {
+    const toast = document.createElement('div');
+    toast.className = 'toast';
+    toast.textContent = message;
+    container.appendChild(toast);
+
+    setTimeout(() => {
+      container.removeChild(toast);
+    }, 3000);
+  }
+}
+
+// Controlla aggiornamenti Service Worker
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').then(registration => {
+    registration.onupdatefound = () => {
+      const installingWorker = registration.installing;
+      installingWorker.onstatechange = () => {
+        if (installingWorker.state === 'installed' && navigator.serviceWorker.controller) {
+          showToast("🔄 Nuova versione disponibile. Aggiorna la pagina!");
+        }
+      };
+    };
+  }).catch(err => console.error('Service Worker registration failed:', err));
 }
