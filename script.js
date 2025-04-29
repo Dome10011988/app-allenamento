@@ -1,57 +1,45 @@
-// === Tema chiaro/scuro ===
-const themeToggle = document.getElementById('theme-toggle');
+// === SCRIPT GESTIONE THEME TOGGLE, TOAST E STORAGE ===
 
-function setTheme(mode) {
-  if (mode === 'dark') {
-    document.documentElement.setAttribute('data-theme', 'dark');
+// Toggle tema chiaro/scuro
+const toggle = document.getElementById('theme-toggle');
+if (toggle) {
+  toggle.addEventListener('click', () => {
+    document.body.toggleAttribute('data-theme', 'dark');
+    if (document.body.hasAttribute('data-theme')) {
+      localStorage.setItem('theme', 'dark');
+    } else {
+      localStorage.removeItem('theme');
+    }
+  });
+}
+
+// Ripristina tema salvato
+if (localStorage.getItem('theme') === 'dark') {
+  document.body.setAttribute('data-theme', 'dark');
+}
+
+// Toast messaggi
+function showToast(msg) {
+  const container = document.getElementById('toast-container');
+  if (!container) return;
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.innerText = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Gestione nome utente
+const userGreeting = document.getElementById('user-greeting');
+if (userGreeting) {
+  const username = localStorage.getItem('username');
+  if (username) {
+    userGreeting.innerHTML = `Ciao, <strong>${username}</strong>! 👋`;
   } else {
-    document.documentElement.removeAttribute('data-theme');
+    const nome = prompt('Inserisci il tuo nome:');
+    if (nome) {
+      localStorage.setItem('username', nome);
+      userGreeting.innerHTML = `Ciao, <strong>${nome}</strong>! 👋`;
+    }
   }
 }
-
-themeToggle.addEventListener('click', () => {
-  const currentTheme = document.documentElement.getAttribute('data-theme');
-  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-  setTheme(newTheme);
-  localStorage.setItem('theme', newTheme);
-});
-
-// Imposta tema salvato
-const savedTheme = localStorage.getItem('theme');
-if (savedTheme) {
-  setTheme(savedTheme);
-}
-
-// === Nome Utente ===
-function chiediNomeUtente() {
-  let nome = prompt("Come ti chiami?");
-  if (nome) {
-    localStorage.setItem('nomeUtente', nome.trim());
-    mostraNomeUtente();
-  }
-}
-
-function mostraNomeUtente() {
-  const nomeSalvato = localStorage.getItem('nomeUtente');
-  const userGreeting = document.getElementById('user-greeting');
-  if (nomeSalvato && userGreeting) {
-    userGreeting.innerText = `👋 Benvenuto, ${nomeSalvato}!`;
-  }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  mostraNomeUtente();
-  const changeButton = document.getElementById('change-user-button');
-  if (changeButton) {
-    changeButton.addEventListener('click', chiediNomeUtente);
-  }
-});
-
-// === Service Worker (già incluso nell'index.html, backup qui se serve) ===
-// if ('serviceWorker' in navigator) {
-//   window.addEventListener('load', () => {
-//     navigator.serviceWorker.register('sw.js')
-//       .then(() => console.log('Service Worker registrato'))
-//       .catch(err => console.error('Errore Service Worker:', err));
-//   });
-// }
