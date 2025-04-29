@@ -7,7 +7,6 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-
   <script src="script.js" defer></script>
 
   <style>
@@ -20,7 +19,7 @@
       color: var(--text);
     }
     h1 {
-      margin-bottom: 30px;
+      margin-bottom: 40px;
       color: var(--primary);
       font-size: 2rem;
     }
@@ -32,14 +31,14 @@
       font-size: 1.2rem;
       border: none;
       border-radius: 8px;
-      background: var(--primary);
-      color: var(--header-text);
+      background: #3498db;
+      color: #ffffff;
       cursor: pointer;
       transition: background 0.2s ease;
       text-align: center;
     }
     .button:hover {
-      background: var(--primary-hover);
+      background: #2980b9;
     }
     #theme-toggle {
       position: fixed;
@@ -57,37 +56,40 @@
       justify-content: center;
       cursor: pointer;
     }
-    .user-greeting {
-      text-align: center;
-      font-size: 1.2rem;
-      margin-bottom: 10px;
-      color: var(--primary);
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
     }
-    #change-user-container {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    #change-user-button {
+    .toast {
       background: var(--primary);
-      color: white;
-      border: none;
-      padding: 8px 16px;
+      color: var(--header-text);
+      padding: 12px 20px;
       border-radius: 6px;
-      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      margin-top: 8px;
+      opacity: 0;
+      animation: fadein 0.3s forwards, fadeout 0.3s 2.7s forwards;
     }
-    #change-user-button:hover {
-      background: var(--primary-hover);
+    @keyframes fadein { to { opacity: 1; } }
+    @keyframes fadeout { to { opacity: 0; } }
+    .user-greeting {
+      width: 100%;
+      max-width: 900px;
+      margin: 0 auto 20px;
+      font-size: 1.1rem;
+      color: var(--secondary);
+      text-align: right;
     }
   </style>
 </head>
 
 <body>
 
-  <!-- Nome Utente -->
+  <!-- Greeting utente -->
   <div id="user-greeting" class="user-greeting"></div>
-  <div id="change-user-container">
-    <button id="change-user-button">Cambia Nome Utente</button>
-  </div>
 
   <!-- Toggle tema -->
   <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
@@ -95,23 +97,14 @@
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
   <!-- Menu principale -->
-  <button class="button" onclick="location.href='programma-allenamento.html'">
-    💪 Programma Allenamento
-  </button>
-  <button class="button" onclick="location.href='piano-alimentare.html'">
-    🍽️ Piano Alimentare
-  </button>
-  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
-    🛒 Lista Spesa Giornaliera
-  </button>
-  <button class="button" onclick="location.href='aggiungi-peso.html'">
-    ➕ Aggiungi Peso
-  </button>
-  <button class="button" onclick="location.href='risultati-allenamento.html'">
-    📈 Risultati Allenamento
-  </button>
+  <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
+  <button class="button" onclick="location.href='risultati-allenamento.html'">📈 Risultati Allenamento</button>
 
-  <!-- Gestione Service Worker -->
+  <div id="toast-container"></div>
+
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
@@ -120,31 +113,6 @@
           .catch(err => console.error('Errore SW:', err));
       });
     }
-
-    // Nome Utente gestione
-    function chiediNomeUtente() {
-      let nome = prompt("Come ti chiami?");
-      if (nome) {
-        localStorage.setItem('nomeUtente', nome.trim());
-        mostraNomeUtente();
-      }
-    }
-
-    function mostraNomeUtente() {
-      const nomeSalvato = localStorage.getItem('nomeUtente');
-      const userGreeting = document.getElementById('user-greeting');
-      if (nomeSalvato) {
-        userGreeting.innerText = `👋 Benvenuto, ${nomeSalvato}!`;
-      } else {
-        chiediNomeUtente();
-      }
-    }
-
-    document.getElementById('change-user-button').addEventListener('click', () => {
-      chiediNomeUtente();
-    });
-
-    mostraNomeUtente();
   </script>
 
 </body>
