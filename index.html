@@ -4,30 +4,148 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🏠 Home - Fit Tracker</title>
+
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
+
   <script src="script.js" defer></script>
+
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 20px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    h1 {
+      margin-bottom: 30px;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+    .button {
+      width: 100%;
+      max-width: 300px;
+      padding: 16px;
+      margin: 10px 0;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: var(--header-text);
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-align: center;
+    }
+    .button:hover {
+      background: var(--primary-hover);
+    }
+    #theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: var(--bg-alt);
+      color: var(--secondary);
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+    .user-greeting {
+      text-align: center;
+      font-size: 1.2rem;
+      margin-bottom: 10px;
+      color: var(--primary);
+    }
+    #change-user-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #change-user-button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    #change-user-button:hover {
+      background: var(--primary-hover);
+    }
+  </style>
 </head>
 
 <body>
+
+  <!-- Nome Utente -->
+  <div id="user-greeting" class="user-greeting"></div>
+  <div id="change-user-container">
+    <button id="change-user-button">Cambia Nome Utente</button>
+  </div>
+
+  <!-- Toggle tema -->
   <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
   <h1>🏠 Benvenuto in Fit Tracker</h1>
 
-  <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
-  <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
-  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
-  <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
-  <button class="button" onclick="location.href='risultati-allenamento.html'">📈 Risultati Allenamento</button>
+  <!-- Menu principale -->
+  <button class="button" onclick="location.href='programma-allenamento.html'">
+    💪 Programma Allenamento
+  </button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">
+    🍽️ Piano Alimentare
+  </button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
+    🛒 Lista Spesa Giornaliera
+  </button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">
+    ➕ Aggiungi Peso
+  </button>
+  <button class="button" onclick="location.href='risultati-allenamento.html'">
+    📈 Risultati Allenamento
+  </button>
 
-  <div id="toast-container"></div>
-
+  <!-- Gestione Service Worker -->
   <script>
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrato'))
-        .catch(err => console.error('Errore registrazione SW:', err));
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('sw.js')
+          .then(() => console.log('Service Worker registrato'))
+          .catch(err => console.error('Errore SW:', err));
+      });
     }
+
+    // Nome Utente gestione
+    function chiediNomeUtente() {
+      let nome = prompt("Come ti chiami?");
+      if (nome) {
+        localStorage.setItem('nomeUtente', nome.trim());
+        mostraNomeUtente();
+      }
+    }
+
+    function mostraNomeUtente() {
+      const nomeSalvato = localStorage.getItem('nomeUtente');
+      const userGreeting = document.getElementById('user-greeting');
+      if (nomeSalvato) {
+        userGreeting.innerText = `👋 Benvenuto, ${nomeSalvato}!`;
+      } else {
+        chiediNomeUtente();
+      }
+    }
+
+    document.getElementById('change-user-button').addEventListener('click', () => {
+      chiediNomeUtente();
+    });
+
+    mostraNomeUtente();
   </script>
+
 </body>
 </html>
