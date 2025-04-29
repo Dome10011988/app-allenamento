@@ -2,41 +2,94 @@
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🏠 Home - Fit Tracker</title>
 
+  <!-- Manifest -->
   <link rel="manifest" href="manifest.json">
+
+  <!-- Stili -->
   <link rel="stylesheet" href="style.css">
+
+  <!-- Script -->
   <script src="script.js" defer></script>
+
+  <style>
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 60px 20px 20px;
+      background: var(--bg);
+      color: var(--text);
+    }
+    h1 {
+      margin-bottom: 40px;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+    .button {
+      width: 100%;
+      max-width: 300px;
+      padding: 16px;
+      margin: 10px 0;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 8px;
+      background: var(--primary);
+      color: #ffffff;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      text-align: center;
+    }
+    .button:hover {
+      background: var(--primary-hover);
+    }
+    #theme-toggle {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      background: var(--bg-alt);
+      color: var(--secondary);
+      border: 2px solid var(--secondary);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-<div id="user-greeting" class="user-greeting"></div>
-
-<!-- Toggle Tema -->
+<!-- Toggle tema -->
 <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
 <h1>🏠 Benvenuto in Fit Tracker</h1>
 
-<!-- Pulsanti principali -->
+<!-- Menu Principale -->
 <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
 <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
 <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
 <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
 <button class="button" onclick="location.href='risultati-allenamento.html'">📈 Risultati Allenamento</button>
 
-<div id="toast-container"></div>
-
 <!-- Service Worker Registration -->
 <script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js')
-        .then(() => console.log('Service Worker registrato!'))
-        .catch(err => console.error('Errore registrazione SW:', err));
-    });
-  }
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js')
+      .then(() => console.log('Service Worker registrato'))
+      .catch(err => console.error('Errore SW:', err));
+  });
+}
 </script>
+
+<!-- Toast Container -->
+<div id="toast-container"></div>
 
 </body>
 </html>
