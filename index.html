@@ -4,46 +4,30 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>🏠 Home - Fit Tracker</title>
-
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 </head>
+
 <body>
+  <button id="theme-toggle" aria-label="Toggle theme">🌙</button>
 
-<div id="user-greeting" class="user-greeting"></div>
-<button id="theme-toggle" aria-label="Toggle theme">🌙</button>
+  <h1>🏠 Benvenuto in Fit Tracker</h1>
 
-<h1>🏠 Benvenuto in Fit Tracker</h1>
+  <button class="button" onclick="location.href='programma-allenamento.html'">💪 Programma Allenamento</button>
+  <button class="button" onclick="location.href='piano-alimentare.html'">🍽️ Piano Alimentare</button>
+  <button class="button" onclick="location.href='lista-spesa-giornaliera.html'">🛒 Lista Spesa Giornaliera</button>
+  <button class="button" onclick="location.href='aggiungi-peso.html'">➕ Aggiungi Peso</button>
+  <button class="button" onclick="location.href='risultati-allenamento.html'">📈 Risultati Allenamento</button>
 
-<button class="button" onclick="location.href='programma-allenamento.html'">
-  💪 Programma Allenamento
-</button>
-<button class="button" onclick="location.href='piano-alimentare.html'">
-  🍽️ Piano Alimentare
-</button>
-<button class="button" onclick="location.href='lista-spesa-giornaliera.html'">
-  🛒 Lista Spesa Giornaliera
-</button>
-<button class="button" onclick="location.href='aggiungi-peso.html'">
-  ➕ Aggiungi Peso
-</button>
-<button class="button" onclick="location.href='risultati-allenamento.html'">
-  📈 Risultati Allenamento
-</button>
+  <div id="toast-container"></div>
 
-<div id="toast-container"></div>
-
-<script>
-// Service Worker (già pronto)
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js')
-      .then(() => console.log('Service Worker registrato'))
-      .catch(err => console.error('Errore SW:', err));
-  });
-}
-</script>
-
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js')
+        .then(() => console.log('Service Worker registrato'))
+        .catch(err => console.error('Errore registrazione SW:', err));
+    }
+  </script>
 </body>
 </html>
