@@ -1,19 +1,57 @@
-const toggle = document.getElementById('theme-toggle');
+// === Tema chiaro/scuro ===
+const themeToggle = document.getElementById('theme-toggle');
 
-toggle.addEventListener('click', () => {
-  document.body.toggleAttribute('data-theme', 'dark');
-  if (document.body.hasAttribute('data-theme')) {
-    localStorage.setItem('theme', 'dark');
-    toggle.textContent = '☀️';
+function setTheme(mode) {
+  if (mode === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
   } else {
-    localStorage.removeItem('theme');
-    toggle.textContent = '🌙';
+    document.documentElement.removeAttribute('data-theme');
+  }
+}
+
+themeToggle.addEventListener('click', () => {
+  const currentTheme = document.documentElement.getAttribute('data-theme');
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  setTheme(newTheme);
+  localStorage.setItem('theme', newTheme);
+});
+
+// Imposta tema salvato
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  setTheme(savedTheme);
+}
+
+// === Nome Utente ===
+function chiediNomeUtente() {
+  let nome = prompt("Come ti chiami?");
+  if (nome) {
+    localStorage.setItem('nomeUtente', nome.trim());
+    mostraNomeUtente();
+  }
+}
+
+function mostraNomeUtente() {
+  const nomeSalvato = localStorage.getItem('nomeUtente');
+  const userGreeting = document.getElementById('user-greeting');
+  if (nomeSalvato && userGreeting) {
+    userGreeting.innerText = `👋 Benvenuto, ${nomeSalvato}!`;
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  mostraNomeUtente();
+  const changeButton = document.getElementById('change-user-button');
+  if (changeButton) {
+    changeButton.addEventListener('click', chiediNomeUtente);
   }
 });
 
-window.addEventListener('load', () => {
-  if (localStorage.getItem('theme') === 'dark') {
-    document.body.setAttribute('data-theme', 'dark');
-    toggle.textContent = '☀️';
-  }
-});
+// === Service Worker (già incluso nell'index.html, backup qui se serve) ===
+// if ('serviceWorker' in navigator) {
+//   window.addEventListener('load', () => {
+//     navigator.serviceWorker.register('sw.js')
+//       .then(() => console.log('Service Worker registrato'))
+//       .catch(err => console.error('Errore Service Worker:', err));
+//   });
+// }
