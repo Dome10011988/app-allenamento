@@ -7,23 +7,81 @@
 
   <link rel="manifest" href="manifest.json">
   <link rel="stylesheet" href="style.css">
-  <script src="script.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
 
   <style>
-    h1 { text-align: center; margin-bottom: 20px; color: var(--primary); font-size: 2rem; }
-    .box { background: var(--bg-alt); padding: 20px; border-radius: 10px; box-shadow: 0 0 8px rgba(0,0,0,0.1); max-width: 800px; margin: 20px auto; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    th, td { padding: 12px; border: 1px solid #ddd; text-align: center; }
-    th { background: var(--primary); color: var(--header-text); }
-    .form-nuovo { margin-top: 30px; }
-    .form-nuovo input, .form-nuovo button { width: 100%; margin: 5px 0; padding: 10px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
-    .form-nuovo button { background: var(--primary); color: var(--header-text); border: none; cursor: pointer; margin-top: 10px; }
-    .form-nuovo button:hover { background: var(--primary-hover); }
-    .home-button { text-align: center; margin-top: 30px; }
-    .home-button button { background: var(--primary); color: var(--header-text); border: none; padding: 12px 24px; border-radius: 8px; font-size: 1rem; cursor: pointer; }
-    .home-button button:hover { background: var(--primary-hover); }
-    #preview { margin-top: 15px; max-width: 100%; border-radius: 8px; }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+      color: var(--primary);
+      font-size: 2rem;
+    }
+    .box {
+      background: var(--bg-alt);
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 8px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: 20px auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px;
+      border: 1px solid #ddd;
+      text-align: center;
+    }
+    th {
+      background: var(--primary);
+      color: var(--header-text);
+    }
+    .form-nuovo {
+      margin-top: 30px;
+    }
+    .form-nuovo input, .form-nuovo button {
+      width: 100%;
+      margin: 5px 0;
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+    }
+    .form-nuovo button {
+      background: var(--primary);
+      color: var(--header-text);
+      border: none;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .form-nuovo button:hover {
+      background: var(--primary-hover);
+    }
+    #preview {
+      display: none;
+      margin-top: 10px;
+      max-width: 100%;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    .home-button {
+      text-align: center;
+      margin-top: 30px;
+    }
+    .home-button button {
+      background: var(--primary);
+      color: var(--header-text);
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .home-button button:hover {
+      background: var(--primary-hover);
+    }
   </style>
 </head>
 
@@ -32,10 +90,6 @@
 <h1>📈 Storico Risultati</h1>
 
 <div class="box">
-  <h2>📸 Carica Foto Risultato</h2>
-  <input type="file" id="fotoInput" accept="image/*">
-  <img id="preview" alt="Anteprima" style="display:none;">
-
   <table>
     <thead>
       <tr>
@@ -45,15 +99,16 @@
         <th>Battito Medio</th>
       </tr>
     </thead>
-    <tbody id="tabella-body">
-      <!-- Qui verranno caricati i risultati -->
-    </tbody>
+    <tbody id="tabella-body"></tbody>
   </table>
 
-  <!-- Form per aggiungere nuovo risultato -->
+  <!-- Form aggiunta nuovo risultato -->
   <div class="form-nuovo">
     <h2>➕ Aggiungi Nuovo Risultato</h2>
     <form id="form-nuovo-risultato">
+      <input type="file" id="fotoInput" accept="image/*">
+      <img id="preview" alt="Anteprima immagine caricata" />
+
       <input type="date" id="new-data" required>
       <input type="text" id="new-durata" placeholder="Durata (es: 00:45:30)" required>
       <input type="number" id="new-calorie" placeholder="Kcal (es: 450)" required>
@@ -72,6 +127,7 @@
   const formNuovo = document.getElementById('form-nuovo-risultato');
   const fotoInput = document.getElementById('fotoInput');
   const preview = document.getElementById('preview');
+
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
 
   function aggiornaStorico() {
@@ -86,25 +142,16 @@
         </tr>`;
     });
   }
+
   aggiornaStorico();
 
   formNuovo.addEventListener('submit', e => {
     e.preventDefault();
-
-    const durata = document.getElementById('new-durata').value;
-    const calorie = parseInt(document.getElementById('new-calorie').value);
-    const battito = parseInt(document.getElementById('new-battito').value);
-
-    if (calorie < 10 || battito < 40 || battito > 220 || !/^\d{1,2}:\d{2}:\d{2}$/.test(durata)) {
-      alert('⚠️ Verifica i dati prima di salvare!');
-      return;
-    }
-
     const nuovo = {
       data: document.getElementById('new-data').value,
-      durata,
-      calorie,
-      battito
+      durata: document.getElementById('new-durata').value,
+      calorie: document.getElementById('new-calorie').value,
+      battito: document.getElementById('new-battito').value
     };
     risultati.push(nuovo);
     localStorage.setItem('risultati', JSON.stringify(risultati));
@@ -112,7 +159,7 @@
     aggiornaStorico();
   });
 
-  // OCR Foto + Anteprima
+  // Carica foto ed estrai dati
   fotoInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
@@ -150,6 +197,9 @@
     } else {
       document.getElementById('new-data').valueAsDate = new Date();
     }
+
+    // Dopo l'OCR nascondo l'anteprima
+    preview.style.display = 'none';
   });
 </script>
 
