@@ -9,6 +9,9 @@
   <link rel="stylesheet" href="style.css">
   <script src="script.js" defer></script>
 
+  <!-- OCR Libreria -->
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
+
   <style>
     h1 {
       text-align: center;
@@ -83,6 +86,9 @@
 <h1>📈 Storico Risultati</h1>
 
 <div class="box">
+  <h2>📸 Carica Foto Risultato</h2>
+  <input type="file" id="fotoInput" accept="image/*">
+
   <table>
     <thead>
       <tr>
@@ -97,7 +103,7 @@
     </tbody>
   </table>
 
-  <!-- Form per aggiungere nuovo risultato -->
+  <!-- Form per aggiungere/modificare nuovo risultato -->
   <div class="form-nuovo">
     <h2>➕ Aggiungi Nuovo Risultato</h2>
     <form id="form-nuovo-risultato">
@@ -117,6 +123,7 @@
 <script>
   const tabBody = document.getElementById('tabella-body');
   const formNuovo = document.getElementById('form-nuovo-risultato');
+  const fotoInput = document.getElementById('fotoInput');
   let risultati = JSON.parse(localStorage.getItem('risultati') || '[]');
 
   function aggiornaStorico() {
@@ -131,10 +138,8 @@
         </tr>`;
     });
   }
-
   aggiornaStorico();
 
-  // Salva un nuovo risultato
   formNuovo.addEventListener('submit', e => {
     e.preventDefault();
     const nuovo = {
@@ -147,6 +152,38 @@
     localStorage.setItem('risultati', JSON.stringify(risultati));
     formNuovo.reset();
     aggiornaStorico();
+  });
+
+  // OCR Caricamento Foto Risultato
+  fotoInput.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+    const lines = text.split(/\r?\n/).map(l => l.trim()).filter(l => l);
+
+    // Estrai Durata
+    const durMatch = text.match(/(\d{1,2}:\d{2}:\d{2})/);
+    if (durMatch) document.getElementById('new-durata').value = durMatch[1];
+
+    // Estrai Kcal
+    const kcalMatch = text.match(/(\d{2,4})\s*kcal/i);
+    if (kcalMatch) document.getElementById('new-calorie').value = kcalMatch[1];
+
+    // Estrai BPM
+    const bpmMatch = text.match(/(\d{2,3})\s*bpm/i);
+    if (bpmMatch) document.getElementById('new-battito').value = bpmMatch[1];
+
+    // Estrai Data
+    const dateMatch = text.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+    if (dateMatch) {
+      let [ , dd, mm, yy ] = dateMatch;
+      if (yy.length === 2) yy = '20' + yy;
+      dd = dd.padStart(2, '0');
+      mm = mm.padStart(2, '0');
+      document.getElementById('new-data').value = `${yy}-${mm}-${dd}`;
+    } else {
+      document.getElementById('new-data').valueAsDate = new Date();
+    }
   });
 </script>
 
