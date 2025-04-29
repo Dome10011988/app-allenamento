@@ -1,12 +1,12 @@
 {
   "name": "Fit Tracker",
   "short_name": "FitTracker",
+  "description": "App per allenamenti, risultati e salute 💪🍎",
   "start_url": "/index.html",
   "display": "standalone",
-  "background_color": "#f4f4f4",
+  "background_color": "#ffffff",
   "theme_color": "#3498db",
-  "orientation": "portrait-primary",
-  "scope": "/",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "/kettlebell-preview.png",
