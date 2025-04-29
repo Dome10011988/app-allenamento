@@ -1,4 +1,4 @@
-const CACHE_NAME = 'fit-tracker-v2';
+const CACHE_NAME = 'fit-tracker-v1';
 const ASSETS = [
   '/index.html',
   '/programma-allenamento.html',
@@ -9,7 +9,8 @@ const ASSETS = [
   '/style.css',
   '/script.js',
   '/manifest.json',
-  '/kettlebell-preview.png'
+  '/kettlebell-preview.png',
+  '/offline.html'
 ];
 
 self.addEventListener('install', event => {
@@ -22,17 +23,16 @@ self.addEventListener('install', event => {
 
 self.addEventListener('activate', event => {
   event.waitUntil(
-    caches.keys().then(keys =>
-      Promise.all(
-        keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key))
-      )
+    caches.keys().then(keys => 
+      Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     ).then(() => self.clients.claim())
   );
 });
 
 self.addEventListener('fetch', event => {
   event.respondWith(
-    caches.match(event.request)
-      .then(cachedResponse => cachedResponse || fetch(event.request))
+    fetch(event.request)
+      .catch(() => caches.match(event.request))
+      .then(response => response || caches.match('/offline.html'))
   );
 });
