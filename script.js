@@ -1,71 +1,41 @@
-// script.js
+// === TEMA CHIARO/SCURO ===
+document.addEventListener('DOMContentLoaded', () => {
+  const toggle = document.getElementById('theme-toggle');
+  if (toggle) {
+    toggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', nextTheme);
+      localStorage.setItem('theme', nextTheme);
+    });
 
-// === Tema Chiaro/Scuro ===
-const themeToggle = document.getElementById('theme-toggle');
-if (themeToggle) {
-  themeToggle.addEventListener('click', () => {
-    const current = document.documentElement.getAttribute('data-theme');
-    document.documentElement.setAttribute('data-theme', current === 'dark' ? 'light' : 'dark');
-    localStorage.setItem('theme', document.documentElement.getAttribute('data-theme'));
-  });
-
-  // Imposta tema salvato
-  const savedTheme = localStorage.getItem('theme') || 'light';
-  document.documentElement.setAttribute('data-theme', savedTheme);
-}
-
-// === Toast Notifiche ===
-function showToast(message) {
-  const container = document.getElementById('toast-container');
-  if (!container) return;
-  const toast = document.createElement('div');
-  toast.className = 'toast';
-  toast.textContent = message;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-// === Nome Utente ===
-function updateUserGreeting() {
-  const userGreeting = document.getElementById('user-greeting');
-  const username = localStorage.getItem('username');
-  if (userGreeting && username) {
-    userGreeting.innerHTML = `👋 Ciao, <strong>${username}</strong>!`;
-  }
-}
-updateUserGreeting();
-
-// === Gestione nome utente iniziale ===
-window.addEventListener('DOMContentLoaded', () => {
-  if (!localStorage.getItem('username')) {
-    const username = prompt('Come ti chiami?')?.trim();
-    if (username) {
-      localStorage.setItem('username', username);
-      updateUserGreeting();
-      showToast(`Benvenuto/a ${username}!`);
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) {
+      document.documentElement.setAttribute('data-theme', savedTheme);
     }
   }
 });
 
-// === Aggiornamento automatico Service Worker ===
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js')
-    .then(registration => {
-      console.log('Service Worker registrato:', registration);
+// === SALUTO E NOME UTENTE ===
+document.addEventListener('DOMContentLoaded', () => {
+  const nameInput = document.getElementById('username');
+  const greetingDiv = document.getElementById('user-greeting');
 
-      // Controlla se c'è un nuovo SW
-      registration.onupdatefound = () => {
-        const installingWorker = registration.installing;
-        installingWorker.onstatechange = () => {
-          if (installingWorker.state === 'installed') {
-            if (navigator.serviceWorker.controller) {
-              showToast('Nuova versione disponibile! Aggiorna la pagina.');
-            } else {
-              console.log('App pronta offline.');
-            }
-          }
-        };
-      };
-    })
-    .catch(err => console.error('Errore Service Worker:', err));
-}
+  const savedName = localStorage.getItem('username');
+
+  if (nameInput && greetingDiv) {
+    // Se esiste un nome già salvato
+    if (savedName) {
+      nameInput.value = savedName;
+      greetingDiv.textContent = `👋 Benvenuto, ${savedName}!`;
+    }
+
+    // Aggiorna saluto al cambiamento del campo input
+    nameInput.addEventListener('input', () => {
+      localStorage.setItem('username', nameInput.value);
+      greetingDiv.textContent = `👋 Benvenuto, ${nameInput.value}!`;
+    });
+  } else if (greetingDiv && savedName) {
+    greetingDiv.textContent = `👋 Benvenuto, ${savedName}!`;
+  }
+});
