@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Aggiungi Peso</title>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@2.1.5/dist/tesseract.min.js"></script>
   <style>
     :root {
       --primary: #2c3e50;
@@ -100,179 +101,203 @@
 </head>
 <body>
 
-  <h1>📉 Aggiungi il Tuo Peso</h1>
+<h1>📉 Aggiungi il Tuo Peso</h1>
 
-  <!-- Obiettivo -->
-  <form id="obiettivoForm">
-    <input type="number" id="obiettivo" step="0.1" placeholder="Imposta obiettivo (kg)">
-    <button type="submit">Salva Obiettivo</button>
-  </form>
+<!-- Upload immagine -->
+<form>
+  <input type="file" id="fotoInput" accept="image/*" />
+</form>
 
-  <div class="goal-box" id="goalBox">📌 Nessun obiettivo impostato.</div>
+<!-- Obiettivo -->
+<form id="obiettivoForm">
+  <input type="number" id="obiettivo" step="0.1" placeholder="Imposta obiettivo (kg)">
+  <button type="submit">Salva Obiettivo</button>
+</form>
 
-  <!-- Inserimento Peso -->
-  <form id="pesoForm">
-    <input type="date" id="data" required />
-    <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
-    <button type="submit">Salva Peso</button>
-  </form>
+<div class="goal-box" id="goalBox">📌 Nessun obiettivo impostato.</div>
 
-  <canvas id="pesoChart"></canvas>
+<!-- Inserimento Peso -->
+<form id="pesoForm">
+  <input type="date" id="data" required />
+  <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
+  <button type="submit">Salva Peso</button>
+</form>
 
-  <div class="entry-list" id="listaPesi"></div>
+<canvas id="pesoChart"></canvas>
 
-  <a class="home-button" href="index.html">🏠 Torna alla Home</a>
+<div class="entry-list" id="listaPesi"></div>
 
-  <script>
-    const form = document.getElementById('pesoForm');
-    const obiettivoForm = document.getElementById('obiettivoForm');
-    const dataInput = document.getElementById('data');
-    const pesoInput = document.getElementById('peso');
-    const listaPesi = document.getElementById('listaPesi');
-    const chartCtx = document.getElementById('pesoChart').getContext('2d');
-    const goalBox = document.getElementById('goalBox');
+<a class="home-button" href="index.html">🏠 Torna alla Home</a>
 
-    let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
-    let obiettivo = localStorage.getItem('obiettivoPeso');
+<script>
+  const form = document.getElementById('pesoForm');
+  const obiettivoForm = document.getElementById('obiettivoForm');
+  const dataInput = document.getElementById('data');
+  const pesoInput = document.getElementById('peso');
+  const listaPesi = document.getElementById('listaPesi');
+  const chartCtx = document.getElementById('pesoChart').getContext('2d');
+  const goalBox = document.getElementById('goalBox');
+  const fotoInput = document.getElementById('fotoInput');
 
-    obiettivoForm.addEventListener('submit', e => {
-      e.preventDefault();
-      obiettivo = document.getElementById('obiettivo').value;
-      localStorage.setItem('obiettivoPeso', obiettivo);
-      aggiornaObiettivoBox();
-      aggiornaGrafico();
-    });
+  let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
+  let obiettivo = localStorage.getItem('obiettivoPeso');
 
-    const salvaLocalStorage = () => {
-      pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
-      localStorage.setItem('pesi', JSON.stringify(pesi));
-      mostraPesi();
-      aggiornaGrafico();
-    };
+  obiettivoForm.addEventListener('submit', e => {
+    e.preventDefault();
+    obiettivo = document.getElementById('obiettivo').value;
+    localStorage.setItem('obiettivoPeso', obiettivo);
+    aggiornaObiettivoBox();
+    aggiornaGrafico();
+  });
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
-      dataInput.value = '';
-      pesoInput.value = '';
-      salvaLocalStorage();
-    });
-
-    function mostraPesi() {
-      listaPesi.innerHTML = '';
-      pesi.forEach((entry, index) => {
-        const div = document.createElement('div');
-        div.className = 'entry';
-        div.innerHTML = `
-          <span>${entry.data} — ${entry.peso} kg</span>
-          <span>
-            <button onclick="modifica(${index})">✏️</button>
-            <button onclick="elimina(${index})">❌</button>
-          </span>
-        `;
-        listaPesi.appendChild(div);
-      });
-    }
-
-    function elimina(index) {
-      if (confirm("Vuoi eliminare questa voce?")) {
-        pesi.splice(index, 1);
-        salvaLocalStorage();
-      }
-    }
-
-    function modifica(index) {
-      const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
-      if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
-        pesi[index].peso = parseFloat(nuovoPeso);
-        salvaLocalStorage();
-      }
-    }
-
-    let grafico = new Chart(chartCtx, {
-      type: 'line',
-      data: {
-        labels: [],
-        datasets: [{
-          label: 'Peso (kg)',
-          data: [],
-          borderColor: '#3498db',
-          backgroundColor: 'rgba(52,152,219,0.1)',
-          pointRadius: 5,
-          tension: 0.3,
-          fill: true
-        }]
-      },
-      options: {
-        responsive: true,
-        scales: {
-          y: {
-            beginAtZero: false
-          }
-        },
-        plugins: {
-          annotation: {
-            annotations: {}
-          }
-        }
-      }
-    });
-
-    function aggiornaObiettivoBox() {
-      if (obiettivo && pesi.length > 0) {
-        const ultimo = pesi[pesi.length - 1].peso;
-        const diff = (ultimo - obiettivo).toFixed(1);
-        const inizio = pesi[0].peso;
-        const totaleDaPerdere = inizio - obiettivo;
-        const perso = inizio - ultimo;
-        const percentuale = totaleDaPerdere > 0 ? Math.min(100, ((perso / totaleDaPerdere) * 100).toFixed(0)) : 0;
-
-        let badge = "🔰 Iniziato";
-        if (percentuale >= 100) badge = "🏆 Obiettivo raggiunto!";
-        else if (percentuale >= 75) badge = "🏁 Quasi fatto";
-        else if (percentuale >= 25) badge = "🚀 In corso";
-
-        goalBox.innerHTML = `
-          🎯 Obiettivo: <strong>${obiettivo} kg</strong><br>
-          Peso attuale: <strong>${ultimo} kg</strong><br>
-          Avanzamento: <strong>${percentuale}%</strong><br>
-          <div class="badge">${badge}</div>
-        `;
-      } else {
-        goalBox.innerHTML = `📌 Nessun obiettivo impostato.`;
-      }
-    }
-
-    function aggiornaGrafico() {
-      grafico.data.labels = pesi.map(p => p.data);
-      grafico.data.datasets[0].data = pesi.map(p => p.peso);
-
-      if (obiettivo) {
-        grafico.options.plugins.annotation = {
-          annotations: {
-            lineObiettivo: {
-              type: 'line',
-              yMin: obiettivo,
-              yMax: obiettivo,
-              borderColor: 'red',
-              borderWidth: 2,
-              label: {
-                content: 'Obiettivo',
-                enabled: true,
-                position: 'start',
-                color: 'red'
-              }
-            }
-          }
-        };
-      }
-
-      grafico.update();
-    }
-
+  const salvaLocalStorage = () => {
+    pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
+    localStorage.setItem('pesi', JSON.stringify(pesi));
     mostraPesi();
     aggiornaGrafico();
-    aggiornaObiettivoBox();
-  </script>
+  };
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
+    dataInput.value = '';
+    pesoInput.value = '';
+    salvaLocalStorage();
+  });
+
+  function mostraPesi() {
+    listaPesi.innerHTML = '';
+    pesi.forEach((entry, index) => {
+      const div = document.createElement('div');
+      div.className = 'entry';
+      div.innerHTML = `
+        <span>${entry.data} — ${entry.peso} kg</span>
+        <span>
+          <button onclick="modifica(${index})">✏️</button>
+          <button onclick="elimina(${index})">❌</button>
+        </span>
+      `;
+      listaPesi.appendChild(div);
+    });
+  }
+
+  function elimina(index) {
+    if (confirm("Vuoi eliminare questa voce?")) {
+      pesi.splice(index, 1);
+      salvaLocalStorage();
+    }
+  }
+
+  function modifica(index) {
+    const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
+    if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
+      pesi[index].peso = parseFloat(nuovoPeso);
+      salvaLocalStorage();
+    }
+  }
+
+  let grafico = new Chart(chartCtx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        label: 'Peso (kg)',
+        data: [],
+        borderColor: '#3498db',
+        backgroundColor: 'rgba(52,152,219,0.1)',
+        pointRadius: 5,
+        tension: 0.3,
+        fill: true
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: { beginAtZero: false }
+      },
+      plugins: {
+        annotation: {
+          annotations: {}
+        }
+      }
+    }
+  });
+
+  function aggiornaObiettivoBox() {
+    if (obiettivo && pesi.length > 0) {
+      const ultimo = pesi[pesi.length - 1].peso;
+      const diff = (ultimo - obiettivo).toFixed(1);
+      const inizio = pesi[0].peso;
+      const totaleDaPerdere = inizio - obiettivo;
+      const perso = inizio - ultimo;
+      const percentuale = totaleDaPerdere > 0 ? Math.min(100, ((perso / totaleDaPerdere) * 100).toFixed(0)) : 0;
+
+      let badge = "🔰 Iniziato";
+      if (percentuale >= 100) badge = "🏆 Obiettivo raggiunto!";
+      else if (percentuale >= 75) badge = "🏁 Quasi fatto";
+      else if (percentuale >= 25) badge = "🚀 In corso";
+
+      goalBox.innerHTML = `
+        🎯 Obiettivo: <strong>${obiettivo} kg</strong><br>
+        Peso attuale: <strong>${ultimo} kg</strong><br>
+        Avanzamento: <strong>${percentuale}%</strong><br>
+        <div class="badge">${badge}</div>
+      `;
+    } else {
+      goalBox.innerHTML = `📌 Nessun obiettivo impostato.`;
+    }
+  }
+
+  function aggiornaGrafico() {
+    grafico.data.labels = pesi.map(p => p.data);
+    grafico.data.datasets[0].data = pesi.map(p => p.peso);
+
+    if (obiettivo) {
+      grafico.options.plugins.annotation = {
+        annotations: {
+          lineObiettivo: {
+            type: 'line',
+            yMin: obiettivo,
+            yMax: obiettivo,
+            borderColor: 'red',
+            borderWidth: 2,
+            label: {
+              content: 'Obiettivo',
+              enabled: true,
+              position: 'start',
+              color: 'red'
+            }
+          }
+        }
+      };
+    }
+
+    grafico.update();
+  }
+
+  mostraPesi();
+  aggiornaGrafico();
+  aggiornaObiettivoBox();
+
+  // OCR automatico da foto bilancia
+  fotoInput.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+
+    // Peso: prima cifra decimale con punto o virgola
+    const match = text.match(/(\d{2,3}[.,]\d)/);
+    if (match) {
+      const peso = parseFloat(match[1].replace(',', '.'));
+      pesoInput.value = peso;
+    }
+
+    // Data corrente
+    const today = new Date().toISOString().split('T')[0];
+    dataInput.value = today;
+  });
+</script>
+
 </body>
 </html>
