@@ -97,39 +97,74 @@
       margin-left: auto;
       margin-right: auto;
     }
+    #preview {
+      max-width: 400px;
+      margin: 10px auto;
+      display: block;
+      border-radius: 10px;
+    }
   </style>
 </head>
 <body>
 
-<h1>📉 Aggiungi il Tuo Peso</h1>
+  <h1>📉 Aggiungi il Tuo Peso</h1>
 
-<!-- Upload immagine -->
-<form>
-  <input type="file" id="fotoInput" accept="image/*" />
-</form>
+  <!-- Carica foto -->
+  <form>
+    <input type="file" accept="image/*" id="fotoInput">
+    <img id="preview" src="" alt="" style="display:none;">
+  </form>
 
-<!-- Obiettivo -->
-<form id="obiettivoForm">
-  <input type="number" id="obiettivo" step="0.1" placeholder="Imposta obiettivo (kg)">
-  <button type="submit">Salva Obiettivo</button>
-</form>
+  <!-- Obiettivo -->
+  <form id="obiettivoForm">
+    <input type="number" id="obiettivo" step="0.1" placeholder="Imposta obiettivo (kg)">
+    <button type="submit">Salva Obiettivo</button>
+  </form>
 
-<div class="goal-box" id="goalBox">📌 Nessun obiettivo impostato.</div>
+  <div class="goal-box" id="goalBox">📌 Nessun obiettivo impostato.</div>
 
-<!-- Inserimento Peso -->
-<form id="pesoForm">
-  <input type="date" id="data" required />
-  <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
-  <button type="submit">Salva Peso</button>
-</form>
+  <!-- Inserimento Peso -->
+  <form id="pesoForm">
+    <input type="date" id="data" required />
+    <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
+    <input type="number" id="grasso" step="0.1" placeholder="Grasso corporeo (%)">
+    <input type="number" id="massa" step="0.1" placeholder="Massa ossea (kg)">
+    <button type="submit">Salva Peso</button>
+  </form>
 
-<canvas id="pesoChart"></canvas>
+  <canvas id="pesoChart"></canvas>
 
-<div class="entry-list" id="listaPesi"></div>
+  <div class="entry-list" id="listaPesi"></div>
 
-<a class="home-button" href="index.html">🏠 Torna alla Home</a>
+  <a class="home-button" href="index.html">🏠 Torna alla Home</a>
 
 <script>
+  const fotoInput = document.getElementById('fotoInput');
+  const preview = document.getElementById('preview');
+
+  fotoInput.addEventListener('change', async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = async () => {
+      preview.src = reader.result;
+      preview.style.display = 'block';
+
+      const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
+
+      // Estrazione dati
+      const peso = text.match(/Peso\(kg\)[\s\S]*?([\d.]+)/i);
+      const grasso = text.match(/Grasso corporeo\(kg\)[\s\S]*?([\d.]+)/i);
+      const massa = text.match(/Massa ossea\(kg\)[\s\S]*?([\d.]+)/i);
+
+      if (peso) document.getElementById('peso').value = peso[1];
+      if (grasso) document.getElementById('grasso').value = grasso[1];
+      if (massa) document.getElementById('massa').value = massa[1];
+    };
+    reader.readAsDataURL(file);
+  });
+
   const form = document.getElementById('pesoForm');
   const obiettivoForm = document.getElementById('obiettivoForm');
   const dataInput = document.getElementById('data');
@@ -137,7 +172,6 @@
   const listaPesi = document.getElementById('listaPesi');
   const chartCtx = document.getElementById('pesoChart').getContext('2d');
   const goalBox = document.getElementById('goalBox');
-  const fotoInput = document.getElementById('fotoInput');
 
   let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
   let obiettivo = localStorage.getItem('obiettivoPeso');
@@ -159,9 +193,17 @@
 
   form.addEventListener('submit', (e) => {
     e.preventDefault();
-    pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
+    pesi.push({
+      data: dataInput.value,
+      peso: parseFloat(pesoInput.value),
+      grasso: parseFloat(document.getElementById('grasso').value || 0),
+      massa: parseFloat(document.getElementById('massa').value || 0)
+    });
     dataInput.value = '';
     pesoInput.value = '';
+    document.getElementById('grasso').value = '';
+    document.getElementById('massa').value = '';
+    preview.style.display = 'none';
     salvaLocalStorage();
   });
 
@@ -214,11 +256,6 @@
       responsive: true,
       scales: {
         y: { beginAtZero: false }
-      },
-      plugins: {
-        annotation: {
-          annotations: {}
-        }
       }
     }
   });
@@ -278,26 +315,6 @@
   mostraPesi();
   aggiornaGrafico();
   aggiornaObiettivoBox();
-
-  // OCR automatico da foto bilancia
-  fotoInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
-
-    // Peso: prima cifra decimale con punto o virgola
-    const match = text.match(/(\d{2,3}[.,]\d)/);
-    if (match) {
-      const peso = parseFloat(match[1].replace(',', '.'));
-      pesoInput.value = peso;
-    }
-
-    // Data corrente
-    const today = new Date().toISOString().split('T')[0];
-    dataInput.value = today;
-  });
 </script>
-
 </body>
 </html>
