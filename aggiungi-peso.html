@@ -97,23 +97,17 @@
       margin-left: auto;
       margin-right: auto;
     }
-    #preview {
-      max-width: 400px;
-      margin: 10px auto;
+    #anteprima {
       display: block;
-      border-radius: 10px;
+      max-width: 200px;
+      margin: 10px auto;
+      border-radius: 8px;
     }
   </style>
 </head>
 <body>
 
   <h1>📉 Aggiungi il Tuo Peso</h1>
-
-  <!-- Carica foto -->
-  <form>
-    <input type="file" accept="image/*" id="fotoInput">
-    <img id="preview" src="" alt="" style="display:none;">
-  </form>
 
   <!-- Obiettivo -->
   <form id="obiettivoForm">
@@ -127,8 +121,10 @@
   <form id="pesoForm">
     <input type="date" id="data" required />
     <input type="number" id="peso" step="0.1" placeholder="Peso in kg" required />
-    <input type="number" id="grasso" step="0.1" placeholder="Grasso corporeo (%)">
-    <input type="number" id="massa" step="0.1" placeholder="Massa ossea (kg)">
+    
+    <input type="file" id="fotoPeso" accept="image/*" />
+    <img id="anteprima" style="display:none;" />
+
     <button type="submit">Salva Peso</button>
   </form>
 
@@ -138,183 +134,172 @@
 
   <a class="home-button" href="index.html">🏠 Torna alla Home</a>
 
-<script>
-  const fotoInput = document.getElementById('fotoInput');
-  const preview = document.getElementById('preview');
+  <script>
+    const form = document.getElementById('pesoForm');
+    const obiettivoForm = document.getElementById('obiettivoForm');
+    const dataInput = document.getElementById('data');
+    const pesoInput = document.getElementById('peso');
+    const listaPesi = document.getElementById('listaPesi');
+    const chartCtx = document.getElementById('pesoChart').getContext('2d');
+    const goalBox = document.getElementById('goalBox');
+    const fotoInput = document.getElementById('fotoPeso');
+    const anteprima = document.getElementById('anteprima');
 
-  fotoInput.addEventListener('change', async e => {
-    const file = e.target.files[0];
-    if (!file) return;
+    let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
+    let obiettivo = localStorage.getItem('obiettivoPeso');
 
-    const reader = new FileReader();
-    reader.onload = async () => {
-      preview.src = reader.result;
-      preview.style.display = 'block';
+    obiettivoForm.addEventListener('submit', e => {
+      e.preventDefault();
+      obiettivo = document.getElementById('obiettivo').value;
+      localStorage.setItem('obiettivoPeso', obiettivo);
+      aggiornaObiettivoBox();
+      aggiornaGrafico();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      pesi.push({ data: dataInput.value, peso: parseFloat(pesoInput.value) });
+      dataInput.value = '';
+      pesoInput.value = '';
+      anteprima.style.display = 'none';
+      salvaLocalStorage();
+    });
+
+    fotoInput.addEventListener('change', async e => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      // Mostra anteprima
+      const url = URL.createObjectURL(file);
+      anteprima.src = url;
+      anteprima.style.display = 'block';
 
       const { data: { text } } = await Tesseract.recognize(file, 'ita', { logger: m => console.log(m) });
 
-      // Estrazione dati
-      const peso = text.match(/Peso\(kg\)[\s\S]*?([\d.]+)/i);
-      const grasso = text.match(/Grasso corporeo\(kg\)[\s\S]*?([\d.]+)/i);
-      const massa = text.match(/Massa ossea\(kg\)[\s\S]*?([\d.]+)/i);
+      // Cerca un numero compatibile con il peso (es. 114.8)
+      const match = text.match(/(\d{2,3}[.,]\d)/);
+      if (match) {
+        const pesoEstratto = parseFloat(match[1].replace(',', '.'));
+        if (!isNaN(pesoEstratto)) pesoInput.value = pesoEstratto;
+      }
+    });
 
-      if (peso) document.getElementById('peso').value = peso[1];
-      if (grasso) document.getElementById('grasso').value = grasso[1];
-      if (massa) document.getElementById('massa').value = massa[1];
+    const salvaLocalStorage = () => {
+      pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
+      localStorage.setItem('pesi', JSON.stringify(pesi));
+      mostraPesi();
+      aggiornaGrafico();
     };
-    reader.readAsDataURL(file);
-  });
 
-  const form = document.getElementById('pesoForm');
-  const obiettivoForm = document.getElementById('obiettivoForm');
-  const dataInput = document.getElementById('data');
-  const pesoInput = document.getElementById('peso');
-  const listaPesi = document.getElementById('listaPesi');
-  const chartCtx = document.getElementById('pesoChart').getContext('2d');
-  const goalBox = document.getElementById('goalBox');
-
-  let pesi = JSON.parse(localStorage.getItem('pesi')) || [];
-  let obiettivo = localStorage.getItem('obiettivoPeso');
-
-  obiettivoForm.addEventListener('submit', e => {
-    e.preventDefault();
-    obiettivo = document.getElementById('obiettivo').value;
-    localStorage.setItem('obiettivoPeso', obiettivo);
-    aggiornaObiettivoBox();
-    aggiornaGrafico();
-  });
-
-  const salvaLocalStorage = () => {
-    pesi.sort((a, b) => new Date(a.data) - new Date(b.data));
-    localStorage.setItem('pesi', JSON.stringify(pesi));
-    mostraPesi();
-    aggiornaGrafico();
-  };
-
-  form.addEventListener('submit', (e) => {
-    e.preventDefault();
-    pesi.push({
-      data: dataInput.value,
-      peso: parseFloat(pesoInput.value),
-      grasso: parseFloat(document.getElementById('grasso').value || 0),
-      massa: parseFloat(document.getElementById('massa').value || 0)
-    });
-    dataInput.value = '';
-    pesoInput.value = '';
-    document.getElementById('grasso').value = '';
-    document.getElementById('massa').value = '';
-    preview.style.display = 'none';
-    salvaLocalStorage();
-  });
-
-  function mostraPesi() {
-    listaPesi.innerHTML = '';
-    pesi.forEach((entry, index) => {
-      const div = document.createElement('div');
-      div.className = 'entry';
-      div.innerHTML = `
-        <span>${entry.data} — ${entry.peso} kg</span>
-        <span>
-          <button onclick="modifica(${index})">✏️</button>
-          <button onclick="elimina(${index})">❌</button>
-        </span>
-      `;
-      listaPesi.appendChild(div);
-    });
-  }
-
-  function elimina(index) {
-    if (confirm("Vuoi eliminare questa voce?")) {
-      pesi.splice(index, 1);
-      salvaLocalStorage();
+    function mostraPesi() {
+      listaPesi.innerHTML = '';
+      pesi.forEach((entry, index) => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
+          <span>${entry.data} — ${entry.peso} kg</span>
+          <span>
+            <button onclick="modifica(${index})">✏️</button>
+            <button onclick="elimina(${index})">❌</button>
+          </span>
+        `;
+        listaPesi.appendChild(div);
+      });
     }
-  }
 
-  function modifica(index) {
-    const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
-    if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
-      pesi[index].peso = parseFloat(nuovoPeso);
-      salvaLocalStorage();
-    }
-  }
-
-  let grafico = new Chart(chartCtx, {
-    type: 'line',
-    data: {
-      labels: [],
-      datasets: [{
-        label: 'Peso (kg)',
-        data: [],
-        borderColor: '#3498db',
-        backgroundColor: 'rgba(52,152,219,0.1)',
-        pointRadius: 5,
-        tension: 0.3,
-        fill: true
-      }]
-    },
-    options: {
-      responsive: true,
-      scales: {
-        y: { beginAtZero: false }
+    function elimina(index) {
+      if (confirm("Vuoi eliminare questa voce?")) {
+        pesi.splice(index, 1);
+        salvaLocalStorage();
       }
     }
-  });
 
-  function aggiornaObiettivoBox() {
-    if (obiettivo && pesi.length > 0) {
-      const ultimo = pesi[pesi.length - 1].peso;
-      const diff = (ultimo - obiettivo).toFixed(1);
-      const inizio = pesi[0].peso;
-      const totaleDaPerdere = inizio - obiettivo;
-      const perso = inizio - ultimo;
-      const percentuale = totaleDaPerdere > 0 ? Math.min(100, ((perso / totaleDaPerdere) * 100).toFixed(0)) : 0;
-
-      let badge = "🔰 Iniziato";
-      if (percentuale >= 100) badge = "🏆 Obiettivo raggiunto!";
-      else if (percentuale >= 75) badge = "🏁 Quasi fatto";
-      else if (percentuale >= 25) badge = "🚀 In corso";
-
-      goalBox.innerHTML = `
-        🎯 Obiettivo: <strong>${obiettivo} kg</strong><br>
-        Peso attuale: <strong>${ultimo} kg</strong><br>
-        Avanzamento: <strong>${percentuale}%</strong><br>
-        <div class="badge">${badge}</div>
-      `;
-    } else {
-      goalBox.innerHTML = `📌 Nessun obiettivo impostato.`;
+    function modifica(index) {
+      const nuovoPeso = prompt("Modifica peso:", pesi[index].peso);
+      if (nuovoPeso !== null && !isNaN(nuovoPeso)) {
+        pesi[index].peso = parseFloat(nuovoPeso);
+        salvaLocalStorage();
+      }
     }
-  }
 
-  function aggiornaGrafico() {
-    grafico.data.labels = pesi.map(p => p.data);
-    grafico.data.datasets[0].data = pesi.map(p => p.peso);
+    let grafico = new Chart(chartCtx, {
+      type: 'line',
+      data: {
+        labels: [],
+        datasets: [{
+          label: 'Peso (kg)',
+          data: [],
+          borderColor: '#3498db',
+          backgroundColor: 'rgba(52,152,219,0.1)',
+          pointRadius: 5,
+          tension: 0.3,
+          fill: true
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          y: { beginAtZero: false }
+        },
+        plugins: { annotation: { annotations: {} } }
+      }
+    });
 
-    if (obiettivo) {
-      grafico.options.plugins.annotation = {
-        annotations: {
-          lineObiettivo: {
-            type: 'line',
-            yMin: obiettivo,
-            yMax: obiettivo,
-            borderColor: 'red',
-            borderWidth: 2,
-            label: {
-              content: 'Obiettivo',
-              enabled: true,
-              position: 'start',
-              color: 'red'
+    function aggiornaObiettivoBox() {
+      if (obiettivo && pesi.length > 0) {
+        const ultimo = pesi[pesi.length - 1].peso;
+        const diff = (ultimo - obiettivo).toFixed(1);
+        const inizio = pesi[0].peso;
+        const totaleDaPerdere = inizio - obiettivo;
+        const perso = inizio - ultimo;
+        const percentuale = totaleDaPerdere > 0 ? Math.min(100, ((perso / totaleDaPerdere) * 100).toFixed(0)) : 0;
+
+        let badge = "🔰 Iniziato";
+        if (percentuale >= 100) badge = "🏆 Obiettivo raggiunto!";
+        else if (percentuale >= 75) badge = "🏁 Quasi fatto";
+        else if (percentuale >= 25) badge = "🚀 In corso";
+
+        goalBox.innerHTML = `
+          🎯 Obiettivo: <strong>${obiettivo} kg</strong><br>
+          Peso attuale: <strong>${ultimo} kg</strong><br>
+          Avanzamento: <strong>${percentuale}%</strong><br>
+          <div class="badge">${badge}</div>
+        `;
+      } else {
+        goalBox.innerHTML = `📌 Nessun obiettivo impostato.`;
+      }
+    }
+
+    function aggiornaGrafico() {
+      grafico.data.labels = pesi.map(p => p.data);
+      grafico.data.datasets[0].data = pesi.map(p => p.peso);
+
+      if (obiettivo) {
+        grafico.options.plugins.annotation = {
+          annotations: {
+            lineObiettivo: {
+              type: 'line',
+              yMin: obiettivo,
+              yMax: obiettivo,
+              borderColor: 'red',
+              borderWidth: 2,
+              label: {
+                content: 'Obiettivo',
+                enabled: true,
+                position: 'start',
+                color: 'red'
+              }
             }
           }
-        }
-      };
+        };
+      }
+
+      grafico.update();
     }
 
-    grafico.update();
-  }
-
-  mostraPesi();
-  aggiornaGrafico();
-  aggiornaObiettivoBox();
-</script>
+    mostraPesi();
+    aggiornaGrafico();
+    aggiornaObiettivoBox();
+  </script>
 </body>
 </html>
