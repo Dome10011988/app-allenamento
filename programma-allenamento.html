@@ -38,6 +38,7 @@
       cursor: pointer;
     }
     button:hover { background: #2980b9; }
+    .danger { background: #e74c3c; }
     .home-button {
       text-align: center;
       margin-top: 30px;
@@ -84,9 +85,8 @@
   <button id="saveBtn">Archivia PDF</button>
 
   <label for="archivio">Apri PDF Archiviato:</label>
-  <select id="archivio">
-    <option value="">-- Seleziona --</option>
-  </select>
+  <select id="archivio"><option value="">-- Seleziona --</option></select>
+  <button id="deleteBtn" class="danger">❌ Elimina PDF</button>
 
   <h3>Anteprima PDF:</h3>
   <div id="pdfPreview"></div>
@@ -104,31 +104,43 @@
   const pdfPreview = document.getElementById('pdfPreview');
   const schedaDiv = document.getElementById('scheda');
   const saveBtn = document.getElementById('saveBtn');
+  const deleteBtn = document.getElementById('deleteBtn');
   const pdfName = document.getElementById('pdfName');
   const archivio = document.getElementById('archivio');
 
   let currentPdfArrayBuffer = null;
 
   const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
-  for (let nome in archivioPDFs) {
-    const opt = document.createElement('option');
-    opt.value = nome;
-    opt.textContent = nome;
-    archivio.appendChild(opt);
-  }
+  const updateArchivioSelect = () => {
+    archivio.innerHTML = '<option value="">-- Seleziona --</option>';
+    for (let nome in archivioPDFs) {
+      const opt = document.createElement('option');
+      opt.value = nome;
+      opt.textContent = nome;
+      archivio.appendChild(opt);
+    }
+  };
+  updateArchivioSelect();
 
   saveBtn.addEventListener('click', () => {
     const nome = pdfName.value.trim();
     if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
     archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
     localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
-
-    const opt = document.createElement('option');
-    opt.value = nome;
-    opt.textContent = nome;
-    archivio.appendChild(opt);
+    updateArchivioSelect();
     pdfName.value = '';
     alert("PDF archiviato con successo.");
+  });
+
+  deleteBtn.addEventListener('click', () => {
+    const nome = archivio.value;
+    if (!nome || !archivioPDFs[nome]) return alert("Seleziona un PDF da eliminare.");
+    delete archivioPDFs[nome];
+    localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
+    updateArchivioSelect();
+    pdfPreview.innerHTML = '';
+    schedaDiv.innerHTML = '';
+    alert("PDF eliminato.");
   });
 
   archivio.addEventListener('change', () => {
@@ -155,16 +167,13 @@
     schedaDiv.innerHTML = '';
     let fullText = '';
 
-    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
-      const page = await pdf.getPage(pageNum);
+    for (let i = 1; i <= pdf.numPages; i++) {
+      const page = await pdf.getPage(i);
       const viewport = page.getViewport({ scale: 1.4 });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
-
       canvas.height = viewport.height;
       canvas.width = viewport.width;
-      context.fillStyle = "#ffffff";
-      context.fillRect(0, 0, canvas.width, canvas.height);
       await page.render({ canvasContext: context, viewport }).promise;
       pdfPreview.appendChild(canvas);
 
@@ -173,55 +182,47 @@
     }
 
     const sezioni = { Riscaldamento: '', Esercizi: '', Defaticamento: '' };
-    const righe = fullText.split('\n');
     let sezioneCorrente = null;
-
-    righe.forEach(linea => {
-      const l = linea.toLowerCase();
-      if (l.includes("riscaldamento")) {
-        sezioneCorrente = "Riscaldamento";
-      } else if (l.includes("defaticamento")) {
-        sezioneCorrente = "Defaticamento";
-      } else if (l.match(/tabata|core|workout|esercizi|allenamento/)) {
-        sezioneCorrente = "Esercizi";
-      } else if (sezioneCorrente) {
-        sezioni[sezioneCorrente] += linea + '\n';
-      }
+    fullText.split('\n').forEach(line => {
+      const l = line.toLowerCase();
+      if (l.includes("riscaldamento")) sezioneCorrente = "Riscaldamento";
+      else if (l.includes("defaticamento")) sezioneCorrente = "Defaticamento";
+      else if (l.match(/tabata|core|workout|esercizi|allenamento/)) sezioneCorrente = "Esercizi";
+      else if (sezioneCorrente) sezioni[sezioneCorrente] += line + '\n';
     });
 
-    for (let titolo in sezioni) {
-      const contenuto = sezioni[titolo].trim();
-      if (!contenuto) continue;
+    for (let key in sezioni) {
+      const lines = sezioni[key].trim().split('\n').filter(Boolean);
+      if (!lines.length) continue;
 
-      if (titolo === "Esercizi") {
-        const sottoblocchi = contenuto
-          .split(/\n(?=.*(min|minuti|sec|secondi))/i)
-          .filter(blocco => {
-            const header = blocco.trim().split('\n')[0].toLowerCase();
-            return !header.includes("obiettivo") && !header.includes("durata") && /\d/.test(header);
-          });
-
-        sottoblocchi.forEach(blocco => {
-          const righe = blocco.trim().split('\n');
-          if (righe.length === 0) return;
-
-          const header = righe[0];
-          let tbl = `<table><thead><tr><th>${header}</th></tr></thead><tbody>`;
-          righe.slice(1).forEach(r => {
-            const sotto = r.split('-').map(s => s.trim()).filter(Boolean);
-            sotto.forEach(riga => tbl += `<tr><td>${riga}</td></tr>`);
-          });
-          tbl += '</tbody></table><br>';
-          schedaDiv.innerHTML += tbl;
+      if (key === "Esercizi") {
+        let blocco = [], titolo = null;
+        lines.forEach(line => {
+          if (/^[^-].*(\d+\s*(min|minuti|sec|secondi))/.test(line)) {
+            if (blocco.length && titolo) {
+              renderTable(titolo, blocco);
+            }
+            titolo = line.trim();
+            blocco = [];
+          } else {
+            blocco.push(line);
+          }
         });
+        if (blocco.length && titolo) renderTable(titolo, blocco);
       } else {
-        const esercizi = contenuto.split('-').map(s => s.trim()).filter(Boolean);
-        let tbl = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
-        esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
-        tbl += '</tbody></table><br>';
-        schedaDiv.innerHTML += tbl;
+        renderTable(key, lines);
       }
     }
+  }
+
+  function renderTable(titolo, righe) {
+    let html = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
+    righe.forEach(r => {
+      const parti = r.split('-').map(s => s.trim()).filter(Boolean);
+      parti.forEach(p => html += `<tr><td>${p}</td></tr>`);
+    });
+    html += '</tbody></table><br>';
+    schedaDiv.innerHTML += html;
   }
 </script>
 
