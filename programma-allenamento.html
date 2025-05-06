@@ -195,22 +195,22 @@
       if (!contenuto) continue;
 
       if (titolo === "Esercizi") {
-        const blocchi = contenuto.split(/\n(?=\d+[\.\-)\s]+)/); // 2.  3-  4)
-        blocchi.forEach(blocco => {
-          const righe = blocco.split('\n').filter(r => r.trim() !== '');
+        const sottoblocchi = contenuto.split(/\n(?=.*\(\d+\s*min|\~\d+\s*min)/i); // cerca (4 minuti), ~30 minuti, ecc.
+        sottoblocchi.forEach(blocco => {
+          const righe = blocco.trim().split('\n');
           if (righe.length === 0) return;
 
-          const intestazione = righe[0].replace(/^\d+[\.\-)\s]+/, '').trim();
-          let tbl = `<table><thead><tr><th>${intestazione}</th></tr></thead><tbody>`;
+          const header = righe[0];
+          let tbl = `<table><thead><tr><th>${header}</th></tr></thead><tbody>`;
           righe.slice(1).forEach(r => {
-            const sotto = r.split('-').map(s => s.trim()).filter(s => s);
+            const sotto = r.split('-').map(s => s.trim()).filter(Boolean);
             sotto.forEach(riga => tbl += `<tr><td>${riga}</td></tr>`);
           });
           tbl += '</tbody></table><br>';
           schedaDiv.innerHTML += tbl;
         });
       } else {
-        const esercizi = contenuto.split('-').map(s => s.trim()).filter(s => s);
+        const esercizi = contenuto.split('-').map(s => s.trim()).filter(Boolean);
         let tbl = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
         esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
         tbl += '</tbody></table><br>';
