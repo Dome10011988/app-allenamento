@@ -80,7 +80,6 @@
 <div class="box">
   <h2>Carica Scheda Allenamenti (PDF)</h2>
   <input type="file" id="pdfInput" accept="application/pdf">
-
   <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
   <button id="saveBtn">Archivia PDF</button>
 
@@ -110,7 +109,6 @@
 
   let currentPdfArrayBuffer = null;
 
-  // Carica archivio
   const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
   for (let nome in archivioPDFs) {
     const opt = document.createElement('option');
@@ -197,12 +195,12 @@
       if (!contenuto) continue;
 
       if (titolo === "Esercizi") {
-        const blocchi = contenuto.split(/\n(?=\d+\.\s)/); // es: 2. Tabata...
+        const blocchi = contenuto.split(/\n(?=\d+[\.\-)\s]+)/); // 2.  3-  4)
         blocchi.forEach(blocco => {
           const righe = blocco.split('\n').filter(r => r.trim() !== '');
           if (righe.length === 0) return;
 
-          const intestazione = righe[0].replace(/^\d+\.\s*/, '');
+          const intestazione = righe[0].replace(/^\d+[\.\-)\s]+/, '').trim();
           let tbl = `<table><thead><tr><th>${intestazione}</th></tr></thead><tbody>`;
           righe.slice(1).forEach(r => {
             const sotto = r.split('-').map(s => s.trim()).filter(s => s);
