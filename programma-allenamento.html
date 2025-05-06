@@ -1,230 +1,150 @@
+
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Programma Allenamento</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Programma Allenamento - Migliorato</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
-
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-      color: #2c3e50;
-    }
-    h1 { text-align: center; margin-bottom: 20px; }
-    .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0,0,0,0.1);
-      max-width: 800px;
-      margin: 0 auto;
-    }
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      margin-top: 10px;
-    }
-    button {
-      background: #3498db;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; color: #2c3e50; }
+    .box { background: #fff; padding: 20px; border-radius: 8px; max-width: 800px; margin: auto; box-shadow: 0 0 6px rgba(0,0,0,0.1); }
+    h1, h2 { text-align: center; }
+    input, select, button { width: 100%; padding: 10px; font-size: 1rem; margin-top: 10px; border-radius: 4px; border: 1px solid #ccc; }
+    button { background: #3498db; color: #fff; border: none; cursor: pointer; }
     button:hover { background: #2980b9; }
     .danger { background: #e74c3c; }
-    .home-button {
-      text-align: center;
-      margin-top: 30px;
-    }
-    canvas {
-      display: block;
-      margin: 16px auto;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
-      margin-top: 20px;
-      font-size: 1.1rem;
-    }
-    th {
-      background: #3498db;
-      color: #fff;
-      padding: 12px;
-      border-radius: 6px 6px 0 0;
-    }
-    td {
-      background: #ecf0f1;
-      padding: 12px;
-      border-radius: 0 0 6px 6px;
-      border: none;
-      font-weight: 500;
-      color: #2c3e50;
-    }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th { background: #3498db; color: white; padding: 12px; text-align: left; }
+    td { background: #ecf0f1; padding: 10px; }
+    canvas { width: 100%; margin-top: 20px; border: 1px solid #ccc; border-radius: 8px; }
   </style>
 </head>
-
 <body>
+  <h1>📋 Programma Allenamento</h1>
+  <div class="box">
+    <h2>Carica Scheda Allenamenti (PDF)</h2>
+    <input type="file" id="pdfInput" accept="application/pdf">
+    <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
+    <button id="saveBtn">Archivia PDF</button>
+    <label for="archivio">Apri PDF Archiviato:</label>
+    <select id="archivio"><option value="">-- Seleziona --</option></select>
+    <button id="deleteBtn" class="danger">❌ Elimina PDF</button>
+    <h3>Anteprima PDF:</h3>
+    <div id="pdfPreview"></div>
+    <h3>Estratto in Tabelle:</h3>
+    <div id="scheda"></div>
+  </div>
+  <div class="home-button" style="text-align:center; margin-top:30px;">
+    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+  </div>
 
-<h1>📋 Programma Allenamento</h1>
+  <script>
+    const pdfInput = document.getElementById('pdfInput');
+    const pdfPreview = document.getElementById('pdfPreview');
+    const schedaDiv = document.getElementById('scheda');
+    const saveBtn = document.getElementById('saveBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const pdfName = document.getElementById('pdfName');
+    const archivio = document.getElementById('archivio');
 
-<div class="box">
-  <h2>Carica Scheda Allenamenti (PDF)</h2>
-  <input type="file" id="pdfInput" accept="application/pdf">
-  <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
-  <button id="saveBtn">Archivia PDF</button>
-
-  <label for="archivio">Apri PDF Archiviato:</label>
-  <select id="archivio"><option value="">-- Seleziona --</option></select>
-  <button id="deleteBtn" class="danger">❌ Elimina PDF</button>
-
-  <h3>Anteprima PDF:</h3>
-  <div id="pdfPreview"></div>
-
-  <h3>Estratto in Tabelle:</h3>
-  <div id="scheda"></div>
-</div>
-
-<div class="home-button">
-  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-</div>
-
-<script>
-  const pdfInput = document.getElementById('pdfInput');
-  const pdfPreview = document.getElementById('pdfPreview');
-  const schedaDiv = document.getElementById('scheda');
-  const saveBtn = document.getElementById('saveBtn');
-  const deleteBtn = document.getElementById('deleteBtn');
-  const pdfName = document.getElementById('pdfName');
-  const archivio = document.getElementById('archivio');
-
-  let currentPdfArrayBuffer = null;
-
-  const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
-  const updateArchivioSelect = () => {
-    archivio.innerHTML = '<option value="">-- Seleziona --</option>';
-    for (let nome in archivioPDFs) {
-      const opt = document.createElement('option');
-      opt.value = nome;
-      opt.textContent = nome;
-      archivio.appendChild(opt);
-    }
-  };
-  updateArchivioSelect();
-
-  saveBtn.addEventListener('click', () => {
-    const nome = pdfName.value.trim();
-    if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
-    archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
-    localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
-    updateArchivioSelect();
-    pdfName.value = '';
-    alert("PDF archiviato con successo.");
-  });
-
-  deleteBtn.addEventListener('click', () => {
-    const nome = archivio.value;
-    if (!nome || !archivioPDFs[nome]) return alert("Seleziona un PDF da eliminare.");
-    delete archivioPDFs[nome];
-    localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
-    updateArchivioSelect();
-    pdfPreview.innerHTML = '';
-    schedaDiv.innerHTML = '';
-    alert("PDF eliminato.");
-  });
-
-  archivio.addEventListener('change', () => {
-    const nome = archivio.value;
-    if (!nome) return;
-    const byteArray = new Uint8Array(archivioPDFs[nome]);
-    renderPDF(byteArray);
-  });
-
-  pdfInput.addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => {
-      currentPdfArrayBuffer = reader.result;
-      renderPDF(new Uint8Array(reader.result));
-    };
-    reader.readAsArrayBuffer(file);
-  });
-
-  async function renderPDF(data) {
-    const pdf = await pdfjsLib.getDocument({ data }).promise;
-    pdfPreview.innerHTML = '';
-    schedaDiv.innerHTML = '';
-    let fullText = '';
-
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const viewport = page.getViewport({ scale: 1.4 });
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      canvas.height = viewport.height;
-      canvas.width = viewport.width;
-      await page.render({ canvasContext: context, viewport }).promise;
-      pdfPreview.appendChild(canvas);
-
-      const content = await page.getTextContent();
-      fullText += content.items.map(item => item.str).join('\n') + '\n';
-    }
-
-    const sezioni = { Riscaldamento: '', Esercizi: '', Defaticamento: '' };
-    let sezioneCorrente = null;
-    fullText.split('\n').forEach(line => {
-      const l = line.toLowerCase();
-      if (l.includes("riscaldamento")) sezioneCorrente = "Riscaldamento";
-      else if (l.includes("defaticamento")) sezioneCorrente = "Defaticamento";
-      else if (l.match(/tabata|core|workout|esercizi|allenamento/)) sezioneCorrente = "Esercizi";
-      else if (sezioneCorrente) sezioni[sezioneCorrente] += line + '\n';
-    });
-
-    for (let key in sezioni) {
-      const lines = sezioni[key].trim().split('\n').filter(Boolean);
-      if (!lines.length) continue;
-
-      if (key === "Esercizi") {
-        let blocco = [], titolo = null;
-        lines.forEach(line => {
-          if (/^[^-].*(\d+\s*(min|minuti|sec|secondi))/.test(line)) {
-            if (blocco.length && titolo) {
-              renderTable(titolo, blocco);
-            }
-            titolo = line.trim();
-            blocco = [];
-          } else {
-            blocco.push(line);
-          }
-        });
-        if (blocco.length && titolo) renderTable(titolo, blocco);
-      } else {
-        renderTable(key, lines);
+    let currentPdfArrayBuffer = null;
+    const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
+    const updateArchivioSelect = () => {
+      archivio.innerHTML = '<option value="">-- Seleziona --</option>';
+      for (let nome in archivioPDFs) {
+        const opt = document.createElement('option');
+        opt.value = nome;
+        opt.textContent = nome;
+        archivio.appendChild(opt);
       }
-    }
-  }
+    };
+    updateArchivioSelect();
 
-  function renderTable(titolo, righe) {
-    let html = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
-    righe.forEach(r => {
-      const parti = r.split('-').map(s => s.trim()).filter(Boolean);
-      parti.forEach(p => html += `<tr><td>${p}</td></tr>`);
+    saveBtn.addEventListener('click', () => {
+      const nome = pdfName.value.trim();
+      if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
+      archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
+      localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
+      updateArchivioSelect();
+      pdfName.value = '';
+      alert("PDF archiviato con successo.");
     });
-    html += '</tbody></table><br>';
-    schedaDiv.innerHTML += html;
-  }
-</script>
 
+    deleteBtn.addEventListener('click', () => {
+      const nome = archivio.value;
+      if (!nome || !archivioPDFs[nome]) return alert("Seleziona un PDF da eliminare.");
+      delete archivioPDFs[nome];
+      localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
+      updateArchivioSelect();
+      pdfPreview.innerHTML = '';
+      schedaDiv.innerHTML = '';
+      alert("PDF eliminato.");
+    });
+
+    archivio.addEventListener('change', () => {
+      const nome = archivio.value;
+      if (!nome) return;
+      const byteArray = new Uint8Array(archivioPDFs[nome]);
+      renderPDF(byteArray);
+    });
+
+    pdfInput.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        currentPdfArrayBuffer = reader.result;
+        renderPDF(new Uint8Array(reader.result));
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    async function renderPDF(data) {
+      const pdf = await pdfjsLib.getDocument({ data }).promise;
+      pdfPreview.innerHTML = '';
+      schedaDiv.innerHTML = '';
+      let fullText = '';
+
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const page = await pdf.getPage(i);
+        const viewport = page.getViewport({ scale: 1.4 });
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.height = viewport.height;
+        canvas.width = viewport.width;
+        await page.render({ canvasContext: context, viewport }).promise;
+        pdfPreview.appendChild(canvas);
+
+        const content = await page.getTextContent();
+        fullText += content.items.map(item => item.str).join('\n') + '\n';
+      }
+
+      const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
+      const blocks = [];
+      let currentBlock = { title: null, content: [] };
+
+      lines.forEach(line => {
+        const isTitle = /^(Tabata|Core|Full|Allenamento).*\d+\s*(min|minuti)/i.test(line);
+        if (isTitle) {
+          if (currentBlock.title) blocks.push(currentBlock);
+          currentBlock = { title: line, content: [] };
+        } else {
+          currentBlock.content.push(line);
+        }
+      });
+      if (currentBlock.title) blocks.push(currentBlock);
+
+      blocks.forEach(block => {
+        let html = `<table><thead><tr><th>${block.title}</th></tr></thead><tbody>`;
+        block.content.forEach(r => {
+          const rows = r.split('-').map(x => x.trim()).filter(Boolean);
+          rows.forEach(row => html += `<tr><td>${row}</td></tr>`);
+        });
+        html += '</tbody></table>';
+        schedaDiv.innerHTML += html;
+      });
+    }
+  </script>
 </body>
 </html>
