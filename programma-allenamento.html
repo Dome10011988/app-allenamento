@@ -196,8 +196,11 @@
 
       if (titolo === "Esercizi") {
         const sottoblocchi = contenuto
-          .split(/\n(?=.*\d+\s*(minuti|min|sec|secondi|\~\d+))/i)
-          .filter(blocco => !blocco.toLowerCase().includes("obiettivo") && !blocco.toLowerCase().includes("durata totale"));
+          .split(/\n(?=[A-ZÀ-Ü][^\n]{2,30}?\(\s*\d+\s*min)/i)
+          .filter(blocco => {
+            const header = blocco.trim().split('\n')[0].toLowerCase();
+            return !header.includes("obiettivo") && !header.includes("durata");
+          });
 
         sottoblocchi.forEach(blocco => {
           const righe = blocco.trim().split('\n');
