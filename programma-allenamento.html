@@ -120,7 +120,6 @@
   saveBtn.addEventListener('click', () => {
     const nome = pdfName.value.trim();
     if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
-
     archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
     localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
 
@@ -196,10 +195,10 @@
 
       if (titolo === "Esercizi") {
         const sottoblocchi = contenuto
-          .split(/\n(?=[A-ZÀ-Ü][^\n]{2,30}?\(\s*\d+\s*min)/i)
+          .split(/\n(?=.*(min|minuti|sec|secondi))/i)
           .filter(blocco => {
             const header = blocco.trim().split('\n')[0].toLowerCase();
-            return !header.includes("obiettivo") && !header.includes("durata");
+            return !header.includes("obiettivo") && !header.includes("durata") && /\d/.test(header);
           });
 
         sottoblocchi.forEach(blocco => {
