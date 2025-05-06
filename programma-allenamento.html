@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Programma Allenamento - Avanzato</title>
+  <title>Programma Allenamento con Blocchi Interni</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; color: #2c3e50; }
@@ -13,7 +13,6 @@
     input, select, button { width: 100%; padding: 10px; font-size: 1rem; margin-top: 10px; border-radius: 4px; border: 1px solid #ccc; }
     button { background: #3498db; color: #fff; border: none; cursor: pointer; }
     button:hover { background: #2980b9; }
-    .danger { background: #e74c3c; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th { background: #3498db; color: white; padding: 12px; text-align: left; }
     td { background: #ecf0f1; padding: 10px; }
@@ -66,29 +65,30 @@
 
       const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
       const blocks = [];
-      let currentTitle = "";
+      let currentTitle = "Blocco Iniziale";
       let currentContent = [];
 
-      function isProbableTitle(line) {
-        return /(tabata|core|allenamento|full).*\d+.*(min|minuti|sec|secondi)/i.test(line);
+      function findInternalTitle(text) {
+        const match = text.match(/(Tabata.*?\(\d+.*?\))|(Core.*?\(\d+.*?\))|(Defaticamento.*?\(\d+.*?\))|(Riscaldamento.*?\(\d+.*?\))/i);
+        return match ? match[0] : null;
       }
 
-      for (let i = 0; i < lines.length; i++) {
-        let combined = lines[i];
-        if (i + 1 < lines.length) combined += " " + lines[i + 1];
-
-        if (isProbableTitle(combined)) {
-          if (currentTitle) {
+      lines.forEach(line => {
+        const maybeTitle = findInternalTitle(line);
+        if (maybeTitle) {
+          if (currentContent.length) {
             blocks.push({ title: currentTitle, content: currentContent });
-            currentContent = [];
           }
-          currentTitle = combined;
-          i++; // skip next line as it's been combined
+          currentTitle = maybeTitle;
+          currentContent = [];
+          const remaining = line.replace(maybeTitle, "").trim();
+          if (remaining) currentContent.push(remaining);
         } else {
-          currentContent.push(lines[i]);
+          currentContent.push(line);
         }
-      }
-      if (currentTitle) {
+      });
+
+      if (currentContent.length) {
         blocks.push({ title: currentTitle, content: currentContent });
       }
 
