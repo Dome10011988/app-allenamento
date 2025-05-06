@@ -1,56 +1,3 @@
-<!DOCTYPE html>
-<html lang="it">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Programma Allenamento</title>
-
-  <!-- PDF.js -->
-  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
-
-  <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
-    h1 { text-align:center; margin-bottom:20px }
-    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); max-width:800px; margin:0 auto }
-    input, select, button { width:100%; padding:10px; font-size:1rem; border-radius:4px; border:1px solid #ccc; margin-top:10px }
-    button { background:#3498db; color:#fff; border:none; cursor:pointer }
-    button:hover { background:#2980b9 }
-    .home-button { text-align:center; margin-top:30px }
-    .home-button button { background:#3498db; color:#fff; padding:10px 20px; border:none; border-radius:8px; cursor:pointer }
-    table { width:100%; border-collapse:collapse; margin-top:20px }
-    th, td { border:1px solid #ddd; padding:8px; text-align:left }
-    th { background:#3498db; color:#fff }
-    canvas { width:100%; margin-top:20px; border:1px solid #ccc; border-radius:8px }
-  </style>
-</head>
-
-<body>
-
-<h1>📋 Programma Allenamento</h1>
-
-<div class="box">
-  <h2>Carica Scheda Allenamenti (PDF)</h2>
-  <input type="file" id="pdfInput" accept="application/pdf">
-
-  <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
-  <button id="saveBtn">Archivia PDF</button>
-
-  <label for="archivio">Apri PDF Archiviato:</label>
-  <select id="archivio">
-    <option value="">-- Seleziona --</option>
-  </select>
-
-  <h3>Anteprima PDF:</h3>
-  <div id="pdfPreview"></div>
-
-  <h3>Estratto in Tabelle:</h3>
-  <div id="scheda"></div>
-</div>
-
-<div class="home-button">
-  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
-</div>
-
 <script>
   const pdfInput = document.getElementById('pdfInput');
   const pdfPreview = document.getElementById('pdfPreview');
@@ -61,7 +8,6 @@
 
   let currentPdfArrayBuffer = null;
 
-  // Carica archivio al caricamento pagina
   const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
   for (let nome in archivioPDFs) {
     const opt = document.createElement('option');
@@ -70,14 +16,11 @@
     archivio.appendChild(opt);
   }
 
-  // Salva PDF corrente con nome personalizzato
   saveBtn.addEventListener('click', () => {
     const nome = pdfName.value.trim();
     if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
-
     archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
     localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
-
     const opt = document.createElement('option');
     opt.value = nome;
     opt.textContent = nome;
@@ -86,7 +29,6 @@
     alert("PDF archiviato con successo.");
   });
 
-  // Caricamento da archivio
   archivio.addEventListener('change', () => {
     const nome = archivio.value;
     if (!nome) return;
@@ -94,11 +36,9 @@
     renderPDF(byteArray);
   });
 
-  // Caricamento da file
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = () => {
       currentPdfArrayBuffer = reader.result;
@@ -107,18 +47,14 @@
     reader.readAsArrayBuffer(file);
   });
 
-  // Rendering PDF e tabelle
   async function renderPDF(data) {
     const pdf = await pdfjsLib.getDocument({ data }).promise;
-
     pdfPreview.innerHTML = '';
     schedaDiv.innerHTML = '';
     let fullText = '';
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
-
-      // Render pagina
       const viewport = page.getViewport({ scale: 1.5 });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
@@ -127,20 +63,36 @@
       await page.render({ canvasContext: context, viewport }).promise;
       pdfPreview.appendChild(canvas);
 
-      // Testo
       const content = await page.getTextContent();
       fullText += content.items.map(item => item.str).join(' ') + '\n';
     }
 
-    fullText.split(/Giorno\s*\d/gi).slice(1).forEach((blk, i) => {
-      const esercizi = blk.split('-').map(s => s.trim()).filter(s => s);
-      let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-      esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
-      tbl += '</tbody></table><br>';
-      schedaDiv.innerHTML += tbl;
+    // Suddividi in sezioni
+    const sezioni = {
+      Riscaldamento: '',
+      Esercizi: '',
+      Defaticamento: ''
+    };
+
+    const pattern = /Riscaldamento|Esercizi|Defaticamento/gi;
+    const parti = fullText.split(pattern).map(p => p.trim());
+    const titoli = [...fullText.matchAll(pattern)].map(m => m[0]);
+
+    titoli.forEach((titolo, i) => {
+      if (sezioni[titolo]) {
+        sezioni[titolo] += parti[i + 1];
+      }
     });
+
+    for (let titolo in sezioni) {
+      if (sezioni[titolo]) {
+        const blocco = sezioni[titolo];
+        const esercizi = blocco.split('-').map(s => s.trim()).filter(s => s);
+        let tabella = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
+        esercizi.forEach(ex => tabella += `<tr><td>${ex}</td></tr>`);
+        tabella += '</tbody></table><br>';
+        schedaDiv.innerHTML += tabella;
+      }
+    }
   }
 </script>
-
-</body>
-</html>
