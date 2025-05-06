@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Programma Allenamento con Blocchi Interni</title>
+  <title>Programma Allenamento con Archivio</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; color: #2c3e50; }
@@ -24,6 +24,11 @@
   <div class="box">
     <h2>Carica Scheda Allenamenti (PDF)</h2>
     <input type="file" id="pdfInput" accept="application/pdf">
+    <input type="text" id="saveName" placeholder="Nome per salvare la scheda (es. Tabata Mattina)">
+    <button onclick="salvaScheda()">💾 Salva Scheda</button>
+    <label for="archivio">📁 Apri Scheda Salvata:</label>
+    <select id="archivio" onchange="apriScheda()"><option value="">-- Seleziona --</option></select>
+
     <h3>Anteprima PDF:</h3>
     <div id="pdfPreview"></div>
     <h3>Estratto in Tabelle:</h3>
@@ -34,6 +39,8 @@
     const pdfInput = document.getElementById('pdfInput');
     const pdfPreview = document.getElementById('pdfPreview');
     const schedaDiv = document.getElementById('scheda');
+    const archivio = document.getElementById('archivio');
+    const saveName = document.getElementById('saveName');
 
     pdfInput.addEventListener('change', e => {
       const file = e.target.files[0];
@@ -42,6 +49,36 @@
       reader.onload = () => renderPDF(new Uint8Array(reader.result));
       reader.readAsArrayBuffer(file);
     });
+
+    function salvaScheda() {
+      const nome = saveName.value.trim();
+      if (!nome) return alert("Inserisci un nome per salvare la scheda.");
+      localStorage.setItem("scheda_" + nome, schedaDiv.innerHTML);
+      aggiornaArchivio();
+      saveName.value = "";
+      alert("Scheda salvata con successo!");
+    }
+
+    function aggiornaArchivio() {
+      archivio.innerHTML = '<option value="">-- Seleziona --</option>';
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key.startsWith("scheda_")) {
+          const opt = document.createElement("option");
+          opt.value = key;
+          opt.textContent = key.replace("scheda_", "");
+          archivio.appendChild(opt);
+        }
+      }
+    }
+
+    function apriScheda() {
+      const key = archivio.value;
+      if (!key) return;
+      schedaDiv.innerHTML = localStorage.getItem("scheda_" + key);
+    }
+
+    aggiornaArchivio();
 
     async function renderPDF(data) {
       const pdf = await pdfjsLib.getDocument({ data }).promise;
