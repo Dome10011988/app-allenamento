@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Programma Allenamento - Migliorato</title>
+  <title>Programma Allenamento - Avanzato</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; color: #2c3e50; }
@@ -25,78 +25,22 @@
   <div class="box">
     <h2>Carica Scheda Allenamenti (PDF)</h2>
     <input type="file" id="pdfInput" accept="application/pdf">
-    <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
-    <button id="saveBtn">Archivia PDF</button>
-    <label for="archivio">Apri PDF Archiviato:</label>
-    <select id="archivio"><option value="">-- Seleziona --</option></select>
-    <button id="deleteBtn" class="danger">❌ Elimina PDF</button>
     <h3>Anteprima PDF:</h3>
     <div id="pdfPreview"></div>
     <h3>Estratto in Tabelle:</h3>
     <div id="scheda"></div>
-  </div>
-  <div class="home-button" style="text-align:center; margin-top:30px;">
-    <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
   </div>
 
   <script>
     const pdfInput = document.getElementById('pdfInput');
     const pdfPreview = document.getElementById('pdfPreview');
     const schedaDiv = document.getElementById('scheda');
-    const saveBtn = document.getElementById('saveBtn');
-    const deleteBtn = document.getElementById('deleteBtn');
-    const pdfName = document.getElementById('pdfName');
-    const archivio = document.getElementById('archivio');
-
-    let currentPdfArrayBuffer = null;
-    const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
-    const updateArchivioSelect = () => {
-      archivio.innerHTML = '<option value="">-- Seleziona --</option>';
-      for (let nome in archivioPDFs) {
-        const opt = document.createElement('option');
-        opt.value = nome;
-        opt.textContent = nome;
-        archivio.appendChild(opt);
-      }
-    };
-    updateArchivioSelect();
-
-    saveBtn.addEventListener('click', () => {
-      const nome = pdfName.value.trim();
-      if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
-      archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
-      localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
-      updateArchivioSelect();
-      pdfName.value = '';
-      alert("PDF archiviato con successo.");
-    });
-
-    deleteBtn.addEventListener('click', () => {
-      const nome = archivio.value;
-      if (!nome || !archivioPDFs[nome]) return alert("Seleziona un PDF da eliminare.");
-      delete archivioPDFs[nome];
-      localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
-      updateArchivioSelect();
-      pdfPreview.innerHTML = '';
-      schedaDiv.innerHTML = '';
-      alert("PDF eliminato.");
-    });
-
-    archivio.addEventListener('change', () => {
-      const nome = archivio.value;
-      if (!nome) return;
-      const byteArray = new Uint8Array(archivioPDFs[nome]);
-      renderPDF(byteArray);
-    });
 
     pdfInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
-      reader.onload = () => {
-        currentPdfArrayBuffer = reader.result;
-        renderPDF(new Uint8Array(reader.result));
-      };
+      reader.onload = () => renderPDF(new Uint8Array(reader.result));
       reader.readAsArrayBuffer(file);
     });
 
@@ -122,18 +66,31 @@
 
       const lines = fullText.split('\n').map(l => l.trim()).filter(Boolean);
       const blocks = [];
-      let currentBlock = { title: null, content: [] };
+      let currentTitle = "";
+      let currentContent = [];
 
-      lines.forEach(line => {
-        const isTitle = /^(Tabata|Core|Full|Allenamento).*\d+\s*(min|minuti)/i.test(line);
-        if (isTitle) {
-          if (currentBlock.title) blocks.push(currentBlock);
-          currentBlock = { title: line, content: [] };
+      function isProbableTitle(line) {
+        return /(tabata|core|allenamento|full).*\d+.*(min|minuti|sec|secondi)/i.test(line);
+      }
+
+      for (let i = 0; i < lines.length; i++) {
+        let combined = lines[i];
+        if (i + 1 < lines.length) combined += " " + lines[i + 1];
+
+        if (isProbableTitle(combined)) {
+          if (currentTitle) {
+            blocks.push({ title: currentTitle, content: currentContent });
+            currentContent = [];
+          }
+          currentTitle = combined;
+          i++; // skip next line as it's been combined
         } else {
-          currentBlock.content.push(line);
+          currentContent.push(lines[i]);
         }
-      });
-      if (currentBlock.title) blocks.push(currentBlock);
+      }
+      if (currentTitle) {
+        blocks.push({ title: currentTitle, content: currentContent });
+      }
 
       blocks.forEach(block => {
         let html = `<table><thead><tr><th>${block.title}</th></tr></thead><tbody>`;
