@@ -195,7 +195,10 @@
       if (!contenuto) continue;
 
       if (titolo === "Esercizi") {
-        const sottoblocchi = contenuto.split(/\n(?=.*\(\d+\s*min|\~\d+\s*min)/i); // cerca (4 minuti), ~30 minuti, ecc.
+        const sottoblocchi = contenuto
+          .split(/\n(?=.*\d+\s*(minuti|min|sec|secondi|\~\d+))/i)
+          .filter(blocco => !blocco.toLowerCase().includes("obiettivo") && !blocco.toLowerCase().includes("durata totale"));
+
         sottoblocchi.forEach(blocco => {
           const righe = blocco.trim().split('\n');
           if (righe.length === 0) return;
