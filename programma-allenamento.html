@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Allenamento con Timer Tabata</title>
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; color: #2c3e50; }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; padding: 20px; }
     .box { background: #fff; padding: 20px; border-radius: 8px; max-width: 800px; margin: auto; box-shadow: 0 0 6px rgba(0,0,0,0.1); }
     h1, h2 { text-align: center; }
     input, select, button { width: 100%; padding: 10px; font-size: 1rem; margin-top: 10px; border-radius: 4px; border: 1px solid #ccc; }
-    button { background: #3498db; color: #fff; border: none; cursor: pointer; }
+    button { background: #3498db; color: #fff; cursor: pointer; border: none; }
     button:hover { background: #2980b9; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th { background: #3498db; color: white; padding: 12px; text-align: left; }
@@ -21,12 +21,10 @@
 <body>
   <h1>📋 Programma Allenamento</h1>
   <div class="box">
-    <h2>Carica Scheda Allenamenti (PDF)</h2>
     <input type="file" id="pdfInput" accept="application/pdf">
-    <input type="text" id="saveName" placeholder="Nome per salvare la scheda (es. Tabata Mattina)">
+    <input type="text" id="saveName" placeholder="Nome per salvare la scheda">
     <button onclick="salvaScheda()">💾 Salva Scheda</button>
-    <label for="archivio">📁 Apri Scheda Salvata:</label>
-    <select id="archivio" onchange="apriScheda()"><option value="">-- Seleziona --</option></select>
+    <select id="archivio" onchange="apriScheda()"><option value="">-- Seleziona una scheda salvata --</option></select>
 
     <h3>Anteprima PDF:</h3>
     <div id="pdfPreview"></div>
@@ -47,11 +45,10 @@ function salvaScheda() {
   localStorage.setItem("scheda_" + nome, schedaDiv.innerHTML);
   aggiornaArchivio();
   saveName.value = "";
-  alert("Scheda salvata con successo!");
 }
 
 function aggiornaArchivio() {
-  archivio.innerHTML = '<option value="">-- Seleziona --</option>';
+  archivio.innerHTML = '<option value="">-- Seleziona una scheda salvata --</option>';
   for (let i = 0; i < localStorage.length; i++) {
     const key = localStorage.key(i);
     if (key.startsWith("scheda_")) {
@@ -62,11 +59,13 @@ function aggiornaArchivio() {
     }
   }
 }
+
 function apriScheda() {
   const key = archivio.value;
   if (!key) return;
   schedaDiv.innerHTML = localStorage.getItem("scheda_" + key);
 }
+
 aggiornaArchivio();
 
 pdfInput.addEventListener('change', e => {
