@@ -9,93 +9,18 @@
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
 
   <style>
-    body {
-      font-family: 'Arial', sans-serif;
-      background: #f4f4f4;
-      margin: 0;
-      padding: 20px;
-      color: #2c3e50;
-    }
-
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-
-    .box {
-      background: #fff;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 0 6px rgba(0, 0, 0, 0.1);
-      max-width: 800px;
-      margin: 0 auto;
-    }
-
-    input, select, button {
-      width: 100%;
-      padding: 12px;
-      font-size: 1rem;
-      border-radius: 4px;
-      border: 1px solid #ccc;
-      margin-top: 10px;
-    }
-
-    button {
-      background: #3498db;
-      color: #fff;
-      border: none;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background: #2980b9;
-    }
-
-    .home-button {
-      text-align: center;
-      margin-top: 30px;
-    }
-
-    .home-button button {
-      background: #3498db;
-      color: #fff;
-      padding: 10px 20px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    canvas {
-      display: block;
-      margin: 16px auto;
-      background: #ffffff;
-      border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
-    }
-
-    table {
-      width: 100%;
-      border-collapse: separate;
-      border-spacing: 0 8px;
-      margin-top: 20px;
-      font-size: 1.1rem;
-    }
-
-    th {
-      background: #3498db;
-      color: #fff;
-      padding: 12px;
-      border-radius: 6px 6px 0 0;
-    }
-
-    td {
-      background: #ecf0f1;
-      padding: 12px;
-      border-radius: 0 0 6px 6px;
-      border: none;
-      font-weight: 500;
-      color: #2c3e50;
-    }
+    body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
+    h1 { text-align:center; margin-bottom:20px }
+    .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); max-width:800px; margin:0 auto }
+    input, select, button { width:100%; padding:10px; font-size:1rem; border-radius:4px; border:1px solid #ccc; margin-top:10px }
+    button { background:#3498db; color:#fff; border:none; cursor:pointer }
+    button:hover { background:#2980b9 }
+    .home-button { text-align:center; margin-top:30px }
+    .home-button button { background:#3498db; color:#fff; padding:10px 20px; border:none; border-radius:8px; cursor:pointer }
+    table { width:100%; border-collapse:collapse; margin-top:20px }
+    th, td { border:1px solid #ddd; padding:8px; text-align:left }
+    th { background:#3498db; color:#fff }
+    canvas { width:100%; margin-top:20px; border:1px solid #ccc; border-radius:8px }
   </style>
 </head>
 
@@ -136,7 +61,7 @@
 
   let currentPdfArrayBuffer = null;
 
-  // Carica archivio salvato
+  // Carica archivio al caricamento pagina
   const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
   for (let nome in archivioPDFs) {
     const opt = document.createElement('option');
@@ -145,7 +70,7 @@
     archivio.appendChild(opt);
   }
 
-  // Archivia PDF
+  // Salva PDF corrente con nome personalizzato
   saveBtn.addEventListener('click', () => {
     const nome = pdfName.value.trim();
     if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
@@ -161,7 +86,7 @@
     alert("PDF archiviato con successo.");
   });
 
-  // Carica da archivio
+  // Caricamento da archivio
   archivio.addEventListener('change', () => {
     const nome = archivio.value;
     if (!nome) return;
@@ -169,8 +94,8 @@
     renderPDF(byteArray);
   });
 
-  // Carica da file
-  pdfInput.addEventListener('change', e => {
+  // Caricamento da file
+  pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
 
@@ -182,7 +107,7 @@
     reader.readAsArrayBuffer(file);
   });
 
-  // Rendering PDF + testo
+  // Rendering PDF e tabelle
   async function renderPDF(data) {
     const pdf = await pdfjsLib.getDocument({ data }).promise;
 
@@ -193,20 +118,16 @@
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
 
-      const scale = 1.4;
-      const viewport = page.getViewport({ scale });
+      // Render pagina
+      const viewport = page.getViewport({ scale: 1.5 });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
-
-      canvas.width = viewport.width;
       canvas.height = viewport.height;
-
-      context.fillStyle = "#ffffff";
-      context.fillRect(0, 0, canvas.width, canvas.height);
-
+      canvas.width = viewport.width;
       await page.render({ canvasContext: context, viewport }).promise;
       pdfPreview.appendChild(canvas);
 
+      // Testo
       const content = await page.getTextContent();
       fullText += content.items.map(item => item.str).join(' ') + '\n';
     }
