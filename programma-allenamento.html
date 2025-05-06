@@ -5,14 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Programma Allenamento</title>
 
-  <!-- Librerie -->
+  <!-- PDF.js -->
   <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
 
   <style>
     body { font-family: Arial, sans-serif; background: #f4f4f4; margin:0; padding:20px; color:#2c3e50 }
     h1 { text-align:center; margin-bottom:20px }
     .box { background:#fff; padding:20px; border-radius:8px; box-shadow:0 0 6px rgba(0,0,0,0.1); max-width:800px; margin:0 auto }
-    input, button { width:100%; padding:10px; font-size:1rem; border-radius:4px; border:1px solid #ccc; margin-top:10px }
+    input, select, button { width:100%; padding:10px; font-size:1rem; border-radius:4px; border:1px solid #ccc; margin-top:10px }
     button { background:#3498db; color:#fff; border:none; cursor:pointer }
     button:hover { background:#2980b9 }
     .home-button { text-align:center; margin-top:30px }
@@ -20,7 +20,7 @@
     table { width:100%; border-collapse:collapse; margin-top:20px }
     th, td { border:1px solid #ddd; padding:8px; text-align:left }
     th { background:#3498db; color:#fff }
-    embed { width:100%; height:600px; margin-top:20px; border:1px solid #ccc; border-radius:8px }
+    canvas { width:100%; margin-top:20px; border:1px solid #ccc; border-radius:8px }
   </style>
 </head>
 
@@ -31,9 +31,17 @@
 <div class="box">
   <h2>Carica Scheda Allenamenti (PDF)</h2>
   <input type="file" id="pdfInput" accept="application/pdf">
-  
+
+  <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
+  <button id="saveBtn">Archivia PDF</button>
+
+  <label for="archivio">Apri PDF Archiviato:</label>
+  <select id="archivio">
+    <option value="">-- Seleziona --</option>
+  </select>
+
   <h3>Anteprima PDF:</h3>
-  <embed id="pdfViewer" type="application/pdf" />
+  <div id="pdfPreview"></div>
 
   <h3>Estratto in Tabelle:</h3>
   <div id="scheda"></div>
@@ -45,49 +53,93 @@
 
 <script>
   const pdfInput = document.getElementById('pdfInput');
+  const pdfPreview = document.getElementById('pdfPreview');
   const schedaDiv = document.getElementById('scheda');
-  const pdfViewer = document.getElementById('pdfViewer');
+  const saveBtn = document.getElementById('saveBtn');
+  const pdfName = document.getElementById('pdfName');
+  const archivio = document.getElementById('archivio');
 
-  const savedScheda = localStorage.getItem('schedaAllenamenti');
-  const savedPDF = localStorage.getItem('pdfURL');
+  let currentPdfArrayBuffer = null;
 
-  if (savedScheda) schedaDiv.innerHTML = savedScheda;
-  if (savedPDF) pdfViewer.src = savedPDF;
+  // Carica archivio al caricamento pagina
+  const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
+  for (let nome in archivioPDFs) {
+    const opt = document.createElement('option');
+    opt.value = nome;
+    opt.textContent = nome;
+    archivio.appendChild(opt);
+  }
 
+  // Salva PDF corrente con nome personalizzato
+  saveBtn.addEventListener('click', () => {
+    const nome = pdfName.value.trim();
+    if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
+
+    archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
+    localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
+
+    const opt = document.createElement('option');
+    opt.value = nome;
+    opt.textContent = nome;
+    archivio.appendChild(opt);
+    pdfName.value = '';
+    alert("PDF archiviato con successo.");
+  });
+
+  // Caricamento da archivio
+  archivio.addEventListener('change', () => {
+    const nome = archivio.value;
+    if (!nome) return;
+    const byteArray = new Uint8Array(archivioPDFs[nome]);
+    renderPDF(byteArray);
+  });
+
+  // Caricamento da file
   pdfInput.addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = async () => {
-      // Visualizzazione PDF
-      const blob = new Blob([reader.result], { type: 'application/pdf' });
-      const url = URL.createObjectURL(blob);
-      pdfViewer.src = url;
-      localStorage.setItem('pdfURL', url);
-
-      // Estrazione testo
-      const pdf = await pdfjsLib.getDocument({ data: new Uint8Array(reader.result) }).promise;
-      let txt = '';
-      for (let i = 1; i <= pdf.numPages; i++) {
-        const page = await pdf.getPage(i);
-        const content = await page.getTextContent();
-        txt += content.items.map(item => item.str).join(' ') + '\n';
-      }
-
-      schedaDiv.innerHTML = '';
-      txt.split(/Giorno\s*\d/gi).slice(1).forEach((blk, i) => {
-        const esercizi = blk.split('-').map(s => s.trim()).filter(s => s);
-        let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
-        esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
-        tbl += '</tbody></table><br>';
-        schedaDiv.innerHTML += tbl;
-      });
-
-      localStorage.setItem('schedaAllenamenti', schedaDiv.innerHTML);
+    reader.onload = () => {
+      currentPdfArrayBuffer = reader.result;
+      renderPDF(new Uint8Array(reader.result));
     };
     reader.readAsArrayBuffer(file);
   });
+
+  // Rendering PDF e tabelle
+  async function renderPDF(data) {
+    const pdf = await pdfjsLib.getDocument({ data }).promise;
+
+    pdfPreview.innerHTML = '';
+    schedaDiv.innerHTML = '';
+    let fullText = '';
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+      const page = await pdf.getPage(pageNum);
+
+      // Render pagina
+      const viewport = page.getViewport({ scale: 1.5 });
+      const canvas = document.createElement('canvas');
+      const context = canvas.getContext('2d');
+      canvas.height = viewport.height;
+      canvas.width = viewport.width;
+      await page.render({ canvasContext: context, viewport }).promise;
+      pdfPreview.appendChild(canvas);
+
+      // Testo
+      const content = await page.getTextContent();
+      fullText += content.items.map(item => item.str).join(' ') + '\n';
+    }
+
+    fullText.split(/Giorno\s*\d/gi).slice(1).forEach((blk, i) => {
+      const esercizi = blk.split('-').map(s => s.trim()).filter(s => s);
+      let tbl = `<table><thead><tr><th>Giorno ${i+1}</th></tr></thead><tbody>`;
+      esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
+      tbl += '</tbody></table><br>';
+      schedaDiv.innerHTML += tbl;
+    });
+  }
 </script>
 
 </body>
