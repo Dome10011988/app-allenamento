@@ -1,3 +1,105 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Programma Allenamento</title>
+  <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.7.570/build/pdf.min.js"></script>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+      color: #2c3e50;
+    }
+    h1 { text-align: center; margin-bottom: 20px; }
+    .box {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 6px rgba(0,0,0,0.1);
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 12px;
+      font-size: 1rem;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      margin-top: 10px;
+    }
+    button {
+      background: #3498db;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover { background: #2980b9; }
+    .home-button {
+      text-align: center;
+      margin-top: 30px;
+    }
+    canvas {
+      display: block;
+      margin: 16px auto;
+      background: #ffffff;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 20px;
+      font-size: 1.1rem;
+    }
+    th {
+      background: #3498db;
+      color: #fff;
+      padding: 12px;
+      border-radius: 6px 6px 0 0;
+    }
+    td {
+      background: #ecf0f1;
+      padding: 12px;
+      border-radius: 0 0 6px 6px;
+      border: none;
+      font-weight: 500;
+      color: #2c3e50;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>📋 Programma Allenamento</h1>
+
+<div class="box">
+  <h2>Carica Scheda Allenamenti (PDF)</h2>
+  <input type="file" id="pdfInput" accept="application/pdf">
+
+  <input type="text" id="pdfName" placeholder="Nome per archiviare (es. Tabata Corda)">
+  <button id="saveBtn">Archivia PDF</button>
+
+  <label for="archivio">Apri PDF Archiviato:</label>
+  <select id="archivio">
+    <option value="">-- Seleziona --</option>
+  </select>
+
+  <h3>Anteprima PDF:</h3>
+  <div id="pdfPreview"></div>
+
+  <h3>Estratto in Tabelle:</h3>
+  <div id="scheda"></div>
+</div>
+
+<div class="home-button">
+  <button onclick="location.href='index.html'">🏠 Torna alla Home</button>
+</div>
+
 <script>
   const pdfInput = document.getElementById('pdfInput');
   const pdfPreview = document.getElementById('pdfPreview');
@@ -8,6 +110,7 @@
 
   let currentPdfArrayBuffer = null;
 
+  // Carica archivio PDF
   const archivioPDFs = JSON.parse(localStorage.getItem('archivioPDFs') || '{}');
   for (let nome in archivioPDFs) {
     const opt = document.createElement('option');
@@ -16,11 +119,14 @@
     archivio.appendChild(opt);
   }
 
+  // Salva PDF archiviato
   saveBtn.addEventListener('click', () => {
     const nome = pdfName.value.trim();
     if (!nome || !currentPdfArrayBuffer) return alert("Inserisci un nome valido e carica un PDF.");
+
     archivioPDFs[nome] = Array.from(new Uint8Array(currentPdfArrayBuffer));
     localStorage.setItem('archivioPDFs', JSON.stringify(archivioPDFs));
+
     const opt = document.createElement('option');
     opt.value = nome;
     opt.textContent = nome;
@@ -29,6 +135,7 @@
     alert("PDF archiviato con successo.");
   });
 
+  // Caricamento da archivio
   archivio.addEventListener('change', () => {
     const nome = archivio.value;
     if (!nome) return;
@@ -36,7 +143,8 @@
     renderPDF(byteArray);
   });
 
-  pdfInput.addEventListener('change', async e => {
+  // Caricamento da file
+  pdfInput.addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
     const reader = new FileReader();
@@ -47,6 +155,7 @@
     reader.readAsArrayBuffer(file);
   });
 
+  // Rendering PDF + estrazione testo in sezioni
   async function renderPDF(data) {
     const pdf = await pdfjsLib.getDocument({ data }).promise;
     pdfPreview.innerHTML = '';
@@ -55,44 +164,49 @@
 
     for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
       const page = await pdf.getPage(pageNum);
-      const viewport = page.getViewport({ scale: 1.5 });
+      const viewport = page.getViewport({ scale: 1.4 });
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
+
       canvas.height = viewport.height;
       canvas.width = viewport.width;
+      context.fillStyle = "#ffffff";
+      context.fillRect(0, 0, canvas.width, canvas.height);
       await page.render({ canvasContext: context, viewport }).promise;
       pdfPreview.appendChild(canvas);
 
       const content = await page.getTextContent();
-      fullText += content.items.map(item => item.str).join(' ') + '\n';
+      fullText += content.items.map(item => item.str).join('\n') + '\n';
     }
 
-    // Suddividi in sezioni
-    const sezioni = {
-      Riscaldamento: '',
-      Esercizi: '',
-      Defaticamento: ''
-    };
+    const sezioni = { Riscaldamento: '', Esercizi: '', Defaticamento: '' };
+    const righe = fullText.split('\n');
+    let sezioneCorrente = null;
 
-    const pattern = /Riscaldamento|Esercizi|Defaticamento/gi;
-    const parti = fullText.split(pattern).map(p => p.trim());
-    const titoli = [...fullText.matchAll(pattern)].map(m => m[0]);
-
-    titoli.forEach((titolo, i) => {
-      if (sezioni[titolo]) {
-        sezioni[titolo] += parti[i + 1];
+    righe.forEach(linea => {
+      const l = linea.toLowerCase();
+      if (l.includes("riscaldamento")) {
+        sezioneCorrente = "Riscaldamento";
+      } else if (l.includes("defaticamento")) {
+        sezioneCorrente = "Defaticamento";
+      } else if (l.match(/tabata|core|workout|esercizi|allenamento/)) {
+        sezioneCorrente = "Esercizi";
+      } else if (sezioneCorrente) {
+        sezioni[sezioneCorrente] += linea + '\n';
       }
     });
 
     for (let titolo in sezioni) {
-      if (sezioni[titolo]) {
-        const blocco = sezioni[titolo];
-        const esercizi = blocco.split('-').map(s => s.trim()).filter(s => s);
-        let tabella = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
-        esercizi.forEach(ex => tabella += `<tr><td>${ex}</td></tr>`);
-        tabella += '</tbody></table><br>';
-        schedaDiv.innerHTML += tabella;
+      if (sezioni[titolo].trim()) {
+        const esercizi = sezioni[titolo].split('-').map(s => s.trim()).filter(s => s);
+        let tbl = `<table><thead><tr><th>${titolo}</th></tr></thead><tbody>`;
+        esercizi.forEach(ex => tbl += `<tr><td>${ex}</td></tr>`);
+        tbl += '</tbody></table><br>';
+        schedaDiv.innerHTML += tbl;
       }
     }
   }
 </script>
+
+</body>
+</html>
