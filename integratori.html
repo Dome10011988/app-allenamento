@@ -25,21 +25,10 @@
       content: '💊';
       font-size: 1.5em;
     }
-    .integratore {
-      background: #f5f5f5;
-      border-radius: 10px;
-      padding: 20px;
-      margin-bottom: 15px;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-    .integratore h2 {
-      margin-top: 0;
-      color: #2c3e50;
-    }
     .button {
       display: block;
       width: fit-content;
-      margin: 40px auto 0;
+      margin: 20px auto;
       padding: 12px 24px;
       background: #3498db;
       color: white;
@@ -47,10 +36,21 @@
       border-radius: 8px;
       cursor: pointer;
       text-decoration: none;
-      text-align: center;
     }
     .button:hover {
       background: #2980b9;
+    }
+    .section {
+      text-align: center;
+      margin-top: 30px;
+    }
+    #pdf-link {
+      display: none;
+      margin-top: 10px;
+      font-size: 1rem;
+    }
+    input[type="file"] {
+      margin-top: 10px;
     }
   </style>
 </head>
@@ -58,27 +58,49 @@
 
   <h1>Integratori Consigliati</h1>
 
-  <div class="integratore">
-    <h2>Proteine in polvere</h2>
-    <p>Utili per supportare la crescita muscolare e il recupero dopo l'allenamento.</p>
-  </div>
-
-  <div class="integratore">
-    <h2>Creatina</h2>
-    <p>Migliora la performance nei workout ad alta intensità e favorisce la forza.</p>
-  </div>
-
-  <div class="integratore">
-    <h2>Omega 3</h2>
-    <p>Supporta la salute cardiovascolare e riduce l'infiammazione.</p>
-  </div>
-
-  <div class="integratore">
-    <h2>Multivitaminico</h2>
-    <p>Copre eventuali carenze nutrizionali nella dieta quotidiana.</p>
+  <div class="section">
+    <label for="pdf-upload">📄 Carica un PDF con la lista degli integratori:</label><br>
+    <input type="file" id="pdf-upload" accept="application/pdf">
+    <div id="pdf-link">
+      ✅ PDF caricato! <a href="#" id="view-pdf" target="_blank">Clicca qui per aprirlo</a>
+    </div>
   </div>
 
   <a href="index.html" class="button">🏠 Torna alla Home</a>
+
+  <script>
+    const upload = document.getElementById('pdf-upload');
+    const linkContainer = document.getElementById('pdf-link');
+    const viewLink = document.getElementById('view-pdf');
+
+    function showPDFLink(base64) {
+      const fileURL = `data:application/pdf;base64,${base64}`;
+      viewLink.href = fileURL;
+      linkContainer.style.display = 'block';
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const savedPDF = localStorage.getItem('pdfIntegratori');
+      if (savedPDF) {
+        showPDFLink(savedPDF);
+      }
+    });
+
+    upload.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file && file.type === 'application/pdf') {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const base64 = e.target.result.split(',')[1];
+          localStorage.setItem('pdfIntegratori', base64);
+          showPDFLink(base64);
+        };
+        reader.readAsDataURL(file);
+      } else {
+        alert('Carica un file PDF valido.');
+      }
+    });
+  </script>
 
 </body>
 </html>
