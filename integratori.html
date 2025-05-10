@@ -1,106 +1,127 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>💊 Integratori - Fit Tracker</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8">
+  <title>Piano Integratori</title>
   <style>
     body {
-      background: var(--bg, #ffffff);
-      color: var(--text, #333333);
-      padding: 60px 20px 20px;
-      font-family: sans-serif;
+      font-family: Arial, sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
     }
     h1 {
-      color: var(--primary, #3498db);
       text-align: center;
-      margin-bottom: 30px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
+      color: #333;
     }
-    h1::before {
-      content: '💊';
-      font-size: 1.5em;
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
     }
-    .button {
-      display: block;
-      width: fit-content;
-      margin: 20px auto;
-      padding: 12px 24px;
-      background: #3498db;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      text-decoration: none;
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
     }
-    .button:hover {
-      background: #2980b9;
+    th {
+      background: #f9f9f9;
     }
-    .section {
+    .checkbox {
       text-align: center;
-      margin-top: 30px;
     }
-    #pdf-link {
-      display: none;
-      margin-top: 10px;
-      font-size: 1rem;
-    }
-    input[type="file"] {
-      margin-top: 10px;
+    input[type="checkbox"] {
+      transform: scale(1.2);
     }
   </style>
 </head>
 <body>
-
-  <h1>Integratori Consigliati</h1>
-
-  <div class="section">
-    <label for="pdf-upload">📄 Carica un PDF con la lista degli integratori:</label><br>
-    <input type="file" id="pdf-upload" accept="application/pdf">
-    <div id="pdf-link">
-      ✅ PDF caricato! <a href="#" id="view-pdf" target="_blank">Clicca qui per aprirlo</a>
-    </div>
+  <div class="container">
+    <h1>Piano Giornaliero Integratori</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Orario</th>
+          <th>Integratore</th>
+          <th>Quantità</th>
+          <th>Note</th>
+          <th>Preso?</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mattina</td>
+          <td>L-Carnitina</td>
+          <td>1 compressa</td>
+          <td>30 min prima di attività fisica</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Mattina</td>
+          <td>Omega-3</td>
+          <td>2 capsule</td>
+          <td>Con colazione</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Pranzo</td>
+          <td>Berberina</td>
+          <td>1 capsula</td>
+          <td>15-30 min prima del pasto</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Pranzo</td>
+          <td>ALA + Cromo</td>
+          <td>1 capsula</td>
+          <td>15-30 min prima del pasto</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Pranzo</td>
+          <td>Bromelina</td>
+          <td>1 compressa</td>
+          <td>Se il pasto è proteico</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Cena</td>
+          <td>Berberina</td>
+          <td>1 capsula</td>
+          <td>15-30 min prima del pasto</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Cena</td>
+          <td>ALA + Cromo</td>
+          <td>1 capsula</td>
+          <td>15-30 min prima del pasto</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Cena</td>
+          <td>Bromelina</td>
+          <td>1 compressa</td>
+          <td>Se il pasto è proteico</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+        <tr>
+          <td>Sera</td>
+          <td>Magnesio</td>
+          <td>1 capsula</td>
+          <td>Prima di dormire</td>
+          <td class="checkbox"><input type="checkbox"></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
-
-  <a href="index.html" class="button">🏠 Torna alla Home</a>
-
-  <script>
-    const upload = document.getElementById('pdf-upload');
-    const linkContainer = document.getElementById('pdf-link');
-    const viewLink = document.getElementById('view-pdf');
-
-    function showPDFLink(base64) {
-      const fileURL = `data:application/pdf;base64,${base64}`;
-      viewLink.href = fileURL;
-      linkContainer.style.display = 'block';
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedPDF = localStorage.getItem('pdfIntegratori');
-      if (savedPDF) {
-        showPDFLink(savedPDF);
-      }
-    });
-
-    upload.addEventListener('change', function () {
-      const file = this.files[0];
-      if (file && file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const base64 = e.target.result.split(',')[1];
-          localStorage.setItem('pdfIntegratori', base64);
-          showPDFLink(base64);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert('Carica un file PDF valido.');
-      }
-    });
-  </script>
-
 </body>
 </html>
