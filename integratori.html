@@ -16,6 +16,14 @@
       color: var(--primary, #3498db);
       text-align: center;
       margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+    h1::before {
+      content: '💊';
+      font-size: 1.5em;
     }
     .integratore {
       background: #f5f5f5;
@@ -31,7 +39,7 @@
     .button {
       display: block;
       width: fit-content;
-      margin: 20px auto;
+      margin: 40px auto 0;
       padding: 12px 24px;
       background: #3498db;
       color: white;
@@ -44,22 +52,11 @@
     .button:hover {
       background: #2980b9;
     }
-    #pdf-preview {
-      width: 100%;
-      max-width: 800px;
-      height: 600px;
-      border: 1px solid #ccc;
-      margin: 20px auto 0;
-      display: none;
-    }
-    #remove-pdf {
-      display: none;
-    }
   </style>
 </head>
 <body>
 
-  <h1>💊 Integratori Consigliati</h1>
+  <h1>Integratori Consigliati</h1>
 
   <div class="integratore">
     <h2>Proteine in polvere</h2>
@@ -81,64 +78,7 @@
     <p>Copre eventuali carenze nutrizionali nella dieta quotidiana.</p>
   </div>
 
-  <!-- Upload PDF -->
-  <h2>📄 Carica un PDF informativo sugli integratori</h2>
-  <input type="file" id="pdf-upload" accept="application/pdf">
-  <iframe id="pdf-preview"></iframe>
-  <button class="button" id="remove-pdf">🗑️ Rimuovi PDF salvato</button>
-
   <a href="index.html" class="button">🏠 Torna alla Home</a>
-
-  <script>
-    const upload = document.getElementById('pdf-upload');
-    const preview = document.getElementById('pdf-preview');
-    const removeBtn = document.getElementById('remove-pdf');
-
-    function showPDF(base64) {
-      const fileURL = `data:application/pdf;base64,${base64}`;
-      preview.src = fileURL;
-      preview.style.display = 'block';
-      removeBtn.style.display = 'block';
-    }
-
-    function hidePDF() {
-      preview.src = '';
-      preview.style.display = 'none';
-      removeBtn.style.display = 'none';
-    }
-
-    // Carica PDF dal localStorage all'avvio
-    window.addEventListener('DOMContentLoaded', () => {
-      const savedPDF = localStorage.getItem('pdfIntegratori');
-      if (savedPDF) {
-        showPDF(savedPDF);
-      }
-    });
-
-    // Caricamento nuovo PDF
-    upload.addEventListener('change', function () {
-      const file = this.files[0];
-      if (file && file.type === 'application/pdf') {
-        const reader = new FileReader();
-        reader.onload = function (e) {
-          const base64 = e.target.result.split(',')[1];
-          localStorage.setItem('pdfIntegratori', base64);
-          showPDF(base64);
-        };
-        reader.readAsDataURL(file);
-      } else {
-        alert('Carica un file PDF valido.');
-        hidePDF();
-      }
-    });
-
-    // Rimuovi PDF salvato
-    removeBtn.addEventListener('click', () => {
-      localStorage.removeItem('pdfIntegratori');
-      hidePDF();
-      alert('PDF rimosso con successo!');
-    });
-  </script>
 
 </body>
 </html>
